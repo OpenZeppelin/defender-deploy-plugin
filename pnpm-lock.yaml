@@ -23,6 +23,9 @@ importers:
       '@remixproject/plugin-utils':
         specifier: ^0.3.38
         version: 0.3.38
+      '@sveltestrap/sveltestrap':
+        specifier: ^6.2.7
+        version: 6.2.7(svelte@5.1.6)
     devDependencies:
       '@sveltejs/adapter-auto':
         specifier: ^3.0.0
@@ -34,7 +37,7 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0(svelte@5.1.6)(vite@5.4.10)
       svelte:
-        specifier: ^5.0.0
+        specifier: ^5.1.6
         version: 5.1.6
       svelte-check:
         specifier: ^4.0.0
@@ -230,6 +233,9 @@ packages:
   '@polka/url@1.0.0-next.28':
     resolution: {integrity: sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==}
 
+  '@popperjs/core@2.11.8':
+    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
+
   '@remixproject/plugin-api@0.3.38':
     resolution: {integrity: sha512-GLXAnV7TMYV2KlXTml+W0H6s0m5EkVb5w610Jh9k4PLFVrocl9xDEG4VlZ8BF/uv+yjXRi4dn++8zWMRe5375Q==}
 
@@ -364,6 +370,11 @@ packages:
     peerDependencies:
       svelte: ^5.0.0-next.96 || ^5.0.0
       vite: ^5.0.0
+
+  '@sveltestrap/sveltestrap@6.2.7':
+    resolution: {integrity: sha512-WwLLfAFUb42BGuRrf3Vbct30bQMzlEMMipN/MfxhjuLTmLQeW9muVJfPyvjtWS+mY+RjkSCoHvAp/ZobP1NLlQ==}
+    peerDependencies:
+      svelte: ^4.0.0 || ^5.0.0 || ^5.0.0-next.0
 
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
@@ -810,6 +821,8 @@ snapshots:
 
   '@polka/url@1.0.0-next.28': {}
 
+  '@popperjs/core@2.11.8': {}
+
   '@remixproject/plugin-api@0.3.38':
     dependencies:
       '@remixproject/plugin-utils': 0.3.38
@@ -932,6 +945,11 @@ snapshots:
       vitefu: 1.0.3(vite@5.4.10)
     transitivePeerDependencies:
       - supports-color
+
+  '@sveltestrap/sveltestrap@6.2.7(svelte@5.1.6)':
+    dependencies:
+      '@popperjs/core': 2.11.8
+      svelte: 5.1.6
 
   '@types/cookie@0.6.0': {}
 

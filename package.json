@@ -19,10 +19,11 @@
 		"vite": "^5.0.3"
 	},
 	"dependencies": {
-		"@openzeppelin/defender-sdk-account-client": "^1.15.1",
+		"@openzeppelin/defender-sdk": "^1.15.1",
 		"@remixproject/plugin": "^0.3.38",
 		"@remixproject/plugin-api": "^0.3.38",
 		"@remixproject/plugin-iframe": "^0.3.38",
-		"@remixproject/plugin-utils": "^0.3.38"
+		"@remixproject/plugin-utils": "^0.3.38",
+		"bootstrap": "^5.3.3"
 	}
 }

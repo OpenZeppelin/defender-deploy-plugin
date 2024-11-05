@@ -18,9 +18,12 @@ export const actions = {
 			return { success: false, error: 'Missing API key or API secret' };
 		}
 
+		// List netorks to preload network selection
 		const networks = await listNetworks({apiKey, apiSecret});
+
+		// List approval processes to preload approval process selection
 		const approvalProcesses = await listApprovalProcesses({apiKey, apiSecret});
 
-		return { success: true, data: { networks, approvalProcesses } };
+		return { success: true, data: { networks, approvalProcesses, credentials: { apiKey, apiSecret } } };
 	},
 } satisfies Actions;

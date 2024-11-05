@@ -1,11 +1,14 @@
 
 <script lang="ts">
+    import { globalState } from "../routes/state.svelte";
+
   const { networks }: { networks: string[] } = $props();
 
 	// network selection logic
 	let network = $state('');
 	const onNetworkSelect = (net: string) => {
 		network = net;
+    globalState.form.network = net;
 	}
 </script>
 

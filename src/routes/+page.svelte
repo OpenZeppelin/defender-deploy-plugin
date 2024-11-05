@@ -1,30 +1,34 @@
 <script lang="ts">
   import { initPlugin } from "$lib";
-  import { onMount, setContext } from "svelte";
-  import { writable } from "svelte/store";
+  import { onMount } from "svelte";
 
-	// Components
 	import Setup from "../components/Setup.svelte";
 	import Network from "../components/Network.svelte";
 	import ApprovalProcess from "../components/ApprovalProcess.svelte";
 	import Depoy from "../components/Depoy.svelte";
-	
-	// Setup form logic
-  let { form } = $props();
-	const isSetupValid = $state(form?.success ?? false);
 
-	// load resources
-	const networkStore = writable({ networks: form?.data?.networks });
-	const approvalProcessStore = writable({ approvalProcesses: form?.data?.approvalProcesses });
+  import { globalState } from "./state.svelte";
+  import type { ActionData, PageData } from "./$types";
+	
+	// <Setup /> form result
+  let { form }: { form: ActionData } = $props();
+
+	// Loads global state.
 	$effect(() => {
+		if (form?.data?.credentials) {
+			globalState.credentials = {
+				apiKey: form?.data?.credentials.apiKey,
+				apiSecret: form?.data?.credentials.apiSecret
+			};
+			globalState.authenticated = true;
+		}
+
 		if (form?.data?.networks) {
-			networkStore.set({ networks: form?.data?.networks});
-			setContext('networks', networkStore);
+			globalState.networks = form?.data?.networks;
 		}
 
 		if (form?.data?.approvalProcesses) {
-			approvalProcessStore.set({ approvalProcesses: form?.data?.approvalProcesses});
-			setContext('approvalProcess', approvalProcessStore);
+			globalState.approvalProcesses = form?.data?.approvalProcesses;
 		}
 	});
 
@@ -58,7 +62,7 @@
 		</div>
 
 		<div class="card">
-			<button class="card-header btn" onclick={() => toggle(1)} disabled={!isSetupValid}>
+			<button class="card-header btn" onclick={() => toggle(1)} disabled={!globalState.authenticated}>
 				<h6 class="mb-0 accordeon-tab">
 					<i class={`pr-2 ${currentTab === 1 ? 'fa fa-angle-down' : 'fa fa-angle-right'}`} ></i>	
 					NETWORK
@@ -67,12 +71,12 @@
 
 			<div class={`collapse ${currentTab === 1 ? 'show': ''}`}>
 				<div class="card-body">
-					<Network networks={$networkStore.networks ?? []} />
+					<Network networks={globalState.networks ?? []} />
 				</div>
 			</div>
 		</div>
 		<div class="card">
-			<button class="card-header btn" onclick={() => toggle(2)} disabled={!isSetupValid}>
+			<button class="card-header btn" onclick={() => toggle(2)} disabled={!globalState.authenticated}>
 				<h6 class="mb-0 accordeon-tab">
 					<i class={`pr-2 ${currentTab === 2 ? 'fa fa-angle-down' : 'fa fa-angle-right'}`} ></i>	
 					APPROVAL PROCESS
@@ -80,13 +84,13 @@
 			</button>
 			<div class={`collapse ${currentTab === 2 ? 'show': ''}`}>
 				<div class="card-body">
-					<ApprovalProcess approvalProcesses={$approvalProcessStore.approvalProcesses ?? []} />
+					<ApprovalProcess approvalProcesses={globalState.approvalProcesses ?? []} />
 				</div>
 			</div>
 		</div>
 	
 		<div class="card">
-			<button class="card-header btn" onclick={() => toggle(3)} disabled={!isSetupValid}>
+			<button class="card-header btn" onclick={() => toggle(3)} disabled={!globalState.authenticated}>
 				<h6 class="mb-0 accordeon-tab">
 					<i class={`pr-2 ${currentTab === 3 ? 'fa fa-angle-down' : 'fa fa-angle-right'}`} ></i>	
 					DEPLOY

@@ -7,16 +7,17 @@
     items: DropdownItem[];
     disabled?: boolean;
     emptyLabel?: string;
+    defaultItem?: DropdownItem;
   };
 
   const dispatch = createEventDispatcher<{
     select: DropdownItem;
   }>();
 
-  const { placeholder, items, disabled, emptyLabel }: Props = $props();
+  const { placeholder, items, disabled, emptyLabel, defaultItem }: Props = $props();
 
   // network selection logic
-  let selected = $state<DropdownItem>();
+  let selected = $state<DropdownItem | undefined>(defaultItem);
   const onSelect = (item: DropdownItem) => {
     selected = item;
     dispatch("select", item);

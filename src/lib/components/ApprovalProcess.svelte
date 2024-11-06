@@ -7,6 +7,7 @@
     type ApprovalProcessType,
   } from "$lib/models/defender";
   import type { DropdownItem } from "$lib/models/utils";
+  import Button from "./shared/Button.svelte";
 
   const { approvalProcesses }: { approvalProcesses: ApprovalProcess[] } =
     $props();
@@ -33,7 +34,7 @@
     value: type,
   });
 
-  let approvalProcessType = $state<ApprovalProcessType>();
+  let approvalProcessType = $state<ApprovalProcessType>("EOA");
   const onSelectApprovalProcessType = (type: DropdownItem) => {
     if (type.value) {
       approvalProcessType = type.value;
@@ -41,7 +42,7 @@
       // Save the type to create the approval process.
       globalState.form.approvalProcessToCreate = {
         ...globalState.form.approvalProcessToCreate,
-        viaType: type.value,
+        viaType: approvalProcessType,
       };
     }
   };
@@ -50,12 +51,14 @@
   const onAddressChange = (e: Event) => {
     const element = e.target as HTMLInputElement;
     if (element.value) {
-      approvalProcessAddress = type.value;
+      approvalProcessAddress = element.value;
+
+      console.log("new address", approvalProcessAddress);
 
       // Save the type to create the approval process.
       globalState.form.approvalProcessToCreate = {
-        ...globalState.form.approvalProcessToCreate,
-        via: approvalProcessAddress,
+        viaType: approvalProcessType,
+        via: element.value,
       };
     }
   };
@@ -113,6 +116,10 @@
     placeholder="Approval Process Type"
     on:select={(e) => onSelectApprovalProcessType(e.detail)}
     disabled={radioSelected !== "new"}
+    defaultItem={{
+      label: approvalProcessType,
+      value: approvalProcessType,
+    }}
   />
 
   {#if approvalProcessType === "EOA" || approvalProcessType === "Safe"}
@@ -123,9 +130,11 @@
       class="form-control"
       name="address"
       placeholder="* Address"
-      on:change={}
+      onchange={onAddressChange}
     />
   {/if}
+
+  <Button title="Create" />
 </div>
 <div class="form-check">
   <input

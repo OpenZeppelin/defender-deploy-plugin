@@ -35,7 +35,29 @@
 
   let approvalProcessType = $state<ApprovalProcessType>();
   const onSelectApprovalProcessType = (type: DropdownItem) => {
-    approvalProcessType = type.value;
+    if (type.value) {
+      approvalProcessType = type.value;
+
+      // Save the type to create the approval process.
+      globalState.form.approvalProcessToCreate = {
+        ...globalState.form.approvalProcessToCreate,
+        viaType: type.value,
+      };
+    }
+  };
+
+  let approvalProcessAddress = $state<string>();
+  const onAddressChange = (e: Event) => {
+    const element = e.target as HTMLInputElement;
+    if (element.value) {
+      approvalProcessAddress = type.value;
+
+      // Save the type to create the approval process.
+      globalState.form.approvalProcessToCreate = {
+        ...globalState.form.approvalProcessToCreate,
+        via: approvalProcessAddress,
+      };
+    }
   };
 
   // Radio logic
@@ -44,6 +66,9 @@
     const target = e.target as HTMLInputElement;
     if (target.checked) {
       radioSelected = target.id;
+
+      // Use injected provider when deploying.
+      globalState.form.useInjectedProvider = radioSelected === "injected";
     }
   };
 </script>
@@ -98,6 +123,7 @@
       class="form-control"
       name="address"
       placeholder="* Address"
+      on:change={}
     />
   {/if}
 </div>

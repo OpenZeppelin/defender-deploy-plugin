@@ -26,5 +26,8 @@ export const globalState = $state<GlobalState>({
 
     // User selected approval process
     approvalProcess: undefined,
+
+    // Indicates if user is using injected provider
+    useInjectedProvider: false,
   },
 });

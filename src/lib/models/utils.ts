@@ -13,5 +13,10 @@ export type GlobalState = {
   form: {
     network?: string;
     approvalProcess?: ApprovalProcess;
+    approvalProcessToCreate?: {
+      viaType: string;
+      via?: string;
+    }
+    useInjectedProvider: boolean;
   };
 };

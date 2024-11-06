@@ -1,7 +1,7 @@
 <script lang="ts">
   import { afterNavigate, beforeNavigate } from "$app/navigation";
   import { globalState } from "$lib/state/state.svelte";
-    import Button from "./shared/Button.svelte";
+  import Button from "./shared/Button.svelte";
 
   let loading = false;
 
@@ -39,5 +39,5 @@
       : undefined}
   />
 
-  <Button title="Save" loading={loading} />
+  <Button title="Save" {loading} />
 </form>

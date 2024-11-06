@@ -1,17 +1,17 @@
-import type { GlobalState } from "../types";
+import type { GlobalState } from "../models/utils";
 
 /**
- * Unified state
+ * Global application state
  */
 export const globalState = $state<GlobalState>({
   // indicates if user is authenticated.
   authenticated: false,
 
   // User credentials.
-	credentials: {
-		apiKey: '',
+  credentials: {
+    apiKey: '',
     apiSecret: '',
-	},
+  },
 
   // Networks supported by Defender + tenant networks.
   networks: [],
@@ -20,6 +20,11 @@ export const globalState = $state<GlobalState>({
   approvalProcesses: [],
 
   // Current deployment form state.
-  // TODO: define type
-  form: {},
+  form: {
+    // Network selected to deploy
+    network: undefined,
+
+    // User selected approval process
+    approvalProcess: undefined,
+  },
 });

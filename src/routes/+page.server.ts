@@ -1,5 +1,5 @@
 import { listApprovalProcesses, listNetworks } from "$lib/defender";
-import type { Credentials } from "$lib/types";
+import type { Credentials } from "$lib/models/defender";
 import type { Actions } from "@sveltejs/kit";
 
 const extractCredentials = async (request: Request): Promise<Partial<Credentials>> => {

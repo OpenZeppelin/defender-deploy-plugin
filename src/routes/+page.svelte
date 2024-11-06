@@ -151,5 +151,6 @@
 	.accordeon-tab {
 		color: #a2a3bd;
 		display: flex;
+		font-size: smaller;
 	}
 </style>

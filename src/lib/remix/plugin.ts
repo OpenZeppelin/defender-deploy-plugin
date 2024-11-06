@@ -4,7 +4,7 @@ import { createClient } from "@remixproject/plugin-iframe";
 import { listenOnThemeChanged } from "./hacks";
 
 export const initPlugin = () => {
-  const plugin = new PluginClient({allowOrigins: ['https://remix.ethereum.org']});
+  const plugin = new PluginClient({ allowOrigins: ['https://remix.ethereum.org'] });
   const client = createClient(plugin);
   listenOnThemeChanged(client);
 }

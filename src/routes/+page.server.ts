@@ -1,4 +1,4 @@
-import { listApprovalProcesses, listNetworks } from "$lib/server/defender";
+import { listApprovalProcesses, listNetworks } from "$lib/defender";
 import type { Credentials } from "$lib/types";
 import type { Actions } from "@sveltejs/kit";
 
@@ -12,17 +12,17 @@ const extractCredentials = async (request: Request): Promise<Partial<Credentials
 export const actions = {
 	// Authenticate the defender account.
 	authenticate: async ({ request }) => {
-    const { apiKey, apiSecret } = await extractCredentials(request);
+		const { apiKey, apiSecret } = await extractCredentials(request);
 
 		if (!apiKey || !apiSecret) {
 			return { success: false, error: 'Missing API key or API secret' };
 		}
 
 		// List netorks to preload network selection
-		const networks = await listNetworks({apiKey, apiSecret});
+		const networks = await listNetworks({ apiKey, apiSecret });
 
 		// List approval processes to preload approval process selection
-		const approvalProcesses = await listApprovalProcesses({apiKey, apiSecret});
+		const approvalProcesses = await listApprovalProcesses({ apiKey, apiSecret });
 
 		return { success: true, data: { networks, approvalProcesses, credentials: { apiKey, apiSecret } } };
 	},

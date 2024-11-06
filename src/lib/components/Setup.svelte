@@ -1,15 +1,15 @@
 <script lang="ts">
-    import { afterNavigate, beforeNavigate } from "$app/navigation";
-  import { globalState } from "../routes/state.svelte";
+  import { afterNavigate, beforeNavigate } from "$app/navigation";
+  import { globalState } from "$lib/state/state.svelte";
 
   let loading = false;
 
   beforeNavigate(() => {
-      loading = true;
+    loading = true;
   });
 
   afterNavigate(() => {
-      loading = false;
+    loading = false;
   });
 </script>
 
@@ -21,7 +21,9 @@
     class="form-control"
     name="apiKey"
     placeholder="* API Key"
-    value={globalState.credentials.apiKey ? globalState.credentials.apiKey : undefined}
+    value={globalState.credentials.apiKey
+      ? globalState.credentials.apiKey
+      : undefined}
   />
 
   <label for="apiSecret">Api Secret (required)</label>
@@ -31,12 +33,18 @@
     class="form-control"
     name="apiSecret"
     placeholder="* API Secret"
-    value={globalState.credentials.apiSecret ? globalState.credentials.apiSecret : undefined}
+    value={globalState.credentials.apiSecret
+      ? globalState.credentials.apiSecret
+      : undefined}
   />
 
   <button class="btn btn-primary mt-4 col" disabled={loading}>
     {#if loading}
-      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span
+        class="spinner-border spinner-border-sm"
+        role="status"
+        aria-hidden="true"
+      ></span>
     {:else}
       Save
     {/if}

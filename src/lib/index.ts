@@ -1,1 +1,0 @@
-export { initPlugin } from './plugin';

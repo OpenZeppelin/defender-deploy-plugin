@@ -1,4 +1,4 @@
-import type { GlobalState } from "../lib/types";
+import type { GlobalState } from "../types";
 
 /**
  * Unified state

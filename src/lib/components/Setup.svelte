@@ -1,6 +1,7 @@
 <script lang="ts">
   import { afterNavigate, beforeNavigate } from "$app/navigation";
   import { globalState } from "$lib/state/state.svelte";
+    import Button from "./shared/Button.svelte";
 
   let loading = false;
 
@@ -38,15 +39,5 @@
       : undefined}
   />
 
-  <button class="btn btn-primary mt-4 col" disabled={loading}>
-    {#if loading}
-      <span
-        class="spinner-border spinner-border-sm"
-        role="status"
-        aria-hidden="true"
-      ></span>
-    {:else}
-      Save
-    {/if}
-  </button>
+  <Button title="Save" loading={loading} />
 </form>

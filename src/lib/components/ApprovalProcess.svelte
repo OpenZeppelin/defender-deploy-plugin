@@ -6,11 +6,7 @@
     type ApprovalProcess,
     type ApprovalProcessType,
   } from "$lib/models/defender";
-  import type { DropdownItem } from "$lib/models/utils";
-  import Button from "./shared/Button.svelte";
-
-  const { approvalProcesses }: { approvalProcesses: ApprovalProcess[] } =
-    $props();
+  import type { DropdownItem, GlobalState } from "$lib/models/utils";
 
   // Approval processes load logic
   const toDisplayName = (ap: ApprovalProcess) => `${ap.name} (${ap.network})`;
@@ -22,10 +18,8 @@
     ap.value.network === globalState.form.network;
 
   // Approval process selection logic
-  let approvalProcess = $state<ApprovalProcess>();
   const onSelectApprovalProcess = (ap: DropdownItem) => {
-    approvalProcess = ap.value;
-    globalState.form.approvalProcess = approvalProcess;
+    globalState.form.approvalProcessSelected = ap.value as ApprovalProcess;
   };
 
   // Approval process creation logic
@@ -53,8 +47,6 @@
     if (element.value) {
       approvalProcessAddress = element.value;
 
-      console.log("new address", approvalProcessAddress);
-
       // Save the type to create the approval process.
       globalState.form.approvalProcessToCreate = {
         viaType: approvalProcessType,
@@ -64,14 +56,13 @@
   };
 
   // Radio logic
-  let radioSelected = $state("existing");
+  let radioSelected = $state<GlobalState['form']['approvalType']>("existing");
   const onRadioChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     if (target.checked) {
-      radioSelected = target.id;
+      radioSelected = target.id as GlobalState['form']['approvalType'];
 
-      // Use injected provider when deploying.
-      globalState.form.useInjectedProvider = radioSelected === "injected";
+      globalState.form.approvalType = radioSelected;
     }
   };
 </script>
@@ -89,15 +80,21 @@
     Use existing Approval Process
   </label>
 
-  <Dropdown
-    items={approvalProcesses
-      .map(approvalProcessToDropdownItem)
-      .filter(approvalProcessByNetwork)}
-    placeholder="Select Approval Process"
-    on:select={(e) => onSelectApprovalProcess(e.detail)}
-    disabled={radioSelected !== "existing"}
-    emptyLabel="No Approval Processes in selected Network"
-  />
+  {#key globalState.form.approvalProcessSelected}
+    <Dropdown
+      items={globalState.approvalProcesses
+        .map(approvalProcessToDropdownItem)
+        .filter(approvalProcessByNetwork)}
+      placeholder="Select Approval Process"
+      on:select={(e) => onSelectApprovalProcess(e.detail)}
+      disabled={radioSelected !== "existing"}
+      defaultItem={globalState.form.approvalProcessSelected ? {
+        label: toDisplayName(globalState.form.approvalProcessSelected),
+        value: globalState.form.approvalProcessSelected,
+      } : undefined}
+      emptyLabel="No Approval Processes in selected Network"
+    />
+  {/key}
 </div>
 <div class="form-check">
   <input
@@ -131,10 +128,9 @@
       name="address"
       placeholder="* Address"
       onchange={onAddressChange}
+      disabled={radioSelected !== "new"}
     />
   {/if}
-
-  <Button title="Create" />
 </div>
 <div class="form-check">
   <input

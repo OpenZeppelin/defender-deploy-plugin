@@ -1,5 +1,6 @@
+import { globalState } from "$lib/state/state.svelte"
 import type { PluginClient } from "@remixproject/plugin"
-import type { Theme } from "@remixproject/plugin-api"
+import type { Theme, lastCompilationResult } from "@remixproject/plugin-api"
 
 /**
  * This is a hack to allow Remix to inject the theme css into the iframe

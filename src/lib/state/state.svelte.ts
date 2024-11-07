@@ -19,15 +19,32 @@ export const globalState = $state<GlobalState>({
   // Approval processes corresponding to current user
   approvalProcesses: [],
 
+  contract: {
+    // path of the contract
+    target: undefined,
+
+    // compilation file sources.
+    source: undefined,
+
+    // solidity version
+    version: undefined,
+
+    // compilation result
+    data: undefined,
+  },
+
   // Current deployment form state.
   form: {
     // Network selected to deploy
     network: undefined,
 
     // User selected approval process
-    approvalProcess: undefined,
+    approvalProcessSelected: undefined,
 
-    // Indicates if user is using injected provider
-    useInjectedProvider: false,
+    // Approval process to be created and used for deployment.
+    approvalProcessToCreate: undefined,
+
+    // Indicates if user is using existing approval process, creating one or injected provider
+    approvalType: undefined,
   },
 });

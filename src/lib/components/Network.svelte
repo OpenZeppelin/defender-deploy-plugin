@@ -3,8 +3,6 @@
   import { globalState } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
 
-  const { networks }: { networks: string[] } = $props();
-
   const networkToDropdownItem = (network: string) => ({
     label: network,
     value: network,
@@ -15,11 +13,12 @@
   const onNetworkSelect = (item: DropdownItem) => {
     network = item.value;
     globalState.form.network = network;
+    globalState.form.approvalProcessSelected = undefined;
   };
 </script>
 
 <Dropdown
-  items={networks.map(networkToDropdownItem)}
+  items={globalState.networks.map(networkToDropdownItem)}
   placeholder="Select Network"
   on:select={(e) => onNetworkSelect(e.detail)}
 />

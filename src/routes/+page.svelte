@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { initPlugin } from "$lib/remix/plugin";
+	import { initPlugin } from "$lib/remix";
 	import { onMount } from "svelte";
 
 	import Setup from "$lib/components/Setup.svelte";
@@ -91,7 +91,7 @@
 
 			<div class={`collapse ${currentTab === 1 ? "show" : ""}`}>
 				<div class="card-body">
-					<Network networks={globalState.networks ?? []} />
+					<Network />
 				</div>
 			</div>
 		</div>
@@ -110,9 +110,7 @@
 			</button>
 			<div class={`collapse ${currentTab === 2 ? "show" : ""}`}>
 				<div class="card-body">
-					<ApprovalProcess
-						approvalProcesses={globalState.approvalProcesses ?? []}
-					/>
+					<ApprovalProcess />
 				</div>
 			</div>
 		</div>

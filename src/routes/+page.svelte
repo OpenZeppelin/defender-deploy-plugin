@@ -30,6 +30,12 @@
 		if (form?.data?.approvalProcesses) {
 			globalState.approvalProcesses = form?.data?.approvalProcesses;
 		}
+
+		if (form?.data?.error) {
+			globalState.error = form?.data?.error;
+		} else {
+			globalState.error = undefined;
+		}
 	});
 
 	// Accordeon logic
@@ -56,6 +62,12 @@
 			>.</small
 		>
 	</p>
+
+	{#if globalState.error}
+		<div class="alert alert-danger">
+			<p><small>{globalState.error ?? ''}</small></p>
+		</div>
+	{/if}
 
 	<div id="accordion">
 		<div class="card">

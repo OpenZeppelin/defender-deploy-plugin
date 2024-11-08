@@ -1,6 +1,7 @@
 import { listApprovalProcesses, listNetworks } from "$lib/defender";
 import type { Credentials } from "$lib/models/defender";
-import type { Actions } from "@sveltejs/kit";
+import { error, type  Actions } from "@sveltejs/kit";
+
 
 const extractCredentials = async (request: Request): Promise<Partial<Credentials>> => {
 	const data = await request.formData();
@@ -18,12 +19,15 @@ export const actions = {
 			return { success: false, error: 'Missing API key or API secret' };
 		}
 
-		// List netorks to preload network selection
-		const networks = await listNetworks({ apiKey, apiSecret });
+		try {
+			// List netorks to preload network selection
+			const networks = await listNetworks({ apiKey, apiSecret });
 
-		// List approval processes to preload approval process selection
-		const approvalProcesses = await listApprovalProcesses({ apiKey, apiSecret });
-
-		return { success: true, data: { networks, approvalProcesses, credentials: { apiKey, apiSecret } } };
+			// List approval processes to preload approval process selection
+			const approvalProcesses = await listApprovalProcesses({ apiKey, apiSecret });
+			return { success: true, data: { networks, approvalProcesses, credentials: { apiKey, apiSecret } } };
+		} catch (err) {
+			return { success: true, data: { error: (err as Error).message } }
+		}
 	},
 } satisfies Actions;

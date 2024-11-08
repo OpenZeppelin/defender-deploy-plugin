@@ -8,6 +8,7 @@ export type DropdownItem = {
 
 export type GlobalState = {
   authenticated: boolean;
+  error?: string;
   credentials: Credentials;
   networks: string[];
   approvalProcesses: ApprovalProcess[];

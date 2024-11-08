@@ -7,6 +7,9 @@ export const globalState = $state<GlobalState>({
   // indicates if user is authenticated.
   authenticated: false,
 
+  // indicates if there was some network error.
+  error: undefined,
+
   // User credentials.
   credentials: {
     apiKey: '',

@@ -2,6 +2,9 @@ import type { GlobalState } from "../models/utils";
 
 /**
  * Global application state
+ * 
+ * For simplicity, we just have a single global state to make the app reactive everywhere
+ * if gets complex, we can split this into multiple states, or even stores.
  */
 export const globalState = $state<GlobalState>({
   // indicates if user is authenticated.

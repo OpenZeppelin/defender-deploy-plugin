@@ -35,4 +35,4 @@
   />
 {/each}
 
-<Button title="Deploy" />
+<Button title="Deploy" onclick={() => {}}/>

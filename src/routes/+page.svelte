@@ -1,42 +1,12 @@
 <script lang="ts">
 	import { initPlugin } from "$lib/remix";
 	import { onMount } from "svelte";
+	import { globalState } from "$lib/state/state.svelte";
 
 	import Setup from "$lib/components/Setup.svelte";
 	import Network from "$lib/components/Network.svelte";
 	import ApprovalProcess from "$lib/components/ApprovalProcess.svelte";
 	import Depoy from "$lib/components/Depoy.svelte";
-
-	import { globalState } from "$lib/state/state.svelte";
-	import type { ActionData } from "./$types";
-
-	// <Setup /> form result
-	let { form }: { form: ActionData } = $props();
-
-	// Loads global state.
-	$effect(() => {
-		if (form?.data?.credentials) {
-			globalState.credentials = {
-				apiKey: form?.data?.credentials.apiKey,
-				apiSecret: form?.data?.credentials.apiSecret,
-			};
-			globalState.authenticated = true;
-		}
-
-		if (form?.data?.networks) {
-			globalState.networks = form?.data?.networks;
-		}
-
-		if (form?.data?.approvalProcesses) {
-			globalState.approvalProcesses = form?.data?.approvalProcesses;
-		}
-
-		if (form?.data?.error) {
-			globalState.error = form?.data?.error;
-		} else {
-			globalState.error = undefined;
-		}
-	});
 
 	// Accordeon logic
 	let currentTab = $state(0);

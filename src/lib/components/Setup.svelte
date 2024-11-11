@@ -41,6 +41,8 @@
 			globalState.approvalProcesses = result?.data?.approvalProcesses;
 		}
 
+    console.log('approval processes', globalState.approvalProcesses);
+
     loading = false;
 	}
 </script>

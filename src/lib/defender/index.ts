@@ -1,6 +1,6 @@
 
 
-import type { CreateApprovalProcessRequest, Credentials } from '$lib/models/defender';
+import type { CreateApprovalProcessRequest, CreateRelayerRequest, Credentials, DeployContractRequest } from '$lib/models/defender';
 import { Defender } from '@openzeppelin/defender-sdk';
 
 const getClient = (credentials: Credentials) => {
@@ -28,6 +28,18 @@ export const listApprovalProcesses = async (credentials: Credentials) => {
 
 export const createApprovalProcess = async (credentials: Credentials, approvalProcess: CreateApprovalProcessRequest) => {
   const client = getClient(credentials);
-  const response = await client.approvalProcess.create(approvalProcess);
+  const response = await client.approvalProcess.create(approvalProcess as any);
+  return response;
+}
+
+export const createRelayer = async (credentials: Credentials, relayer: CreateRelayerRequest) => {  
+  const client = getClient(credentials);
+  const response = await client.relay.create(relayer);
+  return response;
+}
+
+export const deployContract = async (credentials: Credentials, deployment: DeployContractRequest) => {
+  const client = getClient(credentials);
+  const response = await client.deploy.deployContract(deployment);
   return response;
 }

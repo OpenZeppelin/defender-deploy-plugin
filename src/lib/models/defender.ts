@@ -30,53 +30,67 @@ export type ApprovalProcessType = typeof approvalProcessTypes[number];
 
 
 /**
- * Approval Process Creation
+ * Approval Process Creation (simplified)
  * https://github.com/OpenZeppelin/defender-sdk/blob/main/packages/approval-process/src/models/approval-process.ts
  */
-export type CreateApprovalProcessRequest = GenericApprovalProcessRequest | MultisigApprovalProcessRequest | RelayerApprovalProcessRequest | RelayerGroupApprovalProcessRequest | TimelockControllerApprovalProcessRequest | FireblocksApprovalProcessRequest;
-export interface BaseApprovalProcessRequest {
+export interface CreateApprovalProcessRequest {
+  viaType: 'EOA' | 'Relayer' | 'Safe';
   name: string;
-  /**
-   * When the approval process meant to be used in deployment environments
-   * it requires a component property to indicate the type of operation: 'deploy' or 'upgrade'
-   */
   component?: ComponentType;
   network: string;
-  /**
-   * Address of the approval process. It could be Contract, EOA, Relayer or any other kind of address.
-   */
   via: string;
-  stackResourceId?: string;
+  multisigSender?: string;
+  relayerId?: string;
 }
-export interface GenericApprovalProcessRequest extends BaseApprovalProcessRequest {
-  viaType: 'EOA' | 'Contract' | 'Unknown' | 'ERC20' | 'Governor';
+
+/**
+ * Relayer models (simplified)
+ * https://github.com/OpenZeppelin/defender-sdk/blob/main/packages/relay/src/models/index.ts
+ */
+export type BigUInt = string | number;
+export interface CreateRelayerRequest {
+  name: string;
+  network: string;
+  minBalance: BigUInt;
 }
-export interface MultisigApprovalProcessRequest extends BaseApprovalProcessRequest {
-  viaType: 'Multisig' | 'Gnosis Safe' | 'Safe' | 'Gnosis Multisig';
-  multisigSender: string;
-}
-export interface RelayerApprovalProcessRequest extends BaseApprovalProcessRequest {
-  viaType: 'Relayer';
+
+export interface RelayerGetResponse {
   relayerId: string;
-}
-export interface RelayerGroupApprovalProcessRequest extends BaseApprovalProcessRequest {
-  viaType: 'Relayer Group';
-  relayerGroupId: string;
-}
-export interface TimelockControllerApprovalProcessRequest extends BaseApprovalProcessRequest {
-  viaType: 'Timelock Controller';
-  timelock: Timelock;
-}
-export interface FireblocksApprovalProcessRequest extends BaseApprovalProcessRequest {
-  viaType: 'Fireblocks';
-  fireblocks: FireblocksProposalParams;
-}
-export interface Timelock {
+  name: string;
   address: string;
-  delay: string;
+  network: string;
+  paused: boolean;
+  pendingTxCost: string;
+  minBalance: BigUInt;
 }
-export interface FireblocksProposalParams {
-  apiKeyId: string;
-  vaultId: string;
-  assetId: string;
+
+/**
+ * Deploy Contract Models (simplified)
+ * https://github.com/OpenZeppelin/defender-sdk/blob/main/packages/deploy/src/models/deployment.ts
+ */
+export interface DeployContractRequest {
+  contractName: string;
+  contractPath: string;
+  network: string;
+  artifactPayload?: string;
+  artifactUri?: string;
+  value?: string;
+  salt?: string;
+  verifySourceCode: boolean;
+  licenseType?: SourceCodeLicense;
+  /**
+   * @example { "contracts/Library.sol:LibraryName": "0x1234567890123456789012345678901234567890" }
+   */
+  libraries?: DeployRequestLibraries;
+  constructorInputs?: (string | boolean | number)[];
+  constructorBytecode?: string;
+  relayerId?: string;
+  approvalProcessId?: string;
+  createFactoryAddress?: string;
+}
+
+export type SourceCodeLicense = 'None' | 'Unlicense' | 'MIT' | 'GNU GPLv2' | 'GNU GPLv3' | 'GNU LGPLv2.1' | 'GNU LGPLv3' | 'BSD-2-Clause' | 'BSD-3-Clause' | 'MPL-2.0' | 'OSL-3.0' | 'Apache-2.0' | 'GNU AGPLv3' | 'BSL 1.1';
+
+export interface DeployRequestLibraries {
+  [k: `${string}:${string}`]: string;
 }

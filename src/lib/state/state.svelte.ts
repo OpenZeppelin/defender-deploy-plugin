@@ -1,3 +1,4 @@
+import { writable } from "svelte/store";
 import type { GlobalState } from "../models/utils";
 
 /**
@@ -12,6 +13,9 @@ export const globalState = $state<GlobalState>({
 
   // indicates if there was some network error.
   error: undefined,
+
+  // Indicates if there is some success message.
+  successMessage: undefined,
 
   // User credentials.
   credentials: {

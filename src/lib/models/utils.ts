@@ -9,6 +9,7 @@ export type DropdownItem = {
 export type GlobalState = {
   authenticated: boolean;
   error?: string;
+  successMessage?: string;
   credentials: Credentials;
   networks: string[];
   approvalProcesses: ApprovalProcess[];
@@ -22,7 +23,7 @@ export type GlobalState = {
     network?: string;
     approvalProcessSelected?: ApprovalProcess;
     approvalProcessToCreate?: {
-      viaType: string;
+      viaType: 'EOA' | 'Safe' | 'Relayer';
       via?: string;
     }
     approvalType?: ApprovalProcessType;

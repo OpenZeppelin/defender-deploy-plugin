@@ -9,12 +9,12 @@
   import type { DropdownItem, GlobalState } from "$lib/models/utils";
 
   // Approval processes load logic
-  const toDisplayName = (ap: ApprovalProcess) => `${ap.name} (${ap.network})`;
+  const toDisplayName = (ap: ApprovalProcess) => `${ap.name} (${ap.viaType})`;
   const approvalProcessToDropdownItem = (ap: ApprovalProcess) => ({
     label: toDisplayName(ap),
     value: ap,
   });
-  const approvalProcessByNetwork = (ap: DropdownItem) =>
+  const approvalProcessByNetworkAndComponent = (ap: DropdownItem) =>
     ap.value.network === globalState.form.network;
 
   // Approval process selection logic
@@ -36,20 +36,18 @@
       // Save the type to create the approval process.
       globalState.form.approvalProcessToCreate = {
         ...globalState.form.approvalProcessToCreate,
-        viaType: approvalProcessType,
+        viaType: approvalProcessType as 'EOA' | 'Safe' | 'Relayer',
       };
     }
   };
 
-  let approvalProcessAddress = $state<string>();
   const onAddressChange = (e: Event) => {
     const element = e.target as HTMLInputElement;
     if (element.value) {
-      approvalProcessAddress = element.value;
 
       // Save the type to create the approval process.
       globalState.form.approvalProcessToCreate = {
-        viaType: approvalProcessType,
+        viaType: approvalProcessType as 'EOA' | 'Safe' | 'Relayer',
         via: element.value,
       };
     }
@@ -84,7 +82,7 @@
     <Dropdown
       items={globalState.approvalProcesses
         .map(approvalProcessToDropdownItem)
-        .filter(approvalProcessByNetwork)}
+        .filter(approvalProcessByNetworkAndComponent)}
       placeholder="Select Approval Process"
       on:select={(e) => onSelectApprovalProcess(e.detail)}
       disabled={radioSelected !== "existing"}

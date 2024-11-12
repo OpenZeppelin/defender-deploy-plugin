@@ -54,7 +54,7 @@ export interface CreateRelayerRequest {
   minBalance: BigUInt;
 }
 
-export interface RelayerGetResponse {
+export interface Relayer {
   relayerId: string;
   name: string;
   address: string;

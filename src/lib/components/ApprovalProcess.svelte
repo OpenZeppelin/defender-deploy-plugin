@@ -5,8 +5,11 @@
     approvalProcessTypes,
     type ApprovalProcess,
     type ApprovalProcessType,
+    type Relayer,
   } from "$lib/models/defender";
   import type { DropdownItem, GlobalState } from "$lib/models/utils";
+    import { terminal } from "$lib/remix";
+    import { abbreviateAddress } from "$lib/utils";
 
   // Approval processes load logic
   const toDisplayName = (ap: ApprovalProcess) => `${ap.name} (${ap.viaType})`;
@@ -14,7 +17,11 @@
     label: toDisplayName(ap),
     value: ap,
   });
+
   const approvalProcessByNetworkAndComponent = (ap: DropdownItem) =>
+    ap.value.network === globalState.form.network && ap.value.component?.includes('deploy');
+  
+  const approvalProcessByNetwork = (ap: DropdownItem) =>
     ap.value.network === globalState.form.network;
 
   // Approval process selection logic
@@ -37,6 +44,20 @@
       globalState.form.approvalProcessToCreate = {
         ...globalState.form.approvalProcessToCreate,
         viaType: approvalProcessType as 'EOA' | 'Safe' | 'Relayer',
+      };
+    }
+  };
+
+  const relayerToDropdownItem = (relayer: Relayer) => ({
+    label: `${relayer.name} (${abbreviateAddress(relayer.address)})`,
+    value: relayer,
+  });
+  const onSelectRelayer = (relayer: DropdownItem) => {
+    if (relayer.value) {
+      globalState.form.approvalProcessToCreate = {
+        viaType: 'Relayer',
+        via: relayer.value.address,
+        relayerId: relayer.value.relayerId,
       };
     }
   };
@@ -128,7 +149,17 @@
       onchange={onAddressChange}
       disabled={radioSelected !== "new"}
     />
+  {:else if approvalProcessType === "Relayer"}
+    <label for="relayer" class="mb-0"> Relayer (required) </label>
+    <Dropdown
+      name="relayer"
+      items={globalState.relayers.map(relayerToDropdownItem)}
+      placeholder="* Select Relayer"
+      on:select={(e) => onSelectRelayer(e.detail)}
+      disabled={radioSelected !== "new"}
+    />
   {/if}
+
 </div>
 <div class="form-check">
   <input

@@ -48,6 +48,10 @@
 			globalState.approvalProcesses = result?.data?.approvalProcesses;
 		}
 
+    if (result?.data?.relayers) {
+			globalState.relayers = result?.data?.relayers;
+		}
+
     loading = false;
 	}
 </script>

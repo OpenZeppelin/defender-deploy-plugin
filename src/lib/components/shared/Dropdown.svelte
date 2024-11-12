@@ -8,13 +8,14 @@
     disabled?: boolean;
     emptyLabel?: string;
     defaultItem?: DropdownItem;
+    name?: string;
   };
 
   const dispatch = createEventDispatcher<{
     select: DropdownItem;
   }>();
 
-  const { placeholder, items, disabled, emptyLabel, defaultItem }: Props = $props();
+  const { placeholder, items, disabled, emptyLabel, defaultItem, name }: Props = $props();
 
   // network selection logic
   let selected = $state<DropdownItem | undefined>(defaultItem);
@@ -26,6 +27,7 @@
 
 <div class="dropdown mt-2 mb-2">
   <button
+    name={name}
     class="btn btn-secondary col form-control"
     type="button"
     id="dropdownMenuButton1"

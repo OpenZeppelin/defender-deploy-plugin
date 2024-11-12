@@ -2,15 +2,16 @@
   import { globalState } from "$lib/state/state.svelte";
   import type { ABIDescription, ABIParameter, CompilationResult } from "@remixproject/plugin-api";
   import Button from "./shared/Button.svelte";
-  import type { ApprovalProcess, Artifact, CreateApprovalProcessRequest, CreateRelayerRequest, DeployContractRequest, RelayerGetResponse } from "$lib/models/defender";
+  import type { ApprovalProcess, CreateApprovalProcessRequest, DeployContractRequest } from "$lib/models/defender";
   import { terminal } from "$lib/remix";
 
   let contractName: string | undefined;
   let contractAbi: string | undefined;
   let artifactPayload: string | undefined;
   let inputsWithValue: Record<string, string | number | boolean> = {};
-
   let contractPath: string | undefined;
+
+  let deploying = $state(false);
 
   /**
    * Finds constructor arguments
@@ -60,46 +61,6 @@
     return { name: contractName, abi };
   }
 
-  async function createRelayer(): Promise<RelayerGetResponse | undefined> {
-    if (!(globalState.form?.approvalProcessToCreate?.viaType === 'Relayer')) return;
-    if (!globalState.form.network) {
-      globalState.error = 'Please select a network';
-      return;
-    }
-
-    const credentials = globalState.credentials;
-    const relayer: CreateRelayerRequest = {
-      name: `Deploy From Remix - ${globalState.form.network} Relayer`,
-      network: globalState.form.network,
-      minBalance: BigInt(1e17).toString(),
-    }
-
-    // Implementation in routes/relayer.
-		const response = await fetch("/relayer", {
-			method: "POST",
-			headers: {	"Content-Type": "application/json" },
-			body: JSON.stringify({ credentials, relayer }),
-		});
-  
-		const result: { 
-      success: boolean, 
-      error: string, 
-      data: {
-       relayer: RelayerGetResponse
-      }
-    } = await response.json();
-
-    if (!result.success) {
-      globalState.error = result.error;
-
-      // log error in Remix terminal
-      terminal?.log({ type: 'error', value: `[Defender Deploy] Relayer creation failed, error: ${JSON.stringify(result.error)}` });
-      return;
-    }
-
-    return result.data.relayer;
-  }
-
   async function createApprovalProcess(): Promise<ApprovalProcess | undefined>{
     const ap = globalState.form.approvalProcessToCreate;
     if (!ap) return;
@@ -114,16 +75,12 @@
       return;
     }
 
-    // if the approval process selected is relayer, 
-    // then create one for the network.
-    const relayer = await createRelayer();
-
     const apRequest: CreateApprovalProcessRequest = {
       name: `Deploy From Remix - ${ap.viaType}`,
       via: ap.via,
       viaType: ap.viaType,
       network: globalState.form.network,
-      relayerId: relayer ? relayer.relayerId : undefined,
+      relayerId: ap.relayerId,
       component: ['deploy'],
     };
 
@@ -155,6 +112,8 @@
       !contractName ||
       !contractPath
     ) return;
+
+    deploying = true;
   
     const selectedApprovalProcess = globalState.form.approvalProcessSelected;
     const approvalProcess: ApprovalProcess | undefined = selectedApprovalProcess ?? await createApprovalProcess();
@@ -192,6 +151,7 @@
     }
 
     terminal?.log({ type: 'info', value: '[Defender Deploy] Deployment submitted to Defender!' });
+    deploying = false;
   }
 
   function handleInputChange(event: Event) {
@@ -218,4 +178,4 @@
   />
 {/each}
 
-<Button title="Deploy" onclick={triggerDeployment} disabled={!contractPath}/>
+<Button title="Deploy" onclick={triggerDeployment} loading={deploying}/>

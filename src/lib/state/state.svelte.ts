@@ -29,6 +29,9 @@ export const globalState = $state<GlobalState>({
   // Approval processes corresponding to current user
   approvalProcesses: [],
 
+  // Relayers list for approval process creation
+  relayers: [],
+
   contract: {
     // path of the contract
     target: undefined,

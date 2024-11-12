@@ -1,5 +1,5 @@
 import type { CompilationFileSources, CompilationResult, SourceWithTarget } from "@remixproject/plugin-api";
-import type { ApprovalProcess, ApprovalProcessType, Credentials } from "./defender";
+import type { ApprovalProcess, ApprovalProcessType, Credentials, Relayer } from "./defender";
 
 export type DropdownItem = {
   label: string;
@@ -13,6 +13,7 @@ export type GlobalState = {
   credentials: Credentials;
   networks: string[];
   approvalProcesses: ApprovalProcess[];
+  relayers: Relayer[];
   contract?: {
     target?: string,
     source?: CompilationFileSources | null | SourceWithTarget,
@@ -25,6 +26,7 @@ export type GlobalState = {
     approvalProcessToCreate?: {
       viaType: 'EOA' | 'Safe' | 'Relayer';
       via?: string;
+      relayerId?: string;
     }
     approvalType?: ApprovalProcessType;
   };

@@ -26,6 +26,12 @@ export const listApprovalProcesses = async (credentials: Credentials) => {
   return approvalProcesses;
 }
 
+export const listRelayers = async (credentials: Credentials) => {
+  const client = getClient(credentials);
+  const relayers = await client.relay.list();
+  return relayers.items;
+}
+
 export const createApprovalProcess = async (credentials: Credentials, approvalProcess: CreateApprovalProcessRequest) => {
   const client = getClient(credentials);
   const response = await client.approvalProcess.create(approvalProcess as any);

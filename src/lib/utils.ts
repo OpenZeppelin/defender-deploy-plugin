@@ -42,3 +42,7 @@ export const attempt = async <T>(
     return [state.result, state.error];
   }
 };
+
+export const abbreviateAddress = (address: string, size = 6) => {
+  return `${address.slice(0, size)}...${address.slice(-size)}`;
+}

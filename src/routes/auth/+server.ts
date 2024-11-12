@@ -1,4 +1,4 @@
-import { listApprovalProcesses, listNetworks } from "$lib/defender";
+import { listApprovalProcesses, listNetworks, listRelayers } from "$lib/defender";
 import { attempt } from "$lib/utils";
 import { json } from '@sveltejs/kit';
 
@@ -33,11 +33,20 @@ export async function POST({ request }: { request: Request }) {
     return json({ success: false, error: parseError(apError.msg) });
   }
 
+  // List relayers to preload approval process creation selection.
+  const [relayers, relayError] = await attempt(
+    () => listRelayers({ apiKey, apiSecret })
+  );
+  if (relayError) {
+    return json({ success: false, error: parseError(relayError.msg) });
+  }
+
   return json({
     success: true,
     data: {
       networks,
       approvalProcesses,
+      relayers,
       credentials: { apiKey, apiSecret },
     }
   });

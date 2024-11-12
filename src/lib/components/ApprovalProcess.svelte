@@ -8,8 +8,10 @@
     type Relayer,
   } from "$lib/models/defender";
   import type { DropdownItem, GlobalState } from "$lib/models/utils";
-    import { terminal } from "$lib/remix";
-    import { abbreviateAddress } from "$lib/utils";
+  import { abbreviateAddress } from "$lib/utils";
+
+  const approvalProcessByNetworkAndComponent = (ap: ApprovalProcess) =>
+    ap.network === globalState.form.network && ap.component?.includes('deploy');
 
   // Approval processes load logic
   const toDisplayName = (ap: ApprovalProcess) => `${ap.name} (${ap.viaType})`;
@@ -17,12 +19,6 @@
     label: toDisplayName(ap),
     value: ap,
   });
-
-  const approvalProcessByNetworkAndComponent = (ap: DropdownItem) =>
-    ap.value.network === globalState.form.network && ap.value.component?.includes('deploy');
-  
-  const approvalProcessByNetwork = (ap: DropdownItem) =>
-    ap.value.network === globalState.form.network;
 
   // Approval process selection logic
   const onSelectApprovalProcess = (ap: DropdownItem) => {
@@ -48,6 +44,8 @@
     }
   };
 
+  // Relayer selection logic
+  const relayerByNetwork = (relayer: Relayer) => relayer.network === globalState.form.network;
   const relayerToDropdownItem = (relayer: Relayer) => ({
     label: `${relayer.name} (${abbreviateAddress(relayer.address)})`,
     value: relayer,
@@ -84,6 +82,10 @@
       globalState.form.approvalType = radioSelected;
     }
   };
+
+  let disableCreation = $derived.by(() =>
+    globalState.approvalProcesses.some(approvalProcessByNetworkAndComponent)
+  );
 </script>
 
 <div class="form-check">
@@ -102,8 +104,8 @@
   {#key globalState.form.approvalProcessSelected}
     <Dropdown
       items={globalState.approvalProcesses
-        .map(approvalProcessToDropdownItem)
-        .filter(approvalProcessByNetworkAndComponent)}
+          .filter(approvalProcessByNetworkAndComponent)
+          .map(approvalProcessToDropdownItem)}
       placeholder="Select Approval Process"
       on:select={(e) => onSelectApprovalProcess(e.detail)}
       disabled={radioSelected !== "existing"}
@@ -115,15 +117,21 @@
     />
   {/key}
 </div>
-<div class="form-check">
+<div class="form-check" title={disableCreation ? "Deploy Environment already exists" : undefined}>
   <input
     class="form-check-input"
     type="radio"
     name="flexRadioDefault"
     id="new"
     onclick={(e) => onRadioChange(e)}
+    disabled={disableCreation}
+    title={disableCreation ? "Deploy Environment already exists" : undefined}
   />
-  <label class="form-check-label" for="flexRadioDefault2">
+  <label 
+    class="form-check-label" 
+    for="flexRadioDefault2"
+    title={disableCreation ? "Deploy Environment already exists" : undefined}
+  >
     Create new Approval Process
   </label>
 
@@ -131,7 +139,7 @@
     items={approvalProcessTypes.map(approvalProcessTypeToDropdownItem)}
     placeholder="Approval Process Type"
     on:select={(e) => onSelectApprovalProcessType(e.detail)}
-    disabled={radioSelected !== "new"}
+    disabled={radioSelected !== "new" || disableCreation}
     defaultItem={{
       label: approvalProcessType,
       value: approvalProcessType,
@@ -147,16 +155,16 @@
       name="address"
       placeholder="* Address"
       onchange={onAddressChange}
-      disabled={radioSelected !== "new"}
+      disabled={radioSelected !== "new" || disableCreation}
     />
   {:else if approvalProcessType === "Relayer"}
     <label for="relayer" class="mb-0"> Relayer (required) </label>
     <Dropdown
       name="relayer"
-      items={globalState.relayers.map(relayerToDropdownItem)}
+      items={globalState.relayers.filter(relayerByNetwork).map(relayerToDropdownItem)}
       placeholder="* Select Relayer"
       on:select={(e) => onSelectRelayer(e.detail)}
-      disabled={radioSelected !== "new"}
+      disabled={radioSelected !== "new" || disableCreation}
     />
   {/if}
 
@@ -168,8 +176,14 @@
     name="flexRadioDefault"
     id="injected"
     onclick={(e) => onRadioChange(e)}
+    title={disableCreation ? "Deploy Environment already exists" : undefined}
+    disabled={disableCreation}
   />
-  <label class="form-check-label" for="flexRadioDefault2">
+  <label 
+    class="form-check-label" 
+    for="flexRadioDefault2"
+    title={disableCreation ? "Deploy Environment already exists" : undefined}
+  >
     Approve using injected provider
   </label>
 </div>

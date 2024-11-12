@@ -97,6 +97,7 @@
     } = await createApprovalProcessResponse.json();
     if (!result.success) {
       globalState.error = result.error;
+      deploying = false;
 
       // log error in Remix terminal
       terminal?.log({ type: 'error', value: `[Defender Deploy] Approval process creation failed, error: ${JSON.stringify(result.error)}` });
@@ -143,10 +144,10 @@
       data: any 
     } = await createApprovalProcessResponse.json();
     if (!result.success) {
-
       // log error in Remix terminal
       terminal?.log({ type: 'error', value: `[Defender Deploy] Contract deployment failed, error: ${JSON.stringify(result.error)}` });
       globalState.error = result.error;
+      deploying = false;
       return;
     }
 

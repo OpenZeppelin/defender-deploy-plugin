@@ -1,38 +1,30 @@
-# sv
+# Deploy with Defender - Remix Plugin
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Remix plugin to deploy smart contracts using OpenZeppelin Defender.
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
+## Getting Started
 
 ```bash
-# create a new project in the current directory
-npx sv create
+# install deps
+pnpm install
 
-# create a new project in my-app
-npx sv create my-app
+# run locally
+pnpm dev
 ```
 
-## Developing
+The interface is ugly, but don't worry! it's not meant to be used directly, it's used embedded in a Remix iframe instead, and adopts its styles.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Testing in Remix
 
+1. Go to https://remix.ethereum.org/
+2. Click on plugin manager.
+3. At the top, click on `Connect to a Local Plugin` button.
+4. Set following values
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+Plugin Name: defender
+Display Name: Defender Deploy
+Url: http://localhost:5173
+Type of connection: Iframe
+Location in Remix: Side Panel
 ```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+5. You should see the plugin added to the sidebar.

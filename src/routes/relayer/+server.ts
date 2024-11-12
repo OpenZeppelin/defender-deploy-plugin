@@ -10,7 +10,7 @@ export async function POST({ request }: { request: Request }) {
   // Creates a Relayer
   const [createdRelayer, error] = await attempt(() => createRelayer(credentials, relayer));
   if (error) {
-    return json({ success: false, error });
+    return json({ success: false, error: error.msg });
   }
 
   return json({ success: true, data: { relayer: createdRelayer }  });

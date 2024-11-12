@@ -94,3 +94,39 @@ export type SourceCodeLicense = 'None' | 'Unlicense' | 'MIT' | 'GNU GPLv2' | 'GN
 export interface DeployRequestLibraries {
   [k: `${string}:${string}`]: string;
 }
+
+/**
+ * Deploy Artifact Models
+ */
+export type ContractArtifact = {
+  abi: any;
+  evm: {
+    bytecode: {
+      object: string;
+      linkReferences?: any;
+    };
+    deployedBytecode: {
+      object: string;
+      linkReferences?: any;
+    };
+  };
+  metadata: string;
+};
+
+export type Artifact = {
+  input: {
+    sources: {
+      [path: string]: {
+        content: string;
+      };
+    };
+    settings: any;
+  };
+  output: {
+    contracts: {
+      [path: string]: {
+        [contractName: string]: ContractArtifact;
+      };
+    };
+  };
+};

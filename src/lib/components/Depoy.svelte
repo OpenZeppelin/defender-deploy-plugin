@@ -2,13 +2,15 @@
   import { globalState } from "$lib/state/state.svelte";
   import type { ABIDescription, ABIParameter, CompilationResult } from "@remixproject/plugin-api";
   import Button from "./shared/Button.svelte";
-  import type { ApprovalProcess, CreateApprovalProcessRequest, CreateRelayerRequest, DeployContractRequest, RelayerGetResponse } from "$lib/models/defender";
+  import type { ApprovalProcess, Artifact, CreateApprovalProcessRequest, CreateRelayerRequest, DeployContractRequest, RelayerGetResponse } from "$lib/models/defender";
+  import { terminal } from "$lib/remix";
 
   let contractName: string | undefined;
-  let contractPath: string | undefined;
   let contractAbi: string | undefined;
   let artifactPayload: string | undefined;
   let inputsWithValue: Record<string, string | number | boolean> = {};
+
+  let contractPath: string | undefined;
 
   /**
    * Finds constructor arguments
@@ -16,16 +18,35 @@
   const inputs = $derived.by(()  => {
     const path = globalState.contract?.target ?? '';
     const compilation = globalState.contract?.data;
+    const contractSources = globalState.contract?.source?.sources;
     
     // if no compiled contracts found, then return empty inputs.
     if (!compilation || !path) return [];
 
-    const { name, abi ,libs } = getContractFeatures(path, compilation);
+    const { name, abi } = getContractFeatures(path, compilation);
 
     contractPath = path;
     contractName = name;
+  
     contractAbi = JSON.stringify(abi);
-    artifactPayload = JSON.stringify({ output: globalState.contract?.data });
+    artifactPayload = JSON.stringify({
+      input: {
+        sources: {
+          // weird typing in contract sources
+          [path]: { content: (contractSources as any)[path].content },
+        },
+        settings: {
+          // we don't actually need these settings, but they are required.
+          optimizer: {
+            enabled: true,
+            runs: 200
+          },
+        },
+      },
+      output: {
+        contracts: { ...compilation.contracts },
+      },
+    });
 
     const constructor = abi.find((fragment) => fragment.type === 'constructor');
     if (!constructor || !constructor.inputs) return [];
@@ -70,6 +91,9 @@
 
     if (!result.success) {
       globalState.error = result.error;
+
+      // log error in Remix terminal
+      terminal?.log({ type: 'error', value: `[Defender Deploy] Relayer creation failed, error: ${JSON.stringify(result.error)}` });
       return;
     }
 
@@ -116,6 +140,9 @@
     } = await createApprovalProcessResponse.json();
     if (!result.success) {
       globalState.error = result.error;
+
+      // log error in Remix terminal
+      terminal?.log({ type: 'error', value: `[Defender Deploy] Approval process creation failed, error: ${JSON.stringify(result.error)}` });
       return;
     }
 
@@ -130,7 +157,6 @@
     ) return;
   
     const selectedApprovalProcess = globalState.form.approvalProcessSelected;
-    console.log('selected ap', selectedApprovalProcess);
     const approvalProcess: ApprovalProcess | undefined = selectedApprovalProcess ?? await createApprovalProcess();
     if (!approvalProcess) return;
 
@@ -144,7 +170,7 @@
       constructorInputs: inputs.map((input) => inputsWithValue[input.name] ?? '0x0'),
     };
 
-    console.log('calling deploy');
+    terminal?.log({ type: 'log', value: '[Defender Deploy] Deploying contract...' });
 
     const createApprovalProcessResponse = await fetch("/deploy", {
       method: "POST",
@@ -158,11 +184,14 @@
       data: any 
     } = await createApprovalProcessResponse.json();
     if (!result.success) {
+
+      // log error in Remix terminal
+      terminal?.log({ type: 'error', value: `[Defender Deploy] Contract deployment failed, error: ${JSON.stringify(result.error)}` });
       globalState.error = result.error;
       return;
     }
 
-    globalState.successMessage = 'Contract deployed successfully';
+    terminal?.log({ type: 'info', value: '[Defender Deploy] Deployment submitted to Defender!' });
   }
 
   function handleInputChange(event: Event) {
@@ -189,4 +218,4 @@
   />
 {/each}
 
-<Button title="Deploy" onclick={triggerDeployment}/>
+<Button title="Deploy" onclick={triggerDeployment} disabled={!contractPath}/>

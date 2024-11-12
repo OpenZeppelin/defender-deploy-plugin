@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { terminal } from "$lib/remix";
   import { globalState } from "$lib/state/state.svelte";
   import Button from "./shared/Button.svelte";
 
@@ -22,6 +23,9 @@
     if (!result.success) {
       globalState.error = result.error;
       loading = false;
+
+      // log error in Remix terminal
+      terminal?.log({ type: 'error', value: `[Defender Deploy] Authentication failed, error: ${JSON.stringify(result.error)}` });
       return;
     }
 
@@ -31,6 +35,9 @@
 				apiSecret: result?.data?.credentials.apiSecret,
 			};
 			globalState.authenticated = true;
+  
+      // logs in Remix terminal.
+      terminal?.log({ type: 'info', value: '[Defender Deploy] Defender Authentication was successful!' });
 		}
 
 		if (result?.data?.networks) {
@@ -40,8 +47,6 @@
 		if (result?.data?.approvalProcesses) {
 			globalState.approvalProcesses = result?.data?.approvalProcesses;
 		}
-
-    console.log('approval processes', globalState.approvalProcesses);
 
     loading = false;
 	}

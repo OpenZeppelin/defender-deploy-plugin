@@ -10,7 +10,7 @@ export async function POST({ request }: { request: Request }) {
   // Creates a Relayer
   const [deploymentResult, error] = await attempt(() => deployContract(credentials, deployment));
   if (error) {
-    return json({ success: false, error });
+    return json({ success: false, error: error.msg });
   }
 
   return json({ success: true, data: { deployment: deploymentResult }  });

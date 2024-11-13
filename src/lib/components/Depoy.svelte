@@ -6,14 +6,11 @@
     CompilationResult,
   } from "@remixproject/plugin-api";
   import Button from "./shared/Button.svelte";
-  import type {
-    ApprovalProcess,
-    CreateApprovalProcessRequest,
-    DeployContractRequest,
-  } from "$lib/models/defender";
   import { AbiCoder } from "ethers";
   import { attempt } from "$lib/utils";
   import { log, logError, logSuccess } from "$lib/remix/logger";
+  import type { ApprovalProcess, CreateApprovalProcessRequest } from "$lib/models/approval-process";
+  import type { DeployContractRequest } from "$lib/models/deploy";
 
   let contractName: string | undefined;
   let artifactPayload: string | undefined;

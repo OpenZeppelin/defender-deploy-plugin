@@ -1,5 +1,4 @@
-import { writable } from "svelte/store";
-import type { GlobalState } from "../models/utils";
+import type { GlobalState } from "$lib/models/ui";
 
 /**
  * Global application state

@@ -1,5 +1,6 @@
 import { createApprovalProcess } from "$lib/defender";
-import type { CreateApprovalProcessRequest, Credentials } from "$lib/models/defender";
+import type { CreateApprovalProcessRequest } from "$lib/models/approval-process";
+import type { Credentials } from "$lib/models/auth";
 import { attempt } from "$lib/utils";
 import { json } from '@sveltejs/kit';
 

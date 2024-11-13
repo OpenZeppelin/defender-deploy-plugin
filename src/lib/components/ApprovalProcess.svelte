@@ -1,14 +1,10 @@
 <script lang="ts">
   import { globalState } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
-  import {
-    approvalProcessTypes,
-    type ApprovalProcess,
-    type ApprovalProcessType,
-    type Relayer,
-  } from "$lib/models/defender";
-  import type { DropdownItem, GlobalState } from "$lib/models/utils";
   import { abbreviateAddress } from "$lib/utils";
+  import { approvalProcessTypes, type ApprovalProcess, type ApprovalProcessType } from "$lib/models/approval-process";
+  import type {  DropdownItem, GlobalState } from "$lib/models/ui";
+  import type { Relayer } from "$lib/models/relayer";
 
   const approvalProcessByNetworkAndComponent = (ap: ApprovalProcess) =>
     ap.network === globalState.form.network && ap.component?.includes("deploy");

@@ -1,6 +1,7 @@
-
-
-import type { CreateApprovalProcessRequest, CreateRelayerRequest, Credentials, DeployContractRequest } from '$lib/models/defender';
+import type { CreateApprovalProcessRequest } from '$lib/models/approval-process';
+import type { Credentials } from '$lib/models/auth';
+import type { DeployContractRequest } from '$lib/models/deploy';
+import type { CreateRelayerRequest } from '$lib/models/relayer';
 import { Defender } from '@openzeppelin/defender-sdk';
 
 const getClient = (credentials: Credentials) => {

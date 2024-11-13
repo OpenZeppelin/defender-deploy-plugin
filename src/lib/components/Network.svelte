@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DropdownItem } from "$lib/models/utils";
+  import type { DropdownItem } from "$lib/models/ui";
   import { globalState } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
 

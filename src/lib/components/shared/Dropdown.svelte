@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DropdownItem } from "$lib/models/utils";
+  import type { DropdownItem } from "$lib/models/ui";
   import { createEventDispatcher } from "svelte";
 
   type Props = {

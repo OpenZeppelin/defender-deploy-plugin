@@ -1,12 +1,19 @@
 <script lang="ts">
   import { globalState } from "$lib/state/state.svelte";
-  import type { ABIDescription, ABIParameter, CompilationResult } from "@remixproject/plugin-api";
+  import type {
+    ABIDescription,
+    ABIParameter,
+    CompilationResult,
+  } from "@remixproject/plugin-api";
   import Button from "./shared/Button.svelte";
-  import type { ApprovalProcess, CreateApprovalProcessRequest, DeployContractRequest } from "$lib/models/defender";
+  import type {
+    ApprovalProcess,
+    CreateApprovalProcessRequest,
+    DeployContractRequest,
+  } from "$lib/models/defender";
   import { terminal } from "$lib/remix";
   import { AbiCoder } from "ethers";
   import { attempt } from "$lib/utils";
-  
 
   let contractName: string | undefined;
   let artifactPayload: string | undefined;
@@ -18,11 +25,11 @@
   /**
    * Finds constructor arguments
    */
-  const inputs = $derived.by(()  => {
-    const path = globalState.contract?.target ?? '';
+  const inputs = $derived.by(() => {
+    const path = globalState.contract?.target ?? "";
     const compilation = globalState.contract?.data;
     const contractSources = globalState.contract?.source?.sources;
-    
+
     // if no compiled contracts found, then return empty inputs.
     if (!compilation || !path) return [];
 
@@ -41,7 +48,7 @@
           // we don't actually need these settings, but they are required.
           optimizer: {
             enabled: true,
-            runs: 200
+            runs: 200,
           },
         },
       },
@@ -50,29 +57,35 @@
       },
     });
 
-    const constructor = abi.find((fragment) => fragment.type === 'constructor');
+    const constructor = abi.find((fragment) => fragment.type === "constructor");
     if (!constructor || !constructor.inputs) return [];
     return constructor.inputs as ABIParameter[];
   });
 
-  function getContractFeatures(path: string, compilation: CompilationResult): { name: string, abi: ABIDescription[], libs?: Record<string, any> } {
+  function getContractFeatures(
+    path: string,
+    compilation: CompilationResult,
+  ): { name: string; abi: ABIDescription[] } {
     const contracts = compilation.contracts;
-    const contractName = Object.keys(contracts[path]).length > 0 ? Object.keys(contracts[path])[0] : '';
+    const contractName =
+      Object.keys(contracts[path]).length > 0
+        ? Object.keys(contracts[path])[0]
+        : "";
     const abi = contracts[path][contractName].abi;
     return { name: contractName, abi };
   }
 
-  async function createApprovalProcess(): Promise<ApprovalProcess | undefined>{
+  async function createApprovalProcess(): Promise<ApprovalProcess | undefined> {
     const ap = globalState.form.approvalProcessToCreate;
     if (!ap) return;
 
     if (!globalState.form.network) {
-      globalState.error = 'Please select a network';
+      globalState.error = "Please select a network";
       return;
     }
 
     if (!ap.via || !ap.viaType) {
-      globalState.error = 'Please select an approval process';
+      globalState.error = "Please select an approval process";
       return;
     }
 
@@ -82,26 +95,32 @@
       viaType: ap.viaType,
       network: globalState.form.network,
       relayerId: ap.relayerId,
-      component: ['deploy'],
+      component: ["deploy"],
     };
 
     const createApprovalProcessResponse = await fetch("/approval-process", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ credentials: globalState.credentials, approvalProcess: apRequest }),
+      body: JSON.stringify({
+        credentials: globalState.credentials,
+        approvalProcess: apRequest,
+      }),
     });
 
-    const result: { 
-      success: boolean, 
-      error: string, 
-      data: any 
+    const result: {
+      success: boolean;
+      error: string;
+      data: any;
     } = await createApprovalProcessResponse.json();
     if (!result.success) {
       globalState.error = result.error;
       deploying = false;
 
       // log error in Remix terminal
-      terminal?.log({ type: 'error', value: `[Defender Deploy] Approval process creation failed, error: ${JSON.stringify(result.error)}` });
+      terminal?.log({
+        type: "error",
+        value: `[Defender Deploy] Approval process creation failed, error: ${JSON.stringify(result.error)}`,
+      });
       return;
     }
 
@@ -109,33 +128,31 @@
   }
 
   async function triggerDeployment() {
-    if (
-      !globalState.form.network ||
-      !contractName ||
-      !contractPath
-    ) return;
+    if (!globalState.form.network || !contractName || !contractPath) return;
 
     deploying = true;
-    terminal?.log({ type: 'log', value: `inputs: ${JSON.stringify(inputsWithValue)}` });
-  
     const selectedApprovalProcess = globalState.form.approvalProcessSelected;
-    const approvalProcess: ApprovalProcess | undefined = selectedApprovalProcess ?? await createApprovalProcess();
+    const approvalProcess: ApprovalProcess | undefined =
+      selectedApprovalProcess ?? (await createApprovalProcess());
     if (!approvalProcess) return;
 
     const [constructorBytecode, error] = await attempt<string>(async () => {
       const abiCoder = new AbiCoder();
       return abiCoder.encode(
-        inputs.map((input) => input.type), 
-        inputs.map((input) => inputsWithValue[input.name] )
+        inputs.map((input) => input.type),
+        inputs.map((input) => inputsWithValue[input.name]),
       );
     });
     if (error) {
-      terminal?.log({ type: 'error', value: `[Defender Deploy] Error encoding constructor arguments: ${error.msg}` });
+      terminal?.log({
+        type: "error",
+        value: `[Defender Deploy] Error encoding constructor arguments: ${error.msg}`,
+      });
       deploying = false;
       return;
     }
 
-    terminal?.log({ type: 'log', value: constructorBytecode });
+    terminal?.log({ type: "log", value: constructorBytecode });
 
     const deployRequest: DeployContractRequest = {
       contractName: contractName,
@@ -147,28 +164,40 @@
       constructorBytecode: constructorBytecode,
     };
 
-    terminal?.log({ type: 'log', value: '[Defender Deploy] Creating contract deployment...' });
+    terminal?.log({
+      type: "log",
+      value: "[Defender Deploy] Creating contract deployment...",
+    });
 
     const createApprovalProcessResponse = await fetch("/deploy", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ credentials: globalState.credentials, deployment: deployRequest }),
+      body: JSON.stringify({
+        credentials: globalState.credentials,
+        deployment: deployRequest,
+      }),
     });
 
     const result: {
-      success: boolean, 
-      error: string, 
-      data: any 
+      success: boolean;
+      error: string;
+      data: any;
     } = await createApprovalProcessResponse.json();
     if (!result.success) {
       // log error in Remix terminal
-      terminal?.log({ type: 'error', value: `[Defender Deploy] Contract deployment failed, error: ${JSON.stringify(result.error)}` });
+      terminal?.log({
+        type: "error",
+        value: `[Defender Deploy] Contract deployment failed, error: ${JSON.stringify(result.error)}`,
+      });
       globalState.error = result.error;
       deploying = false;
       return;
     }
 
-    terminal?.log({ type: 'info', value: '[Defender Deploy] Deployment submitted to Defender!' });
+    terminal?.log({
+      type: "info",
+      value: "[Defender Deploy] Deployment submitted to Defender!",
+    });
     deploying = false;
   }
 
@@ -178,16 +207,16 @@
   }
 </script>
 
-<input 
+<input
   type="text"
   class="btn btn-secondary col form-control"
-  value={globalState.contract?.target ?? 'Compile Contract'}
+  value={globalState.contract?.target ?? "Compile Contract"}
   disabled
 />
 
 {#each inputs as input}
   <label for="apiSecret">{`${input.name} (${input.type})`}</label>
-  <input 
+  <input
     name={input.name}
     type="text"
     class="form-control"
@@ -196,4 +225,4 @@
   />
 {/each}
 
-<Button title="Deploy" onclick={triggerDeployment} loading={deploying}/>
+<Button title="Deploy" onclick={triggerDeployment} loading={deploying} />

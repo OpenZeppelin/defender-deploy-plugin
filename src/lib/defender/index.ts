@@ -38,7 +38,7 @@ export const createApprovalProcess = async (credentials: Credentials, approvalPr
   return response;
 }
 
-export const createRelayer = async (credentials: Credentials, relayer: CreateRelayerRequest) => {  
+export const createRelayer = async (credentials: Credentials, relayer: CreateRelayerRequest) => {
   const client = getClient(credentials);
   const response = await client.relay.create(relayer);
   return response;

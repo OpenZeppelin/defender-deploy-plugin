@@ -35,7 +35,7 @@
 
 	{#if globalState.error}
 		<div class="alert alert-danger">
-			<p><small>{globalState.error ?? ''}</small></p>
+			<p><small>{globalState.error ?? ""}</small></p>
 		</div>
 	{/if}
 

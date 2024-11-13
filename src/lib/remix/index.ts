@@ -6,7 +6,7 @@ import { listenOnCompilerResults } from "./compiler";
 import type { CustomApi } from "@remixproject/plugin-utils";
 import type { ITerminal } from "@remixproject/plugin-api/src/lib/terminal";
 
-export let terminal: CustomApi<ITerminal> | null= null;
+export let terminal: CustomApi<ITerminal> | null = null;
 
 export const initPlugin = () => {
   const plugin = new PluginClient({ allowOrigins: ['https://remix.ethereum.org'] });

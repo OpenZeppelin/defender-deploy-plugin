@@ -4,56 +4,63 @@
   import Button from "./shared/Button.svelte";
 
   let loading = $state(false);
-	let apiKey = "";
-	let apiSecret = "";
+  let apiKey = "";
+  let apiSecret = "";
 
-	const authenticate = async () => {
+  const authenticate = async () => {
     loading = true;
     globalState.error = undefined;
-  
+
     // Implementation in routes/auth.
-		const response = await fetch("/auth", {
-			method: "POST",
-			headers: {	"Content-Type": "application/json" },
-			body: JSON.stringify({ apiKey, apiSecret }),
-		});
-  
-		const result: { success: boolean, error: string, data: any } = await response.json();
+    const response = await fetch("/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apiKey, apiSecret }),
+    });
+
+    const result: { success: boolean; error: string; data: any } =
+      await response.json();
 
     if (!result.success) {
       globalState.error = result.error;
       loading = false;
 
       // log error in Remix terminal
-      terminal?.log({ type: 'error', value: `[Defender Deploy] Authentication failed, error: ${JSON.stringify(result.error)}` });
+      terminal?.log({
+        type: "error",
+        value: `[Defender Deploy] Authentication failed, error: ${JSON.stringify(result.error)}`,
+      });
       return;
     }
 
-		if (result?.data?.credentials) {
-			globalState.credentials = {
-				apiKey: result?.data?.credentials.apiKey,
-				apiSecret: result?.data?.credentials.apiSecret,
-			};
-			globalState.authenticated = true;
-  
+    if (result?.data?.credentials) {
+      globalState.credentials = {
+        apiKey: result?.data?.credentials.apiKey,
+        apiSecret: result?.data?.credentials.apiSecret,
+      };
+      globalState.authenticated = true;
+
       // logs in Remix terminal.
-      terminal?.log({ type: 'info', value: '[Defender Deploy] Defender Authentication was successful!' });
-		}
+      terminal?.log({
+        type: "info",
+        value: "[Defender Deploy] Defender Authentication was successful!",
+      });
+    }
 
-		if (result?.data?.networks) {
-			globalState.networks = result?.data?.networks;
-		}
+    if (result?.data?.networks) {
+      globalState.networks = result?.data?.networks;
+    }
 
-		if (result?.data?.approvalProcesses) {
-			globalState.approvalProcesses = result?.data?.approvalProcesses;
-		}
+    if (result?.data?.approvalProcesses) {
+      globalState.approvalProcesses = result?.data?.approvalProcesses;
+    }
 
     if (result?.data?.relayers) {
-			globalState.relayers = result?.data?.relayers;
-		}
+      globalState.relayers = result?.data?.relayers;
+    }
 
     loading = false;
-	}
+  };
 </script>
 
 <div>
@@ -83,5 +90,5 @@
     onchange={(e) => (apiSecret = (e.target as HTMLInputElement).value)}
   />
 
-  <Button title="Save" {loading} onclick={authenticate}/>
+  <Button title="Save" {loading} onclick={authenticate} />
 </div>

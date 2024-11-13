@@ -11,7 +11,7 @@
   import { abbreviateAddress } from "$lib/utils";
 
   const approvalProcessByNetworkAndComponent = (ap: ApprovalProcess) =>
-    ap.network === globalState.form.network && ap.component?.includes('deploy');
+    ap.network === globalState.form.network && ap.component?.includes("deploy");
 
   // Approval processes load logic
   const toDisplayName = (ap: ApprovalProcess) => `${ap.name} (${ap.viaType})`;
@@ -39,13 +39,14 @@
       // Save the type to create the approval process.
       globalState.form.approvalProcessToCreate = {
         ...globalState.form.approvalProcessToCreate,
-        viaType: approvalProcessType as 'EOA' | 'Safe' | 'Relayer',
+        viaType: approvalProcessType as "EOA" | "Safe" | "Relayer",
       };
     }
   };
 
   // Relayer selection logic
-  const relayerByNetwork = (relayer: Relayer) => relayer.network === globalState.form.network;
+  const relayerByNetwork = (relayer: Relayer) =>
+    relayer.network === globalState.form.network;
   const relayerToDropdownItem = (relayer: Relayer) => ({
     label: `${relayer.name} (${abbreviateAddress(relayer.address)})`,
     value: relayer,
@@ -53,7 +54,7 @@
   const onSelectRelayer = (relayer: DropdownItem) => {
     if (relayer.value) {
       globalState.form.approvalProcessToCreate = {
-        viaType: 'Relayer',
+        viaType: "Relayer",
         via: relayer.value.address,
         relayerId: relayer.value.relayerId,
       };
@@ -63,28 +64,27 @@
   const onAddressChange = (e: Event) => {
     const element = e.target as HTMLInputElement;
     if (element.value) {
-
       // Save the type to create the approval process.
       globalState.form.approvalProcessToCreate = {
-        viaType: approvalProcessType as 'EOA' | 'Safe' | 'Relayer',
+        viaType: approvalProcessType as "EOA" | "Safe" | "Relayer",
         via: element.value,
       };
     }
   };
 
   // Radio logic
-  let radioSelected = $state<GlobalState['form']['approvalType']>("existing");
+  let radioSelected = $state<GlobalState["form"]["approvalType"]>("existing");
   const onRadioChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     if (target.checked) {
-      radioSelected = target.id as GlobalState['form']['approvalType'];
+      radioSelected = target.id as GlobalState["form"]["approvalType"];
 
       globalState.form.approvalType = radioSelected;
     }
   };
 
   let disableCreation = $derived.by(() =>
-    globalState.approvalProcesses.some(approvalProcessByNetworkAndComponent)
+    globalState.approvalProcesses.some(approvalProcessByNetworkAndComponent),
   );
 </script>
 
@@ -104,20 +104,25 @@
   {#key globalState.form.approvalProcessSelected}
     <Dropdown
       items={globalState.approvalProcesses
-          .filter(approvalProcessByNetworkAndComponent)
-          .map(approvalProcessToDropdownItem)}
+        .filter(approvalProcessByNetworkAndComponent)
+        .map(approvalProcessToDropdownItem)}
       placeholder="Select Approval Process"
       on:select={(e) => onSelectApprovalProcess(e.detail)}
       disabled={radioSelected !== "existing"}
-      defaultItem={globalState.form.approvalProcessSelected ? {
-        label: toDisplayName(globalState.form.approvalProcessSelected),
-        value: globalState.form.approvalProcessSelected,
-      } : undefined}
+      defaultItem={globalState.form.approvalProcessSelected
+        ? {
+            label: toDisplayName(globalState.form.approvalProcessSelected),
+            value: globalState.form.approvalProcessSelected,
+          }
+        : undefined}
       emptyLabel="No Approval Processes in selected Network"
     />
   {/key}
 </div>
-<div class="form-check" title={disableCreation ? "Deploy Environment already exists" : undefined}>
+<div
+  class="form-check"
+  title={disableCreation ? "Deploy Environment already exists" : undefined}
+>
   <input
     class="form-check-input"
     type="radio"
@@ -127,8 +132,8 @@
     disabled={disableCreation}
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   />
-  <label 
-    class="form-check-label" 
+  <label
+    class="form-check-label"
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   >
@@ -161,13 +166,14 @@
     <label for="relayer" class="mb-0"> Relayer (required) </label>
     <Dropdown
       name="relayer"
-      items={globalState.relayers.filter(relayerByNetwork).map(relayerToDropdownItem)}
+      items={globalState.relayers
+        .filter(relayerByNetwork)
+        .map(relayerToDropdownItem)}
       placeholder="* Select Relayer"
       on:select={(e) => onSelectRelayer(e.detail)}
       disabled={radioSelected !== "new" || disableCreation}
     />
   {/if}
-
 </div>
 <div class="form-check">
   <input
@@ -179,8 +185,8 @@
     title={disableCreation ? "Deploy Environment already exists" : undefined}
     disabled={disableCreation}
   />
-  <label 
-    class="form-check-label" 
+  <label
+    class="form-check-label"
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   >

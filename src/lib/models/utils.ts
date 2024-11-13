@@ -28,6 +28,6 @@ export type GlobalState = {
       via?: string;
       relayerId?: string;
     }
-    approvalType?: ApprovalProcessType;
+    approvalType?: 'existing' | 'new' | 'injected';
   };
 };

@@ -29,6 +29,9 @@ importers:
       bootstrap:
         specifier: ^5.3.3
         version: 5.3.3(@popperjs/core@2.11.8)
+      ethers:
+        specifier: ^6.13.4
+        version: 6.13.4
     devDependencies:
       '@sveltejs/adapter-auto':
         specifier: ^3.0.0

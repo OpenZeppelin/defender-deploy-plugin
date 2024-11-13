@@ -4,9 +4,11 @@
   import Button from "./shared/Button.svelte";
   import type { ApprovalProcess, CreateApprovalProcessRequest, DeployContractRequest } from "$lib/models/defender";
   import { terminal } from "$lib/remix";
+  import { AbiCoder } from "ethers";
+  import { attempt } from "$lib/utils";
+  
 
   let contractName: string | undefined;
-  let contractAbi: string | undefined;
   let artifactPayload: string | undefined;
   let inputsWithValue: Record<string, string | number | boolean> = {};
   let contractPath: string | undefined;
@@ -28,8 +30,7 @@
 
     contractPath = path;
     contractName = name;
-  
-    contractAbi = JSON.stringify(abi);
+
     artifactPayload = JSON.stringify({
       input: {
         sources: {
@@ -115,10 +116,26 @@
     ) return;
 
     deploying = true;
+    terminal?.log({ type: 'log', value: `inputs: ${JSON.stringify(inputsWithValue)}` });
   
     const selectedApprovalProcess = globalState.form.approvalProcessSelected;
     const approvalProcess: ApprovalProcess | undefined = selectedApprovalProcess ?? await createApprovalProcess();
     if (!approvalProcess) return;
+
+    const [constructorBytecode, error] = await attempt<string>(async () => {
+      const abiCoder = new AbiCoder();
+      return abiCoder.encode(
+        inputs.map((input) => input.type), 
+        inputs.map((input) => inputsWithValue[input.name] )
+      );
+    });
+    if (error) {
+      terminal?.log({ type: 'error', value: `[Defender Deploy] Error encoding constructor arguments: ${error.msg}` });
+      deploying = false;
+      return;
+    }
+
+    terminal?.log({ type: 'log', value: constructorBytecode });
 
     const deployRequest: DeployContractRequest = {
       contractName: contractName,
@@ -127,10 +144,10 @@
       contractPath: contractPath,
       verifySourceCode: true,
       artifactPayload: artifactPayload,
-      constructorInputs: inputs.map((input) => inputsWithValue[input.name] ?? '0x0'),
+      constructorBytecode: constructorBytecode,
     };
 
-    terminal?.log({ type: 'log', value: '[Defender Deploy] Deploying contract...' });
+    terminal?.log({ type: 'log', value: '[Defender Deploy] Creating contract deployment...' });
 
     const createApprovalProcessResponse = await fetch("/deploy", {
       method: "POST",

@@ -1,8 +1,7 @@
 import type { CustomApi } from "@remixproject/plugin-utils";
 import type { ITerminal } from "@remixproject/plugin-api/src/lib/terminal";
 
-
-export let terminal: CustomApi<ITerminal> | null = null;
+let terminal: CustomApi<ITerminal> | null = null;
 
 export const initLogger = (term: CustomApi<ITerminal>) => {
   terminal = term;

@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { terminal } from "$lib/remix";
-    import { logError, logSuccess } from "$lib/remix/logger";
+  import { logError, logSuccess } from "$lib/remix/logger";
   import { globalState } from "$lib/state/state.svelte";
   import Button from "./shared/Button.svelte";
 

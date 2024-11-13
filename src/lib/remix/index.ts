@@ -3,11 +3,7 @@ import { PluginClient } from "@remixproject/plugin";
 import { createClient } from "@remixproject/plugin-iframe";
 import { listenOnThemeChanged } from "./theme";
 import { listenOnCompilerResults } from "./compiler";
-import type { CustomApi } from "@remixproject/plugin-utils";
-import type { ITerminal } from "@remixproject/plugin-api/src/lib/terminal";
 import { initLogger } from "./logger";
-
-export let terminal: CustomApi<ITerminal> | null = null;
 
 export const initPlugin = () => {
   const plugin = new PluginClient({ allowOrigins: ['https://remix.ethereum.org'] });

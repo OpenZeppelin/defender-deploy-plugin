@@ -11,10 +11,9 @@
     CreateApprovalProcessRequest,
     DeployContractRequest,
   } from "$lib/models/defender";
-  import { terminal } from "$lib/remix";
   import { AbiCoder } from "ethers";
   import { attempt } from "$lib/utils";
-    import { log, logError, logSuccess } from "$lib/remix/logger";
+  import { log, logError, logSuccess } from "$lib/remix/logger";
 
   let contractName: string | undefined;
   let artifactPayload: string | undefined;

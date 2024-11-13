@@ -1,5 +1,5 @@
 import type { CompilationFileSources, CompilationResult, SourceWithTarget } from "@remixproject/plugin-api";
-import type { ApprovalProcess, ApprovalProcessType, Credentials, Relayer } from "./defender";
+import type { ApprovalProcess, Credentials, Relayer } from "./defender";
 
 export type DropdownItem = {
   label: string;

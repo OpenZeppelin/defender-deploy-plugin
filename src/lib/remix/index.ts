@@ -5,6 +5,7 @@ import { listenOnThemeChanged } from "./theme";
 import { listenOnCompilerResults } from "./compiler";
 import type { CustomApi } from "@remixproject/plugin-utils";
 import type { ITerminal } from "@remixproject/plugin-api/src/lib/terminal";
+import { initLogger } from "./logger";
 
 export let terminal: CustomApi<ITerminal> | null = null;
 
@@ -18,5 +19,6 @@ export const initPlugin = () => {
   // when users compile a contract, the plugin gets the results.
   listenOnCompilerResults(client);
 
-  terminal = client.terminal;
+  // creates a logger instance.
+  initLogger(client.terminal);
 }

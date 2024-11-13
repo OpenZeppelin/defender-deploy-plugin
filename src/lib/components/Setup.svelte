@@ -1,5 +1,6 @@
 <script lang="ts">
   import { terminal } from "$lib/remix";
+    import { logError, logSuccess } from "$lib/remix/logger";
   import { globalState } from "$lib/state/state.svelte";
   import Button from "./shared/Button.svelte";
 
@@ -26,10 +27,7 @@
       loading = false;
 
       // log error in Remix terminal
-      terminal?.log({
-        type: "error",
-        value: `[Defender Deploy] Authentication failed, error: ${JSON.stringify(result.error)}`,
-      });
+      logError(`[Defender Deploy] Authentication failed, error: ${JSON.stringify(result.error)}`);
       return;
     }
 
@@ -40,11 +38,7 @@
       };
       globalState.authenticated = true;
 
-      // logs in Remix terminal.
-      terminal?.log({
-        type: "info",
-        value: "[Defender Deploy] Defender Authentication was successful!",
-      });
+      logSuccess("[Defender Deploy] Defender Authentication was successful!");
     }
 
     if (result?.data?.networks) {

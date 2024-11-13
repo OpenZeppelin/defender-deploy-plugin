@@ -14,6 +14,7 @@
   import { terminal } from "$lib/remix";
   import { AbiCoder } from "ethers";
   import { attempt } from "$lib/utils";
+    import { log, logError, logSuccess } from "$lib/remix/logger";
 
   let contractName: string | undefined;
   let artifactPayload: string | undefined;
@@ -117,10 +118,7 @@
       deploying = false;
 
       // log error in Remix terminal
-      terminal?.log({
-        type: "error",
-        value: `[Defender Deploy] Approval process creation failed, error: ${JSON.stringify(result.error)}`,
-      });
+      logError(`[Defender Deploy] Approval process creation failed, error: ${JSON.stringify(result.error)}`);
       return;
     }
 
@@ -144,15 +142,10 @@
       );
     });
     if (error) {
-      terminal?.log({
-        type: "error",
-        value: `[Defender Deploy] Error encoding constructor arguments: ${error.msg}`,
-      });
+      logError(`[Defender Deploy] Error encoding constructor arguments: ${error.msg}`);
       deploying = false;
       return;
     }
-
-    terminal?.log({ type: "log", value: constructorBytecode });
 
     const deployRequest: DeployContractRequest = {
       contractName: contractName,
@@ -164,10 +157,7 @@
       constructorBytecode: constructorBytecode,
     };
 
-    terminal?.log({
-      type: "log",
-      value: "[Defender Deploy] Creating contract deployment...",
-    });
+    log("[Defender Deploy] Creating contract deployment...");
 
     const createApprovalProcessResponse = await fetch("/deploy", {
       method: "POST",
@@ -185,19 +175,13 @@
     } = await createApprovalProcessResponse.json();
     if (!result.success) {
       // log error in Remix terminal
-      terminal?.log({
-        type: "error",
-        value: `[Defender Deploy] Contract deployment failed, error: ${JSON.stringify(result.error)}`,
-      });
+      logError(`[Defender Deploy] Contract deployment failed, error: ${JSON.stringify(result.error)}`);
       globalState.error = result.error;
       deploying = false;
       return;
     }
 
-    terminal?.log({
-      type: "info",
-      value: "[Defender Deploy] Deployment submitted to Defender!",
-    });
+    logSuccess("[Defender Deploy] Deployment submitted to Defender!");
     deploying = false;
   }
 

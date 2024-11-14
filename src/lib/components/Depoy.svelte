@@ -11,8 +11,10 @@
   import { log, logError, logSuccess } from "$lib/remix/logger";
   import type { ApprovalProcess, CreateApprovalProcessRequest } from "$lib/models/approval-process";
   import type { DeployContractRequest } from "$lib/models/deploy";
+    import { deployContract, switchToNetwork } from "$lib/ethereum";
 
   let contractName: string | undefined;
+  let contractBytecode: string | undefined;
   let artifactPayload: string | undefined;
   let inputsWithValue: Record<string, string | number | boolean> = {};
   let contractPath: string | undefined;
@@ -34,6 +36,7 @@
 
     contractPath = path;
     contractName = name;
+    contractBytecode = compilation.contracts[path][name].evm.bytecode.object;
 
     artifactPayload = JSON.stringify({
       input: {
@@ -95,6 +98,8 @@
       component: ["deploy"],
     };
 
+    log("[Defender Deploy] Creating deployment environment in Defender...");
+
     const createApprovalProcessResponse = await fetch("/approval-process", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -125,10 +130,6 @@
     if (!globalState.form.network || !contractName || !contractPath) return;
 
     deploying = true;
-    const selectedApprovalProcess = globalState.form.approvalProcessSelected;
-    const approvalProcess: ApprovalProcess | undefined =
-      selectedApprovalProcess ?? (await createApprovalProcess());
-    if (!approvalProcess) return;
 
     const [constructorBytecode, error] = await attempt<string>(async () => {
       const abiCoder = new AbiCoder();
@@ -143,6 +144,47 @@
       return;
     }
 
+    const shouldUseInjectedProvider = globalState.form.approvalType === 'injected';
+    if (shouldUseInjectedProvider) {
+      log("[Defender Deploy] Switching network.");
+      // ensures current network matches with the one selected.
+      const [, error] = await attempt(async () => switchToNetwork(globalState.form.network!));
+      if (error) {
+        logError(`[Defender Deploy] Error switching network: ${error.msg}`);
+        deploying = false;
+        return;
+      }
+
+      if (!contractBytecode) {
+        logError("[Defender Deploy] Contract bytecode not found.");
+        deploying = false;
+        return;
+      }
+
+      const bytecode = contractBytecode + constructorBytecode?.slice(2);
+
+      log("[Defender Deploy] deploying contract...");
+      const [result, err] = await attempt(async () => deployContract(bytecode));
+      if (err) {
+        logError(`[Defender Deploy] Error deploying contract: ${err.msg}`);
+        deploying = false;
+        return;
+      }
+
+      logSuccess(`[Defender Deploy] Contract deployed, tx hash: ${result?.hash}`);
+
+      // loads global state with EOA approval process to create
+      globalState.form.approvalProcessToCreate = {
+        viaType: "EOA",
+        via: result?.sender,
+      }
+      globalState.form.approvalProcessSelected = undefined;
+    }
+
+    const selectedApprovalProcess = globalState.form.approvalProcessSelected;
+    const approvalProcess: ApprovalProcess | undefined = selectedApprovalProcess ?? (await createApprovalProcess());
+    if (!approvalProcess) return;
+
     const deployRequest: DeployContractRequest = {
       contractName: contractName,
       network: globalState.form.network,
@@ -153,7 +195,7 @@
       constructorBytecode: constructorBytecode,
     };
 
-    log("[Defender Deploy] Creating contract deployment...");
+    log("[Defender Deploy] Creating contract deployment in Defender...");
 
     const createApprovalProcessResponse = await fetch("/deploy", {
       method: "POST",
@@ -171,10 +213,14 @@
     } = await createApprovalProcessResponse.json();
     if (!result.success) {
       // log error in Remix terminal
-      logError(`[Defender Deploy] Contract deployment failed, error: ${JSON.stringify(result.error)}`);
+      logError(`[Defender Deploy] Contract deployment creation failed, error: ${JSON.stringify(result.error)}`);
       globalState.error = result.error;
       deploying = false;
       return;
+    }
+
+    if (shouldUseInjectedProvider) {
+
     }
 
     logSuccess("[Defender Deploy] Deployment submitted to Defender!");

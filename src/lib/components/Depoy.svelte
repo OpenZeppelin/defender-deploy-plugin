@@ -163,6 +163,8 @@
         return;
       }
 
+      // contract deployment requires contract bytecode
+      // and constructor bytecode to be concatenated.
       const bytecode = contractBytecode + constructorBytecode?.slice(2);
 
       log("[Defender Deploy] deploying contract...");

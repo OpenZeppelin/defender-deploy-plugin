@@ -10,7 +10,7 @@
   import { attempt } from "$lib/utils";
   import { log, logError, logSuccess } from "$lib/remix/logger";
   import type { ApprovalProcess, CreateApprovalProcessRequest } from "$lib/models/approval-process";
-  import type { DeployContractRequest } from "$lib/models/deploy";
+  import type { DeployContractRequest, UpdateDeploymentRequest } from "$lib/models/deploy";
     import { deployContract, switchToNetwork } from "$lib/ethereum";
 
   let contractName: string | undefined;
@@ -145,6 +145,8 @@
     }
 
     const shouldUseInjectedProvider = globalState.form.approvalType === 'injected';
+    let contractAddress: string | undefined;
+    let hash: string | undefined;
     if (shouldUseInjectedProvider) {
       log("[Defender Deploy] Switching network.");
       // ensures current network matches with the one selected.
@@ -173,6 +175,9 @@
 
       logSuccess(`[Defender Deploy] Contract deployed, tx hash: ${result?.hash}`);
 
+      contractAddress = result?.address;
+      hash = result?.hash;
+
       // loads global state with EOA approval process to create
       globalState.form.approvalProcessToCreate = {
         viaType: "EOA",
@@ -197,7 +202,7 @@
 
     log("[Defender Deploy] Creating contract deployment in Defender...");
 
-    const createApprovalProcessResponse = await fetch("/deploy", {
+    const deployResponse = await fetch("/deploy", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -209,8 +214,8 @@
     const result: {
       success: boolean;
       error: string;
-      data: any;
-    } = await createApprovalProcessResponse.json();
+      data: { deployment: { deploymentId: string } };
+    } = await deployResponse.json();
     if (!result.success) {
       // log error in Remix terminal
       logError(`[Defender Deploy] Contract deployment creation failed, error: ${JSON.stringify(result.error)}`);
@@ -220,7 +225,32 @@
     }
 
     if (shouldUseInjectedProvider) {
+      if (!contractAddress || !hash) {
+        logError("[Defender Deploy] Missing contract address or hash.");
+        deploying = false;
+        return;
+      }
+      const updateDeployRequest: UpdateDeploymentRequest = {
+        deploymentId: result.data.deployment.deploymentId,
+        hash: hash,
+        address: contractAddress,
+      };
+      const updateDeploymentRes = await fetch("/deploy", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credentials: globalState.credentials,
+          deployment: updateDeployRequest,
+        }),
+      });
 
+      const res: { success: boolean; error: string; } = await updateDeploymentRes.json();
+      if (!res.success) {
+        // log error in Remix terminal
+        logError(`[Defender Deploy] Failed to update deployment to deployed state: ${JSON.stringify(result.error)}`);
+        deploying = false;
+        return;
+      }
     }
 
     logSuccess("[Defender Deploy] Deployment submitted to Defender!");

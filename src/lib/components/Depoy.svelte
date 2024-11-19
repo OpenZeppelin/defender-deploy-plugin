@@ -276,14 +276,15 @@
 <Button title="Deploy" onclick={triggerDeployment} loading={deploying} />
 
 {#if globalState.form.completed}
-  <div class="alert alert-success">
-    <p>
-      <small>
-        Contract deployment submitted to Defender!<br>
-        <a class="text-success" href={`https://defender.openzeppelin.com/#/deploy/environment/test?deploymentId=${deploymentId}`} target="_blank">
-          View Deployment
-        </a>
-      </small>
-    </p>
-  </div>
+<div class="alert alert-success d-flex align-items-center mt-2">
+  <i class="fa fa-check-circle-o mr-2"></i>
+  <p class="m-0">
+    <small class="lh-sm">
+      Contract deployment submitted to Defender!<br>
+      <a class="text-success" href={`https://defender.openzeppelin.com/#/deploy/environment/test?deploymentId=${deploymentId}`} target="_blank">
+        View Deployment
+      </a>
+    </small>
+  </p>
+</div>
 {/if}

@@ -53,11 +53,9 @@ export const deployContract = async (credentials: Credentials, deployment: Deplo
 
 export const updateDeployment = async (credentials: Credentials, updateReq: UpdateDeploymentRequest) => {
   const client = getClient(credentials);
-  throw new Error('Not implemented');
-  // TODO: wait to latest sdk release
-  // const response = await client.deploy.updateDeployment(updateReq.deploymentId, {
-  //   txHash: updateReq.hash,
-  //   address: updateReq.address,
-  // });
-  // return response;
+  const response = await client.deploy.updateDeployment(updateReq.deploymentId, {
+    txHash: updateReq.hash,
+    address: updateReq.address,
+  });
+  return response;
 }

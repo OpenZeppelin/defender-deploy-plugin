@@ -59,13 +59,12 @@
 
   const onAddressChange = (e: Event) => {
     const element = e.target as HTMLInputElement;
-    if (element.value) {
-      // Save the type to create the approval process.
-      globalState.form.approvalProcessToCreate = {
-        viaType: approvalProcessType as "EOA" | "Safe" | "Relayer",
-        via: element.value,
-      };
-    }
+
+    // Save the type to create the approval process.
+    globalState.form.approvalProcessToCreate = {
+      viaType: approvalProcessType as "EOA" | "Safe" | "Relayer",
+      via: element.value,
+    };
   };
 
   // Radio logic

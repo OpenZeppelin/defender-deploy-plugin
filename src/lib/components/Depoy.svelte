@@ -27,6 +27,7 @@
   let inputsWithValue: Record<string, string | number | boolean> = {};
   let contractPath: string | undefined;
 
+  let deploymentId = $state<string | undefined>(undefined);
   let deploying = $state(false);
 
   /**
@@ -218,6 +219,8 @@
       return;
     }
 
+    deploymentId = result.data.deployment.deploymentId;
+
     if (shouldUseInjectedProvider) {
       if (!contractAddress || !hash) {
         logError("[Defender Deploy] Missing contract address or hash.");
@@ -225,11 +228,11 @@
         return;
       }
       const updateDeployRequest: UpdateDeploymentRequest = {
-        deploymentId: result.data.deployment.deploymentId,
+        deploymentId,
         hash: hash,
         address: contractAddress,
       };
-      const res: { success: boolean; error: string; data: any } =
+      const res: APIResponse<null> =
         await API.updateDeployment(updateDeployRequest);
       if (!res.success) {
         // log error in Remix terminal
@@ -242,6 +245,7 @@
     }
 
     logSuccess("[Defender Deploy] Deployment submitted to Defender!");
+    globalState.form.completed = true;
     deploying = false;
   }
 
@@ -270,3 +274,16 @@
 {/each}
 
 <Button title="Deploy" onclick={triggerDeployment} loading={deploying} />
+
+{#if globalState.form.completed}
+  <div class="alert alert-success">
+    <p>
+      <small>
+        Contract deployment submitted to Defender!<br>
+        <a class="text-success" href={`https://defender.openzeppelin.com/#/deploy/environment/test?deploymentId=${deploymentId}`} target="_blank">
+          View Deployment
+        </a>
+      </small>
+    </p>
+  </div>
+{/if}

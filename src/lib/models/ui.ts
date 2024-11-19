@@ -31,6 +31,7 @@ export type GlobalState = {
       relayerId?: string;
     }
     approvalType?: 'existing' | 'new' | 'injected';
+    completed?: boolean;
   };
 };
 

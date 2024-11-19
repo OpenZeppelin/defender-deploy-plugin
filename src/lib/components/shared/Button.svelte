@@ -1,12 +1,13 @@
 <script lang="ts">
   type Props = {
     loading?: boolean;
+    loadingMessage?: string;
     title: string;
     onclick: () => void;
     disabled?: boolean;
   };
 
-  const { loading, title, onclick, disabled }: Props = $props();
+  const { loading, title, onclick, disabled, loadingMessage }: Props = $props();
 </script>
 
 <button
@@ -15,11 +16,15 @@
   {onclick}
 >
   {#if loading}
+    {#if loadingMessage}
+      {loadingMessage}
+    {:else}
     <span
       class="spinner-border spinner-border-sm"
       role="status"
       aria-hidden="true"
     ></span>
+    {/if}
   {:else}
     {title}
   {/if}

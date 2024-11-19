@@ -8,9 +8,47 @@
 	import ApprovalProcess from "$lib/components/ApprovalProcess.svelte";
 	import Depoy from "$lib/components/Depoy.svelte";
 
+	import { getAddress } from "ethers";
+	import { attempt } from "$lib/utils";
+
 	// Accordeon logic
 	let currentTab = $state(0);
 	const toggle = (tab: number) => (currentTab = tab);
+
+	let isValidApprovalProcessStep = $derived.by(async () => {
+		if (globalState.form.approvalType === "injected") {
+			return true;
+		}
+
+		if (globalState.form.approvalType === 'existing' && globalState.form.approvalProcessSelected) {
+			return true;
+		}
+
+		if (
+			globalState.form.approvalType === 'new' &&
+			globalState.form.approvalProcessToCreate?.viaType === "Relayer" &&
+			globalState.form.approvalProcessToCreate?.relayerId
+		) {
+			return true;
+		}
+
+		if (
+			globalState.form.approvalType === 'new' &&
+			globalState.form.approvalProcessToCreate?.viaType !== "Relayer" &&
+			globalState.form.approvalProcessToCreate?.via
+		) {
+			// check if address is valid
+			const [checksumed, err] = await attempt(async () =>
+				getAddress(globalState.form.approvalProcessToCreate!.via!),
+			);
+			if (err) {
+				return false;
+			}
+			return true;
+		}
+
+		return false;
+	});
 
 	onMount(initPlugin);
 </script>
@@ -23,7 +61,7 @@
 			<a href="https://defender.openzeppelin.com/" target="_blank"
 				>OpenZeppelin Defender Account</a
 			>
-			(I'ts free) and setup an
+			(It's free) and setup an
 			<a
 				href="https://defender.openzeppelin.com/#/settings/api-keys"
 				target="_blank"
@@ -48,6 +86,10 @@
 					></i>
 					SETUP
 				</h6>
+
+				{#if globalState.authenticated}
+					<i class="fa fa-check-circle-o text-success"></i>
+				{/if}
 			</button>
 
 			<div class={`collapse ${currentTab === 0 ? "show" : ""}`}>
@@ -69,6 +111,10 @@
 					></i>
 					NETWORK
 				</h6>
+
+				{#if globalState.form.network}
+					<i class="fa fa-check-circle-o text-success"></i>
+				{/if}
 			</button>
 
 			<div class={`collapse ${currentTab === 1 ? "show" : ""}`}>
@@ -89,6 +135,12 @@
 					></i>
 					APPROVAL PROCESS
 				</h6>
+
+				{#await isValidApprovalProcessStep then isValid}
+					{#if isValid}
+						<i class="fa fa-check-circle-o text-success"></i>
+					{/if}
+				{/await}
 			</button>
 			<div class={`collapse ${currentTab === 2 ? "show" : ""}`}>
 				<div class="card-body">
@@ -109,6 +161,10 @@
 					></i>
 					DEPLOY
 				</h6>
+
+				{#if globalState.form.completed}
+					<i class="fa fa-check-circle-o text-success"></i>
+				{/if}
 			</button>
 			<div class={`collapse ${currentTab === 3 ? "show" : ""}`}>
 				<div class="card-body">
@@ -132,5 +188,10 @@
 		color: #a2a3bd;
 		display: flex;
 		font-size: smaller;
+	}
+
+	.card-header {
+		display: flex;
+		justify-content: space-between;
 	}
 </style>

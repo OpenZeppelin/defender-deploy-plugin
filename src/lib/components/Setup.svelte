@@ -7,22 +7,27 @@
   import Button from "./shared/Button.svelte";
 
   let loading = $state(false);
+  let successMessage = $state<string | undefined>(undefined);
+  let errorMessage = $state<string | undefined>(undefined);
   let apiKey = "";
   let apiSecret = "";
 
   const authenticate = async () => {
     loading = true;
     globalState.error = undefined;
+    successMessage = undefined;
+    errorMessage = undefined;
 
     const result: APIResponse<AuthenticationResponse> = await API.authenticate({ apiKey, apiSecret });
 
     if (!result.success) {
       logError(`[Defender Deploy] Authentication failed, error: ${JSON.stringify(result.error)}`);
-      return;
+      errorMessage = result.error ?? "Defender Connection Failed";
+    } else {
+      globalState.authenticated = true;
+      logSuccess("[Defender Deploy] Defender Authentication was successful!");
+      successMessage = "Defender Connected";
     }
-
-    globalState.authenticated = true;
-    logSuccess("[Defender Deploy] Defender Authentication was successful!");
 
     if (result?.data?.credentials) {
       globalState.credentials = {
@@ -74,5 +79,23 @@
     onchange={(e) => (apiSecret = (e.target as HTMLInputElement).value)}
   />
 
-  <Button title="Save" {loading} onclick={authenticate} />
+  {#if errorMessage}
+    <div class="alert alert-danger d-flex align-items-center mt-2">
+      <i class="fa fa-times-circle-o mr-2"></i>
+      <p class="m-0 lh-1">
+        <small class="lh-sm">{errorMessage}</small>
+      </p>
+    </div>
+  {/if}
+
+  {#if successMessage}
+    <div class="alert alert-success d-flex align-items-center mt-2">
+      <i class="fa fa-check-circle-o mr-2"></i>
+      <p class="m-0">
+        <small class="lh-sm">{successMessage}</small>
+      </p>
+    </div>
+  {/if}
+
+  <Button title="Connect" {loading} loadingMessage={"Connecting to Defender ..."} onclick={authenticate} />
 </div>

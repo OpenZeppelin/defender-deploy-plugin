@@ -57,6 +57,9 @@ export const globalState = $state<GlobalState>({
     approvalProcessToCreate: undefined,
 
     // Indicates if user is using existing approval process, creating one or injected provider
-    approvalType: undefined,
+    approvalType: 'existing',
+
+    // Indicates if deployment is completed.
+    completed: false,
   },
 });

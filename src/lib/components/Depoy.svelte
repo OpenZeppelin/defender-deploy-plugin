@@ -9,9 +9,17 @@
   import { AbiCoder } from "ethers";
   import { attempt } from "$lib/utils";
   import { log, logError, logSuccess } from "$lib/remix/logger";
-  import type { ApprovalProcess, CreateApprovalProcessRequest } from "$lib/models/approval-process";
-  import type { DeployContractRequest, UpdateDeploymentRequest } from "$lib/models/deploy";
-    import { deployContract, switchToNetwork } from "$lib/ethereum";
+  import type {
+    ApprovalProcess,
+    CreateApprovalProcessRequest,
+  } from "$lib/models/approval-process";
+  import type {
+    DeployContractRequest,
+    UpdateDeploymentRequest,
+  } from "$lib/models/deploy";
+  import { deployContract, switchToNetwork } from "$lib/ethereum";
+  import { API } from "$lib/api";
+  import type { APIResponse } from "$lib/models/ui";
 
   let contractName: string | undefined;
   let contractBytecode: string | undefined;
@@ -22,7 +30,7 @@
   let deploying = $state(false);
 
   /**
-   * Finds constructor arguments
+   * Finds constructor arguments and loads contract features.
    */
   const inputs = $derived.by(() => {
     const path = globalState.contract?.target ?? "";
@@ -45,7 +53,7 @@
           [path]: { content: (contractSources as any)[path].content },
         },
         settings: {
-          // we don't actually need these settings, but they are required.
+          // we don't actually need these settings, but they are required in type.
           optimizer: {
             enabled: true,
             runs: 200,
@@ -89,6 +97,7 @@
       return;
     }
 
+    log("[Defender Deploy] Creating deployment environment in Defender...");
     const apRequest: CreateApprovalProcessRequest = {
       name: `Deploy From Remix - ${ap.viaType}`,
       via: ap.via,
@@ -97,33 +106,21 @@
       relayerId: ap.relayerId,
       component: ["deploy"],
     };
+    const result: APIResponse<{ approvalProcess: ApprovalProcess }> =
+      await API.createApprovalProcess(apRequest);
 
-    log("[Defender Deploy] Creating deployment environment in Defender...");
-
-    const createApprovalProcessResponse = await fetch("/approval-process", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credentials: globalState.credentials,
-        approvalProcess: apRequest,
-      }),
-    });
-
-    const result: {
-      success: boolean;
-      error: string;
-      data: any;
-    } = await createApprovalProcessResponse.json();
     if (!result.success) {
       globalState.error = result.error;
       deploying = false;
 
       // log error in Remix terminal
-      logError(`[Defender Deploy] Approval process creation failed, error: ${JSON.stringify(result.error)}`);
+      logError(
+        `[Defender Deploy] Approval process creation failed, error: ${JSON.stringify(result.error)}`,
+      );
       return;
     }
 
-    return result.data.approvalProcess;
+    return result.data?.approvalProcess;
   }
 
   async function triggerDeployment() {
@@ -139,18 +136,23 @@
       );
     });
     if (error) {
-      logError(`[Defender Deploy] Error encoding constructor arguments: ${error.msg}`);
+      logError(
+        `[Defender Deploy] Error encoding constructor arguments: ${error.msg}`,
+      );
       deploying = false;
       return;
     }
 
-    const shouldUseInjectedProvider = globalState.form.approvalType === 'injected';
+    const shouldUseInjectedProvider =
+      globalState.form.approvalType === "injected";
     let contractAddress: string | undefined;
     let hash: string | undefined;
     if (shouldUseInjectedProvider) {
       log("[Defender Deploy] Switching network.");
       // ensures current network matches with the one selected.
-      const [, error] = await attempt(async () => switchToNetwork(globalState.form.network!));
+      const [, error] = await attempt(async () =>
+        switchToNetwork(globalState.form.network!),
+      );
       if (error) {
         logError(`[Defender Deploy] Error switching network: ${error.msg}`);
         deploying = false;
@@ -175,7 +177,9 @@
         return;
       }
 
-      logSuccess(`[Defender Deploy] Contract deployed, tx hash: ${result?.hash}`);
+      logSuccess(
+        `[Defender Deploy] Contract deployed, tx hash: ${result?.hash}`,
+      );
 
       contractAddress = result?.address;
       hash = result?.hash;
@@ -184,14 +188,16 @@
       globalState.form.approvalProcessToCreate = {
         viaType: "EOA",
         via: result?.sender,
-      }
+      };
       globalState.form.approvalProcessSelected = undefined;
     }
 
     const selectedApprovalProcess = globalState.form.approvalProcessSelected;
-    const approvalProcess: ApprovalProcess | undefined = selectedApprovalProcess ?? (await createApprovalProcess());
+    const approvalProcess: ApprovalProcess | undefined =
+      selectedApprovalProcess ?? (await createApprovalProcess());
     if (!approvalProcess) return;
 
+    log("[Defender Deploy] Creating contract deployment in Defender...");
     const deployRequest: DeployContractRequest = {
       contractName: contractName,
       network: globalState.form.network,
@@ -201,26 +207,12 @@
       artifactPayload: artifactPayload,
       constructorBytecode: constructorBytecode,
     };
-
-    log("[Defender Deploy] Creating contract deployment in Defender...");
-
-    const deployResponse = await fetch("/deploy", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credentials: globalState.credentials,
-        deployment: deployRequest,
-      }),
-    });
-
-    const result: {
-      success: boolean;
-      error: string;
-      data: { deployment: { deploymentId: string } };
-    } = await deployResponse.json();
-    if (!result.success) {
-      // log error in Remix terminal
-      logError(`[Defender Deploy] Contract deployment creation failed, error: ${JSON.stringify(result.error)}`);
+    const result: APIResponse<{ deployment: { deploymentId: string } }> =
+      await API.createDeployment(deployRequest);
+    if (!result.success || !result.data) {
+      logError(
+        `[Defender Deploy] Contract deployment creation failed, error: ${JSON.stringify(result.error)}`,
+      );
       globalState.error = result.error;
       deploying = false;
       return;
@@ -237,19 +229,13 @@
         hash: hash,
         address: contractAddress,
       };
-      const updateDeploymentRes = await fetch("/deploy", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          credentials: globalState.credentials,
-          deployment: updateDeployRequest,
-        }),
-      });
-
-      const res: { success: boolean; error: string; } = await updateDeploymentRes.json();
+      const res: { success: boolean; error: string; data: any } =
+        await API.updateDeployment(updateDeployRequest);
       if (!res.success) {
         // log error in Remix terminal
-        logError(`[Defender Deploy] Failed to update deployment to deployed state: ${JSON.stringify(result.error)}`);
+        logError(
+          `[Defender Deploy] Failed to update deployment to deployed state: ${JSON.stringify(result.error)}`,
+        );
         deploying = false;
         return;
       }

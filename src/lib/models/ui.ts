@@ -33,3 +33,9 @@ export type GlobalState = {
     approvalType?: 'existing' | 'new' | 'injected';
   };
 };
+
+export type APIResponse<T> = {
+  success: boolean;
+  error?: string;
+  data?: T;
+}

@@ -65,3 +65,9 @@ export type Artifact = {
     };
   };
 };
+
+export interface UpdateDeploymentRequest {
+  deploymentId: string;
+  address: string;
+  hash: string;
+}

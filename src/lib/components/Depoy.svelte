@@ -9,10 +9,20 @@
   import { AbiCoder } from "ethers";
   import { attempt } from "$lib/utils";
   import { log, logError, logSuccess } from "$lib/remix/logger";
-  import type { ApprovalProcess, CreateApprovalProcessRequest } from "$lib/models/approval-process";
-  import type { DeployContractRequest } from "$lib/models/deploy";
+  import type {
+    ApprovalProcess,
+    CreateApprovalProcessRequest,
+  } from "$lib/models/approval-process";
+  import type {
+    DeployContractRequest,
+    UpdateDeploymentRequest,
+  } from "$lib/models/deploy";
+  import { deployContract, switchToNetwork } from "$lib/ethereum";
+  import { API } from "$lib/api";
+  import type { APIResponse } from "$lib/models/ui";
 
   let contractName: string | undefined;
+  let contractBytecode: string | undefined;
   let artifactPayload: string | undefined;
   let inputsWithValue: Record<string, string | number | boolean> = {};
   let contractPath: string | undefined;
@@ -20,7 +30,7 @@
   let deploying = $state(false);
 
   /**
-   * Finds constructor arguments
+   * Finds constructor arguments and loads contract features.
    */
   const inputs = $derived.by(() => {
     const path = globalState.contract?.target ?? "";
@@ -34,6 +44,7 @@
 
     contractPath = path;
     contractName = name;
+    contractBytecode = compilation.contracts[path][name].evm.bytecode.object;
 
     artifactPayload = JSON.stringify({
       input: {
@@ -42,7 +53,7 @@
           [path]: { content: (contractSources as any)[path].content },
         },
         settings: {
-          // we don't actually need these settings, but they are required.
+          // we don't actually need these settings, but they are required in type.
           optimizer: {
             enabled: true,
             runs: 200,
@@ -86,6 +97,7 @@
       return;
     }
 
+    log("[Defender Deploy] Creating deployment environment in Defender...");
     const apRequest: CreateApprovalProcessRequest = {
       name: `Deploy From Remix - ${ap.viaType}`,
       via: ap.via,
@@ -94,41 +106,27 @@
       relayerId: ap.relayerId,
       component: ["deploy"],
     };
+    const result: APIResponse<{ approvalProcess: ApprovalProcess }> =
+      await API.createApprovalProcess(apRequest);
 
-    const createApprovalProcessResponse = await fetch("/approval-process", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credentials: globalState.credentials,
-        approvalProcess: apRequest,
-      }),
-    });
-
-    const result: {
-      success: boolean;
-      error: string;
-      data: any;
-    } = await createApprovalProcessResponse.json();
     if (!result.success) {
       globalState.error = result.error;
       deploying = false;
 
       // log error in Remix terminal
-      logError(`[Defender Deploy] Approval process creation failed, error: ${JSON.stringify(result.error)}`);
+      logError(
+        `[Defender Deploy] Approval process creation failed, error: ${JSON.stringify(result.error)}`,
+      );
       return;
     }
 
-    return result.data.approvalProcess;
+    return result.data?.approvalProcess;
   }
 
   async function triggerDeployment() {
     if (!globalState.form.network || !contractName || !contractPath) return;
 
     deploying = true;
-    const selectedApprovalProcess = globalState.form.approvalProcessSelected;
-    const approvalProcess: ApprovalProcess | undefined =
-      selectedApprovalProcess ?? (await createApprovalProcess());
-    if (!approvalProcess) return;
 
     const [constructorBytecode, error] = await attempt<string>(async () => {
       const abiCoder = new AbiCoder();
@@ -138,11 +136,68 @@
       );
     });
     if (error) {
-      logError(`[Defender Deploy] Error encoding constructor arguments: ${error.msg}`);
+      logError(
+        `[Defender Deploy] Error encoding constructor arguments: ${error.msg}`,
+      );
       deploying = false;
       return;
     }
 
+    const shouldUseInjectedProvider =
+      globalState.form.approvalType === "injected";
+    let contractAddress: string | undefined;
+    let hash: string | undefined;
+    if (shouldUseInjectedProvider) {
+      log("[Defender Deploy] Switching network.");
+      // ensures current network matches with the one selected.
+      const [, error] = await attempt(async () =>
+        switchToNetwork(globalState.form.network!),
+      );
+      if (error) {
+        logError(`[Defender Deploy] Error switching network: ${error.msg}`);
+        deploying = false;
+        return;
+      }
+
+      if (!contractBytecode) {
+        logError("[Defender Deploy] Contract bytecode not found.");
+        deploying = false;
+        return;
+      }
+
+      // contract deployment requires contract bytecode
+      // and constructor bytecode to be concatenated.
+      const bytecode = contractBytecode + constructorBytecode?.slice(2);
+
+      log("[Defender Deploy] deploying contract...");
+      const [result, err] = await attempt(async () => deployContract(bytecode));
+      if (err) {
+        logError(`[Defender Deploy] Error deploying contract: ${err.msg}`);
+        deploying = false;
+        return;
+      }
+
+      logSuccess(
+        `[Defender Deploy] Contract deployed, tx hash: ${result?.hash}`,
+      );
+
+      contractAddress = result?.address;
+      hash = result?.hash;
+
+      // loads global state with EOA approval process to create
+      globalState.form.approvalProcessToCreate = {
+        viaType: "EOA",
+        via: result?.sender,
+      };
+      globalState.form.approvalProcessSelected = undefined;
+    }
+
+    const selectedApprovalProcess = globalState.form.approvalProcessSelected;
+    const approvalProcess: ApprovalProcess | undefined =
+      selectedApprovalProcess ?? (await createApprovalProcess());
+    if (!approvalProcess) return;
+
+    log("[Defender Deploy] Creating contract deployment in Defender...");
     const deployRequest: DeployContractRequest = {
       contractName: contractName,
       network: globalState.form.network,
@@ -152,29 +207,38 @@
       artifactPayload: artifactPayload,
       constructorBytecode: constructorBytecode,
     };
-
-    log("[Defender Deploy] Creating contract deployment...");
-
-    const createApprovalProcessResponse = await fetch("/deploy", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credentials: globalState.credentials,
-        deployment: deployRequest,
-      }),
-    });
-
-    const result: {
-      success: boolean;
-      error: string;
-      data: any;
-    } = await createApprovalProcessResponse.json();
-    if (!result.success) {
-      // log error in Remix terminal
-      logError(`[Defender Deploy] Contract deployment failed, error: ${JSON.stringify(result.error)}`);
+    const result: APIResponse<{ deployment: { deploymentId: string } }> =
+      await API.createDeployment(deployRequest);
+    if (!result.success || !result.data) {
+      logError(
+        `[Defender Deploy] Contract deployment creation failed, error: ${JSON.stringify(result.error)}`,
+      );
       globalState.error = result.error;
       deploying = false;
       return;
+    }
+
+    if (shouldUseInjectedProvider) {
+      if (!contractAddress || !hash) {
+        logError("[Defender Deploy] Missing contract address or hash.");
+        deploying = false;
+        return;
+      }
+      const updateDeployRequest: UpdateDeploymentRequest = {
+        deploymentId: result.data.deployment.deploymentId,
+        hash: hash,
+        address: contractAddress,
+      };
+      const res: { success: boolean; error: string; data: any } =
+        await API.updateDeployment(updateDeployRequest);
+      if (!res.success) {
+        // log error in Remix terminal
+        logError(
+          `[Defender Deploy] Failed to update deployment to deployed state: ${JSON.stringify(result.error)}`,
+        );
+        deploying = false;
+        return;
+      }
     }
 
     logSuccess("[Defender Deploy] Deployment submitted to Defender!");

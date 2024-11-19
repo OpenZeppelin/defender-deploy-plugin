@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { API } from "$lib/api";
+  import type { AuthenticationResponse } from "$lib/models/auth";
+  import type { APIResponse } from "$lib/models/ui";
   import { logError, logSuccess } from "$lib/remix/logger";
   import { globalState } from "$lib/state/state.svelte";
   import Button from "./shared/Button.svelte";
@@ -11,33 +14,21 @@
     loading = true;
     globalState.error = undefined;
 
-    // Implementation in routes/auth.
-    const response = await fetch("/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ apiKey, apiSecret }),
-    });
-
-    const result: { success: boolean; error: string; data: any } =
-      await response.json();
+    const result: APIResponse<AuthenticationResponse> = await API.authenticate({ apiKey, apiSecret });
 
     if (!result.success) {
-      globalState.error = result.error;
-      loading = false;
-
-      // log error in Remix terminal
       logError(`[Defender Deploy] Authentication failed, error: ${JSON.stringify(result.error)}`);
       return;
     }
+
+    globalState.authenticated = true;
+    logSuccess("[Defender Deploy] Defender Authentication was successful!");
 
     if (result?.data?.credentials) {
       globalState.credentials = {
         apiKey: result?.data?.credentials.apiKey,
         apiSecret: result?.data?.credentials.apiSecret,
       };
-      globalState.authenticated = true;
-
-      logSuccess("[Defender Deploy] Defender Authentication was successful!");
     }
 
     if (result?.data?.networks) {

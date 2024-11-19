@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@openzeppelin/defender-sdk':
-        specifier: ^1.15.1
-        version: 1.15.1(web3-core@4.7.0)(web3-utils@4.3.2)(web3@4.14.0(typescript@5.6.3)(zod@3.23.8))
+        specifier: ^1.15.2
+        version: 1.15.2(web3-core@4.7.0)(web3-utils@4.3.2)(web3@4.14.0(typescript@5.6.3)(zod@3.23.8))
       '@remixproject/plugin':
         specifier: ^0.3.38
         version: 0.3.38
@@ -330,55 +330,55 @@ packages:
     resolution: {integrity: sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg==}
     engines: {node: '>= 16'}
 
-  '@openzeppelin/defender-sdk-account-client@1.15.1':
-    resolution: {integrity: sha512-yu/vyWk6w6NsW/5OU6PvJCK9kLEFfHRpfxS1rT1aEp0yEDS7CpOcp28MyCkQ9X88WBqmi1RdSzBd48uvppoe6A==}
+  '@openzeppelin/defender-sdk-account-client@1.15.2':
+    resolution: {integrity: sha512-lhYf1rBtac1MBbKP/ALgkjUhVulqo45RtaemTP9xI6BwUCCb4nq2SSKM82UN5sOE2I+VXSbPXf8w91bao5Mmmg==}
 
-  '@openzeppelin/defender-sdk-action-client@1.15.1':
-    resolution: {integrity: sha512-iUCNgKnrioEkLcp6SOWqHfxbaAFlSOaW9xQ2v+JRvdsRoFuEWalPkRt3JexRdD1saTZlUougNq7wB3AgrPPOPg==}
+  '@openzeppelin/defender-sdk-action-client@1.15.2':
+    resolution: {integrity: sha512-PpVFKaDU9jBNIoJWfwIA5/9I+qse/4rzEY3CqPvH1z7qGsUjKmImTcQA6SpEzbbvLFOjBY/cuHz6vaf/Vdttcg==}
     hasBin: true
 
-  '@openzeppelin/defender-sdk-address-book-client@1.15.1':
-    resolution: {integrity: sha512-9XorjNA4msP/Xjb4eGOGQkzNCj6gDEu3e3uZca+b9Pu9ZILSnuYWgoYpbBCggfS4Yt3wMNORGtTF5yFzMy0oXA==}
+  '@openzeppelin/defender-sdk-address-book-client@1.15.2':
+    resolution: {integrity: sha512-t6T3DA1BOMhttQ+EOLM9a+M4ls3XSdJlDV1+LfY0G70gLKcMSuNHJpNE83GuRW8P6k5544CaEYy6bgPy0m5myw==}
 
-  '@openzeppelin/defender-sdk-approval-process-client@1.15.1':
-    resolution: {integrity: sha512-Bp4aqI6dZ7Vy/RbyAzGH3/qeca6dq0zgEPFd13ZIpnEFeaO4ynsznefoCzyUHhbsbR6bfv7MkHcke13uL2iVmA==}
+  '@openzeppelin/defender-sdk-approval-process-client@1.15.2':
+    resolution: {integrity: sha512-8XuNlHFJuANwkOMKBOsvPHgihdsQj8SXoPsBToMXlGJTu/joQ4LaNd78+0f2QegqVTbRiEoaW6gu0o24zi/6kg==}
 
-  '@openzeppelin/defender-sdk-base-client@1.15.1':
-    resolution: {integrity: sha512-z3ZoDDRgRAlkaOFrY1SoHK/hn6LWlnfuFvs7WAA+nahlltS9UN7ro4v6P2aUq4ZQH2kZg5JeNfHCkpkRFaGa5Q==}
+  '@openzeppelin/defender-sdk-base-client@1.15.2':
+    resolution: {integrity: sha512-N3ZTeH8TXyklL7yNPMLUv0dxQwT78DTkOEDhzMS2/QE2FxbXrclSseoeeXxl6UYI61RBtZKn+okbSsbwiB5QWQ==}
 
-  '@openzeppelin/defender-sdk-deploy-client@1.15.1':
-    resolution: {integrity: sha512-seJajiWFCM+dbMIv3290TOEsygeWyGa9DQxPESpFwXvlLxfPcKN/o8g+4bs98BmC9v6d0q5ckoWA8iEuzEBLpA==}
+  '@openzeppelin/defender-sdk-deploy-client@1.15.2':
+    resolution: {integrity: sha512-zspzMqh+OC8arXAkgBqTUDVO+NfCkt54UrsmQHbA3UAjr5TiDXKycBKU5ORb01hE+2gAmoPwEpDW9uS2VLg33A==}
 
-  '@openzeppelin/defender-sdk-key-value-store-client@1.15.1':
-    resolution: {integrity: sha512-Ako7ShrDKi+uOYUpqM9EYY+o1/Wyf/Ej68XSEPeat2c2PsXtgJa8JCGuA4sD1iSx89Sj1yYxZ+Es1kRgPDgb6g==}
+  '@openzeppelin/defender-sdk-key-value-store-client@1.15.2':
+    resolution: {integrity: sha512-b98uKFr8psdSh7UPjLqij5B6OpnYQuQIqCzXWf6RNVIJHlrdlhme2eClcZUVxN2L0AjcpELISRTq24t/sCyd8Q==}
 
-  '@openzeppelin/defender-sdk-monitor-client@1.15.1':
-    resolution: {integrity: sha512-903jH4Udrn5YSl6En9rx7U7JYkkFlOxLbiDi/GEHPm/zQ5BaUjSRDkZbW1bC5Sb8HWnJQ2pZkMHn/XQhFuvptQ==}
+  '@openzeppelin/defender-sdk-monitor-client@1.15.2':
+    resolution: {integrity: sha512-SW+je3RvfAbS43gFtyPcPfloFiAj0VJJZpXsYpolA28j94pEBz5EdYczfNwq/QqyK5adAvASdHobCU9ywVlokw==}
 
-  '@openzeppelin/defender-sdk-network-client@1.15.1':
-    resolution: {integrity: sha512-X09to21R7UjWMstDTmY+F8B6N+4c0B/hNio++fRsCs8kgO/ZcBLAQ3HDFgCBRVmhRI8+Qpa2uqc673aU6hW10A==}
+  '@openzeppelin/defender-sdk-network-client@1.15.2':
+    resolution: {integrity: sha512-9r9pegc1aR7xzP9fmj1zvkk0OXMRJE10JabxxiJzAQQgmNXDeTGI6W5bFgrNJfxzcImNGqddJ3K4weKdLyL21A==}
 
-  '@openzeppelin/defender-sdk-notification-channel-client@1.15.1':
-    resolution: {integrity: sha512-JdOd/a0VCnwu1FArrJ30OECRJzmsHZWRQ46RMvvUI0hXHJYWx3jGbjntCL1NSfRRXU7R88VjMWITBodtA5zk5Q==}
+  '@openzeppelin/defender-sdk-notification-channel-client@1.15.2':
+    resolution: {integrity: sha512-42c9rpQdFS9vQgwOetrsnMbnLPeQnD680Ex6jSvOK497NI7RNP8eFI4vHgzNBhCQYdlMj+oEY7gIhD7Vs0kUow==}
 
-  '@openzeppelin/defender-sdk-proposal-client@1.15.1':
-    resolution: {integrity: sha512-YYIASOCQqgGp46WMh3eoW66uCkgRYLw6vFuHVF+afBkWaWuqkBUB/KLEnMyDwyT3vrOWmJ7L1SSNDTn7fqIxYQ==}
+  '@openzeppelin/defender-sdk-proposal-client@1.15.2':
+    resolution: {integrity: sha512-Ib2pHGbgtEEnLagWIzW1eesbzGqIc0QKyHVyM1aIqcCJpvKZU9TKCgT7FMqo8m/g2HdJNY74qW3964j9/6ehbw==}
 
-  '@openzeppelin/defender-sdk-relay-client@1.15.1':
-    resolution: {integrity: sha512-9ug1BThrN9v3JtXeNE9t0N8kouiDYD1ihovze88A19uNvrZeOqct8p84AuowB34nRobvVSed08VVZG57G9L2sw==}
+  '@openzeppelin/defender-sdk-relay-client@1.15.2':
+    resolution: {integrity: sha512-QqqprIcVcSS/xlos1gRtW2RIh5AtsOzY9vGnJ2jo5YcutUQrfUCICBigkn+BbeSHesleUxk/zGJInPKol9ir0g==}
 
-  '@openzeppelin/defender-sdk-relay-group-client@1.15.1':
-    resolution: {integrity: sha512-MEzM/OxrG+KN9TDi2+PW6kEbnM0md64IhPDC/+yqdS8y3uwiiUQoCC/9YDNm4oCkJ7kx0im4AbY5yNuIqdlrnA==}
+  '@openzeppelin/defender-sdk-relay-group-client@1.15.2':
+    resolution: {integrity: sha512-lVip1lrk7F42a3Em6B6FRY8GH05oAUJX5vYFI0m6Ucr5pKEmz221Q1J8GL7NJU5S7THdOpXqEvGzJRmHeYOPwg==}
 
-  '@openzeppelin/defender-sdk-relay-signer-client@1.15.1':
-    resolution: {integrity: sha512-yCuSEFWw8puPGxu1bRbGMjQM86Mk7Ni6wayUy+SQEE9wk0G6fWTjlI9dcl7dK+jQ39MEqR3ppJsa+/oRoCl/oA==}
+  '@openzeppelin/defender-sdk-relay-signer-client@1.15.2':
+    resolution: {integrity: sha512-AqQOAkqOdpO7J+n1hzUWHVRvsb93t8Nb3wQEXJN+/UMcWfoKTOLSYOvjOMQ4PbEUmM8aI+YcQxJL5VfJlIXngQ==}
     peerDependencies:
       web3: ^4.14.0
       web3-core: ^4.7.0
       web3-utils: ^4.3.2
 
-  '@openzeppelin/defender-sdk@1.15.1':
-    resolution: {integrity: sha512-8bChHnBADOEdItCeZ9Ey2ti5dDQ5Z9iSRo62bVE3FM6890MTVZGaGubnCyZmnyhK0Ea+q0XehzOb9FryU1kugQ==}
+  '@openzeppelin/defender-sdk@1.15.2':
+    resolution: {integrity: sha512-Pt7MR+kzhsBfEQvW/cAOgLGb498x3Oq91G15GQ+g+cl978IpQgqx8rneZPv3aoQE5ipIk6EtWJlOl+tIAARKVg==}
 
   '@polka/url@1.0.0-next.28':
     resolution: {integrity: sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==}
@@ -1609,18 +1609,18 @@ snapshots:
 
   '@noble/hashes@1.4.0': {}
 
-  '@openzeppelin/defender-sdk-account-client@1.15.1':
+  '@openzeppelin/defender-sdk-account-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       axios: 1.7.7
       lodash: 4.17.21
     transitivePeerDependencies:
       - debug
       - encoding
 
-  '@openzeppelin/defender-sdk-action-client@1.15.1':
+  '@openzeppelin/defender-sdk-action-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       axios: 1.7.7
       dotenv: 16.4.5
       glob: 11.0.0
@@ -1630,42 +1630,42 @@ snapshots:
       - debug
       - encoding
 
-  '@openzeppelin/defender-sdk-address-book-client@1.15.1':
+  '@openzeppelin/defender-sdk-address-book-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       dotenv: 16.4.5
       lodash: 4.17.21
     transitivePeerDependencies:
       - encoding
 
-  '@openzeppelin/defender-sdk-approval-process-client@1.15.1':
+  '@openzeppelin/defender-sdk-approval-process-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       axios: 1.7.7
       lodash: 4.17.21
     transitivePeerDependencies:
       - debug
       - encoding
 
-  '@openzeppelin/defender-sdk-base-client@1.15.1':
+  '@openzeppelin/defender-sdk-base-client@1.15.2':
     dependencies:
       amazon-cognito-identity-js: 6.3.12
       async-retry: 1.3.3
     transitivePeerDependencies:
       - encoding
 
-  '@openzeppelin/defender-sdk-deploy-client@1.15.1':
+  '@openzeppelin/defender-sdk-deploy-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       axios: 1.7.7
       lodash: 4.17.21
     transitivePeerDependencies:
       - debug
       - encoding
 
-  '@openzeppelin/defender-sdk-key-value-store-client@1.15.1':
+  '@openzeppelin/defender-sdk-key-value-store-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       axios: 1.7.7
       fs-extra: 11.2.0
       lodash: 4.17.21
@@ -1673,9 +1673,9 @@ snapshots:
       - debug
       - encoding
 
-  '@openzeppelin/defender-sdk-monitor-client@1.15.1':
+  '@openzeppelin/defender-sdk-monitor-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       axios: 1.7.7
       ethers: 6.13.4
       lodash: 4.17.21
@@ -1685,27 +1685,27 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  '@openzeppelin/defender-sdk-network-client@1.15.1':
+  '@openzeppelin/defender-sdk-network-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       axios: 1.7.7
       lodash: 4.17.21
     transitivePeerDependencies:
       - debug
       - encoding
 
-  '@openzeppelin/defender-sdk-notification-channel-client@1.15.1':
+  '@openzeppelin/defender-sdk-notification-channel-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       axios: 1.7.7
       lodash: 4.17.21
     transitivePeerDependencies:
       - debug
       - encoding
 
-  '@openzeppelin/defender-sdk-proposal-client@1.15.1':
+  '@openzeppelin/defender-sdk-proposal-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       axios: 1.7.7
       ethers: 6.13.4
       lodash: 4.17.21
@@ -1715,25 +1715,25 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  '@openzeppelin/defender-sdk-relay-client@1.15.1':
+  '@openzeppelin/defender-sdk-relay-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       axios: 1.7.7
       lodash: 4.17.21
     transitivePeerDependencies:
       - debug
       - encoding
 
-  '@openzeppelin/defender-sdk-relay-group-client@1.15.1':
+  '@openzeppelin/defender-sdk-relay-group-client@1.15.2':
     dependencies:
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       axios: 1.7.7
       lodash: 4.17.21
     transitivePeerDependencies:
       - debug
       - encoding
 
-  '@openzeppelin/defender-sdk-relay-signer-client@1.15.1(web3-core@4.7.0)(web3-utils@4.3.2)(web3@4.14.0(typescript@5.6.3)(zod@3.23.8))':
+  '@openzeppelin/defender-sdk-relay-signer-client@1.15.2(web3-core@4.7.0)(web3-utils@4.3.2)(web3@4.14.0(typescript@5.6.3)(zod@3.23.8))':
     dependencies:
       '@ethersproject/bignumber': 5.7.0
       '@ethersproject/bytes': 5.7.0
@@ -1742,7 +1742,7 @@ snapshots:
       '@ethersproject/properties': 5.7.0
       '@ethersproject/providers': 5.7.2
       '@ethersproject/strings': 5.7.0
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
       amazon-cognito-identity-js: 6.3.12
       axios: 1.7.7
       ethers: 6.13.4
@@ -1756,22 +1756,22 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  '@openzeppelin/defender-sdk@1.15.1(web3-core@4.7.0)(web3-utils@4.3.2)(web3@4.14.0(typescript@5.6.3)(zod@3.23.8))':
+  '@openzeppelin/defender-sdk@1.15.2(web3-core@4.7.0)(web3-utils@4.3.2)(web3@4.14.0(typescript@5.6.3)(zod@3.23.8))':
     dependencies:
-      '@openzeppelin/defender-sdk-account-client': 1.15.1
-      '@openzeppelin/defender-sdk-action-client': 1.15.1
-      '@openzeppelin/defender-sdk-address-book-client': 1.15.1
-      '@openzeppelin/defender-sdk-approval-process-client': 1.15.1
-      '@openzeppelin/defender-sdk-base-client': 1.15.1
-      '@openzeppelin/defender-sdk-deploy-client': 1.15.1
-      '@openzeppelin/defender-sdk-key-value-store-client': 1.15.1
-      '@openzeppelin/defender-sdk-monitor-client': 1.15.1
-      '@openzeppelin/defender-sdk-network-client': 1.15.1
-      '@openzeppelin/defender-sdk-notification-channel-client': 1.15.1
-      '@openzeppelin/defender-sdk-proposal-client': 1.15.1
-      '@openzeppelin/defender-sdk-relay-client': 1.15.1
-      '@openzeppelin/defender-sdk-relay-group-client': 1.15.1
-      '@openzeppelin/defender-sdk-relay-signer-client': 1.15.1(web3-core@4.7.0)(web3-utils@4.3.2)(web3@4.14.0(typescript@5.6.3)(zod@3.23.8))
+      '@openzeppelin/defender-sdk-account-client': 1.15.2
+      '@openzeppelin/defender-sdk-action-client': 1.15.2
+      '@openzeppelin/defender-sdk-address-book-client': 1.15.2
+      '@openzeppelin/defender-sdk-approval-process-client': 1.15.2
+      '@openzeppelin/defender-sdk-base-client': 1.15.2
+      '@openzeppelin/defender-sdk-deploy-client': 1.15.2
+      '@openzeppelin/defender-sdk-key-value-store-client': 1.15.2
+      '@openzeppelin/defender-sdk-monitor-client': 1.15.2
+      '@openzeppelin/defender-sdk-network-client': 1.15.2
+      '@openzeppelin/defender-sdk-notification-channel-client': 1.15.2
+      '@openzeppelin/defender-sdk-proposal-client': 1.15.2
+      '@openzeppelin/defender-sdk-relay-client': 1.15.2
+      '@openzeppelin/defender-sdk-relay-group-client': 1.15.2
+      '@openzeppelin/defender-sdk-relay-signer-client': 1.15.2(web3-core@4.7.0)(web3-utils@4.3.2)(web3@4.14.0(typescript@5.6.3)(zod@3.23.8))
     transitivePeerDependencies:
       - bufferutil
       - debug

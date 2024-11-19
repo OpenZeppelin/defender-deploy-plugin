@@ -10,4 +10,6 @@ declare global {
 	}
 }
 
-export {};
+declare interface Window {
+  ethereum?: import('ethers').Eip1193Provider & import('ethers').BrowserProvider;
+}

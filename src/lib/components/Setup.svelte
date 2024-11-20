@@ -22,11 +22,11 @@
 
     if (!result.success) {
       logError(`[Defender Deploy] Authentication failed, error: ${JSON.stringify(result.error)}`);
-      errorMessage = result.error ?? "Defender Connection Failed";
+      errorMessage = result.error ?? "Defender Authentication Failed";
     } else {
       globalState.authenticated = true;
       logSuccess("[Defender Deploy] Defender Authentication was successful!");
-      successMessage = "Defender Connected";
+      successMessage = "API Key Authenticated";
     }
 
     if (result?.data?.credentials) {
@@ -97,5 +97,11 @@
     </div>
   {/if}
 
-  <Button title="Connect" {loading} loadingMessage={"Connecting to Defender ..."} onclick={authenticate} />
+  <Button 
+    title="Authenticate" 
+    {loading} 
+    loadingMessage={"Authenticating ..."} 
+    onclick={authenticate} 
+    disabled={globalState.authenticated}
+  />
 </div>

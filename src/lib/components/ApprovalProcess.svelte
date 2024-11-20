@@ -81,6 +81,10 @@
   let disableCreation = $derived.by(() =>
     globalState.approvalProcesses.some(approvalProcessByNetworkAndComponent),
   );
+
+  let disableRelayers = $derived.by(() => 
+    !globalState.permissions?.includes("manage-relayers")
+  );
 </script>
 
 <div class="form-check">
@@ -158,16 +162,25 @@
       disabled={radioSelected !== "new" || disableCreation}
     />
   {:else if approvalProcessType === "Relayer"}
-    <label for="relayer" class="mb-0"> Relayer (required) </label>
-    <Dropdown
-      name="relayer"
-      items={globalState.relayers
-        .filter(relayerByNetwork)
-        .map(relayerToDropdownItem)}
-      placeholder="* Select Relayer"
-      on:select={(e) => onSelectRelayer(e.detail)}
-      disabled={radioSelected !== "new" || disableCreation}
-    />
+    {#if disableRelayers}
+      <div class="alert alert-warning d-flex align-items-center mt-2">
+        <i class="fa fa-exclamation-triangle mr-2"></i>
+        <p class="m-0 lh-1">
+          <small class="lh-sm">API Key not allowed to manage Relayers</small>
+        </p>
+      </div>
+    {:else}
+      <label for="relayer" class="mb-0"> Relayer (required) </label>
+      <Dropdown
+        name="relayer"
+        items={globalState.relayers
+          .filter(relayerByNetwork)
+          .map(relayerToDropdownItem)}
+        placeholder="* Select Relayer"
+        on:select={(e) => onSelectRelayer(e.detail)}
+        disabled={radioSelected !== "new" || disableCreation}
+      />
+    {/if}
   {/if}
 </div>
 <div class="form-check">

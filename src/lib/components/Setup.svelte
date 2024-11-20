@@ -26,14 +26,14 @@
 
     const result: APIResponse<AuthenticationResponse> = await API.authenticate({ apiKey, apiSecret });
 
-    if (!result.success) {
-      logError(`[Defender Deploy] Authentication failed, error: ${JSON.stringify(result.error)}`);
-      errorMessage = result.error ?? "Defender Authentication Failed";
-    } else {
+    if (result.success) {
       globalState.authenticated = true;
       logSuccess("[Defender Deploy] Defender Authentication was successful!");
       successMessage = "API Key Authenticated";
       onSuccess();
+    } else {
+      logError(`[Defender Deploy] Authentication failed, error: ${JSON.stringify(result.error)}`);
+      errorMessage = result.error ?? "Defender Authentication Failed";
     }
 
     if (result?.data?.credentials) {
@@ -41,6 +41,10 @@
         apiKey: result?.data?.credentials.apiKey,
         apiSecret: result?.data?.credentials.apiSecret,
       };
+    }
+
+    if (result?.data?.permissions) {
+      globalState.permissions = result?.data?.permissions;
     }
 
     if (result?.data?.networks) {

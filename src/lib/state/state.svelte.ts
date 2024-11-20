@@ -22,6 +22,9 @@ export const globalState = $state<GlobalState>({
     apiSecret: '',
   },
 
+  // API Key capabilites.
+  permissions: [],
+
   // Networks supported by Defender + tenant networks.
   networks: [],
 

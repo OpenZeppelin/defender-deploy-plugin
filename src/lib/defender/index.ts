@@ -15,6 +15,12 @@ const getClient = (credentials: Credentials) => {
   });
 }
 
+export const listApiKeyPermissions = async (credentials: Credentials) => {
+  const client = getClient(credentials);
+  const capabilities = await client.account.listApiKeyCapabilities();
+  return capabilities;
+}
+
 export const listNetworks = async (credentials: Credentials) => {
   const client = getClient(credentials);
   const networks = await client.network.listSupportedNetworks();

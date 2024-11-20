@@ -1,6 +1,6 @@
 import type { CompilationFileSources, CompilationResult, SourceWithTarget } from "@remixproject/plugin-api";
 import type { Relayer } from "./relayer";
-import type { Credentials } from "./auth";
+import type { ApiKeyCapability, Credentials } from "./auth";
 import type { ApprovalProcess } from "./approval-process";
 
 export type DropdownItem = {
@@ -13,6 +13,7 @@ export type GlobalState = {
   error?: string;
   successMessage?: string;
   credentials: Credentials;
+  permissions: ApiKeyCapability[];
   networks: string[];
   approvalProcesses: ApprovalProcess[];
   relayers: Relayer[];

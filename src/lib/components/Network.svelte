@@ -4,6 +4,11 @@
   import { globalState } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
 
+  type Props = {
+    onSelected: (network: string) => void;
+  };
+  const { onSelected }: Props = $props();
+
   const networkToDropdownItem = (network: string) => ({
     label: chainDisplayNames[network],
     value: network,
@@ -15,6 +20,7 @@
     network = item.value;
     globalState.form.network = network;
     globalState.form.approvalProcessSelected = undefined;
+    onSelected(network);
   };
 </script>
 

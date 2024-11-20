@@ -46,3 +46,5 @@ export const attempt = async <T>(
 export const abbreviateAddress = (address: string, size = 6) => {
   return `${address.slice(0, size)}...${address.slice(-size)}`;
 }
+
+export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

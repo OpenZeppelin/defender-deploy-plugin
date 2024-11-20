@@ -6,6 +6,12 @@
   import { globalState } from "$lib/state/state.svelte";
   import Button from "./shared/Button.svelte";
 
+  type Props = {
+    onSuccess: () => void;
+  };
+
+  const { onSuccess }: Props = $props();
+
   let loading = $state(false);
   let successMessage = $state<string | undefined>(undefined);
   let errorMessage = $state<string | undefined>(undefined);
@@ -27,6 +33,7 @@
       globalState.authenticated = true;
       logSuccess("[Defender Deploy] Defender Authentication was successful!");
       successMessage = "API Key Authenticated";
+      onSuccess();
     }
 
     if (result?.data?.credentials) {

@@ -23,7 +23,7 @@ The interface is ugly, but don't worry! it's not meant to be used directly, it's
 ```bash
 Plugin Name: defender
 Display Name: Defender Deploy
-Url: http://localhost:5173
+Url: http://localhost:5173 # or live version https://defeder-remix-deploy.netlify.app/
 Type of connection: Iframe
 Location in Remix: Side Panel
 ```

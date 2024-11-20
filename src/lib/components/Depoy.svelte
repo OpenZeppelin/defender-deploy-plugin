@@ -24,11 +24,13 @@
   let contractName: string | undefined;
   let contractBytecode: string | undefined;
   let artifactPayload: string | undefined;
+  let salt: string | undefined;
   let inputsWithValue: Record<string, string | number | boolean> = {};
   let contractPath: string | undefined;
 
   let deploymentId = $state<string | undefined>(undefined);
   let deploying = $state(false);
+  let isDeterministic = $state(false);
 
   /**
    * Finds constructor arguments and loads contract features.
@@ -207,6 +209,7 @@
       verifySourceCode: true,
       artifactPayload: artifactPayload,
       constructorBytecode: constructorBytecode,
+      salt,
     };
     const result: APIResponse<{ deployment: { deploymentId: string } }> =
       await API.createDeployment(deployRequest);
@@ -253,6 +256,11 @@
     const target = event.target as HTMLInputElement;
     inputsWithValue[target.name] = target.value;
   }
+
+  function handleSaltChanged(event: Event) {
+    const target = event.target as HTMLInputElement;
+    salt = target.value;
+  }
 </script>
 
 <input
@@ -261,6 +269,30 @@
   value={globalState.contract?.target ?? "Compile Contract"}
   disabled
 />
+
+<div class="form-check m-2">
+  <input 
+    class="form-check-input" 
+    type="checkbox" 
+    id="isDeterministic" 
+    checked={isDeterministic} 
+    onchange={() => (isDeterministic = !isDeterministic)}
+  >
+  <label class="form-check-label" for="isDeterministic">
+    Deterministic
+  </label>
+</div>
+
+{#if isDeterministic}
+  <label for="salt">{`Salt`}</label>
+  <input
+    name="salt"
+    type="text"
+    class="form-control"
+    placeholder={"Salt"}
+    onchange={handleSaltChanged}
+  />
+{/if}
 
 {#each inputs as input}
   <label for="apiSecret">{`${input.name} (${input.type})`}</label>

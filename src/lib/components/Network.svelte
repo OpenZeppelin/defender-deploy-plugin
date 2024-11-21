@@ -19,7 +19,12 @@
   const onNetworkSelect = (item: DropdownItem) => {
     network = item.value;
     globalState.form.network = network;
+
+    // Resets Approval process state.
     globalState.form.approvalProcessSelected = undefined;
+    globalState.form.approvalProcessToCreate = undefined;
+    globalState.form.approvalType = 'existing';
+
     onSelected(network);
   };
 </script>

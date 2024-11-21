@@ -198,7 +198,11 @@
     const selectedApprovalProcess = globalState.form.approvalProcessSelected;
     const approvalProcess: ApprovalProcess | undefined =
       selectedApprovalProcess ?? (await createApprovalProcess());
-    if (!approvalProcess) return;
+    if (!approvalProcess) {
+      deploying = false;
+      logError("[Defender Deploy] No Approval Process selected");
+      return;
+    };
 
     log("[Defender Deploy] Creating contract deployment in Defender...");
     const deployRequest: DeployContractRequest = {

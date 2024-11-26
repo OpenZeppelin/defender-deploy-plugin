@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { chainDisplayNames, type TenantNetworkResponse } from "$lib/models/network";
+  import {
+    chainDisplayNames,
+    type TenantNetworkResponse,
+  } from "$lib/models/network";
   import type { DropdownItem } from "$lib/models/ui";
   import { globalState } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
@@ -23,14 +26,16 @@
     // Resets Approval process state.
     globalState.form.approvalProcessSelected = undefined;
     globalState.form.approvalProcessToCreate = undefined;
-    globalState.form.approvalType = 'existing';
+    globalState.form.approvalType = "existing";
 
     onSelected(network);
   };
 </script>
 
 <Dropdown
-  items={globalState.networks.map(networkToDropdownItem).sort((a, b) => a.label > b.label ? 1 : -1)}
+  items={globalState.networks
+    .map(networkToDropdownItem)
+    .sort((a, b) => (a.label > b.label ? 1 : -1))}
   placeholder="Select Network"
   on:select={(e) => onNetworkSelect(e.detail)}
 />

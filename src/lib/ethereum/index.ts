@@ -1,5 +1,5 @@
 import { type Eip1193Provider, BrowserProvider, ContractFactory } from 'ethers';
-import { chainIds } from "$lib/models/network";
+import { chainIds, type TenantNetworkResponse } from "$lib/models/network";
 import type { DeployContractResult } from '$lib/models/ethereum';
 
 function getEthereum(): Eip1193Provider {
@@ -12,8 +12,8 @@ function getEthereum(): Eip1193Provider {
  * 
  * @param network target network to switch to.
  */
-export async function switchToNetwork(network: string) {
-  const chainId = chainIds[network];
+export async function switchToNetwork(network: string | TenantNetworkResponse) {
+  const chainId = typeof network === 'string' ? chainIds[network] : network.chainId;
   if (!chainId) throw new Error(`Invalid network: ${network}`);
 
   const ethereum = getEthereum();

@@ -2,6 +2,18 @@
  * Network mappings for Defender
  * https://github.com/OpenZeppelin/defender-sdk/blob/main/packages/base/src/utils/network.ts
  */
+
+export interface TenantNetworkResponse {
+  tenantNetworkId: string;
+  name: string;
+  chainId: number;
+  networkType: 'private' | 'fork';
+}
+
+export function getNetworkLiteral(network: string | TenantNetworkResponse): string {
+  return typeof network === 'string' ? network : network.name;
+}
+
 export const chainIds: { [key in string]: number } = {
   'alfajores': 44787,
   'amoy': 80002,

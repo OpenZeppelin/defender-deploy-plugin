@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { chainDisplayNames } from "$lib/models/network";
+  import { chainDisplayNames, type TenantNetworkResponse } from "$lib/models/network";
   import type { DropdownItem } from "$lib/models/ui";
   import { globalState } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
@@ -9,10 +9,10 @@
   };
   const { onSelected }: Props = $props();
 
-  const networkToDropdownItem = (network: string) => ({
-    label: chainDisplayNames[network] ?? network,
-    value: network,
-  });
+  const networkToDropdownItem = (network: string | TenantNetworkResponse) => {
+    const n = typeof network === "string" ? network : network.name;
+    return { label: chainDisplayNames[n] ?? n, value: network };
+  };
 
   // network selection logic
   let network = $state("");

@@ -20,6 +20,7 @@
   import { deployContract, switchToNetwork } from "$lib/ethereum";
   import { API } from "$lib/api";
   import type { APIResponse } from "$lib/models/ui";
+    import { getNetworkLiteral } from "$lib/models/network";
 
   let contractName: string | undefined;
   let contractBytecode: string | undefined;
@@ -105,7 +106,7 @@
       name: `Deploy From Remix - ${ap.viaType}`,
       via: ap.via,
       viaType: ap.viaType,
-      network: globalState.form.network,
+      network: getNetworkLiteral(globalState.form.network),
       relayerId: ap.relayerId,
       component: ["deploy"],
     };
@@ -207,7 +208,7 @@
     log("[Defender Deploy] Creating contract deployment in Defender...");
     const deployRequest: DeployContractRequest = {
       contractName: contractName,
-      network: globalState.form.network,
+      network: getNetworkLiteral(globalState.form.network),
       approvalProcessId: approvalProcess.approvalProcessId,
       contractPath: contractPath,
       verifySourceCode: true,
@@ -274,18 +275,21 @@
   disabled
 />
 
-<div class="form-check m-2">
-  <input 
-    class="form-check-input" 
-    type="checkbox" 
-    id="isDeterministic" 
-    checked={isDeterministic} 
-    onchange={() => (isDeterministic = !isDeterministic)}
-  >
-  <label class="form-check-label" for="isDeterministic">
-    Deterministic
-  </label>
+<div class="pt-2">
+  <div class="form-check">
+    <input 
+      class="form-check-input" 
+      type="checkbox" 
+      id="isDeterministic" 
+      checked={isDeterministic} 
+      onchange={() => (isDeterministic = !isDeterministic)}
+    >
+    <label class="form-check-label" for="isDeterministic">
+      Deterministic
+    </label>
+  </div>
 </div>
+
 
 {#if isDeterministic}
   <label for="salt">{`Salt`}</label>
@@ -324,3 +328,9 @@
   </p>
 </div>
 {/if}
+
+<style>
+  input[type=checkbox] {
+    top: 2px;
+  }
+</style>

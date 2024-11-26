@@ -55,7 +55,7 @@
     {/each}
     {#if items.length === 0}
       <button type="button" class="dropdown-item" disabled>
-        {emptyLabel ?? "No items available"}
+        <small>{emptyLabel ?? "No items available"}</small>
       </button>
     {/if}
   </div>
@@ -67,8 +67,14 @@
     font-size: smaller;
   }
 
+  .dropdown-menu {
+    background: var(--custom-select);
+  }
+
   .dropdown-item {
     cursor: pointer;
     font-size: smaller;
+    background: var(--custom-select);
+    color: var(--text);
   }
 </style>

@@ -114,12 +114,12 @@
             value: globalState.form.approvalProcessSelected,
           }
         : undefined}
-      emptyLabel="No Approval Processes in selected Network"
+      emptyLabel="No Approval Processes Available"
     />
   {/key}
 </div>
 <div
-  class="form-check"
+  class="form-check mt-3"
   title={disableCreation ? "Deploy Environment already exists" : undefined}
 >
   <input
@@ -183,7 +183,7 @@
     {/if}
   {/if}
 </div>
-<div class="form-check">
+<div class="form-check mt-3">
   <input
     class="form-check-input"
     type="radio"

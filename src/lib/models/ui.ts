@@ -2,6 +2,7 @@ import type { CompilationFileSources, CompilationResult, SourceWithTarget } from
 import type { Relayer } from "./relayer";
 import type { ApiKeyCapability, Credentials } from "./auth";
 import type { ApprovalProcess } from "./approval-process";
+import type { TenantNetworkResponse } from "./network";
 
 export type DropdownItem = {
   label: string;
@@ -14,7 +15,7 @@ export type GlobalState = {
   successMessage?: string;
   credentials: Credentials;
   permissions: ApiKeyCapability[];
-  networks: string[];
+  networks: string[] | TenantNetworkResponse[];
   approvalProcesses: ApprovalProcess[];
   relayers: Relayer[];
   contract?: {
@@ -24,7 +25,7 @@ export type GlobalState = {
     data?: CompilationResult | null,
   }
   form: {
-    network?: string;
+    network?: string | TenantNetworkResponse;
     approvalProcessSelected?: ApprovalProcess;
     approvalProcessToCreate?: {
       viaType: 'EOA' | 'Safe' | 'Relayer';

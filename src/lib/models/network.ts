@@ -2,6 +2,18 @@
  * Network mappings for Defender
  * https://github.com/OpenZeppelin/defender-sdk/blob/main/packages/base/src/utils/network.ts
  */
+
+export interface TenantNetworkResponse {
+  tenantNetworkId: string;
+  name: string;
+  chainId: number;
+  networkType: 'private' | 'fork';
+}
+
+export function getNetworkLiteral(network: string | TenantNetworkResponse): string {
+  return typeof network === 'string' ? network : network.name;
+}
+
 export const chainIds: { [key in string]: number } = {
   'alfajores': 44787,
   'amoy': 80002,
@@ -88,6 +100,7 @@ export const chainDisplayNames: { [key in string]: string } = {
   'matic': 'Polygon',
   'matic-zkevm': 'Polygon ZK-EVM',
   'matic-zkevm-testnet': 'Polygon ZK-EVM Testnet',
+  'matic-cardona-zkevm-testnet': 'Polygon Cardona ZK-EVM Testnet',
   'meld': 'Meld',
   'meld-kanazawa': 'Meld Kanazawa',
   'moonbase': 'Moonbase',

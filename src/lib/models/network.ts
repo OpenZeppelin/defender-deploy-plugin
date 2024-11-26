@@ -88,6 +88,7 @@ export const chainDisplayNames: { [key in string]: string } = {
   'matic': 'Polygon',
   'matic-zkevm': 'Polygon ZK-EVM',
   'matic-zkevm-testnet': 'Polygon ZK-EVM Testnet',
+  'matic-cardona-zkevm-testnet': 'Polygon ZK-EVM Testnet',
   'meld': 'Meld',
   'meld-kanazawa': 'Meld Kanazawa',
   'moonbase': 'Moonbase',

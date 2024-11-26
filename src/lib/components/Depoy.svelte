@@ -274,18 +274,21 @@
   disabled
 />
 
-<div class="form-check m-2">
-  <input 
-    class="form-check-input" 
-    type="checkbox" 
-    id="isDeterministic" 
-    checked={isDeterministic} 
-    onchange={() => (isDeterministic = !isDeterministic)}
-  >
-  <label class="form-check-label" for="isDeterministic">
-    Deterministic
-  </label>
+<div class="pt-2">
+  <div class="form-check">
+    <input 
+      class="form-check-input" 
+      type="checkbox" 
+      id="isDeterministic" 
+      checked={isDeterministic} 
+      onchange={() => (isDeterministic = !isDeterministic)}
+    >
+    <label class="form-check-label" for="isDeterministic">
+      Deterministic
+    </label>
+  </div>
 </div>
+
 
 {#if isDeterministic}
   <label for="salt">{`Salt`}</label>
@@ -324,3 +327,9 @@
   </p>
 </div>
 {/if}
+
+<style>
+  input[type=checkbox] {
+    top: 2px;
+  }
+</style>

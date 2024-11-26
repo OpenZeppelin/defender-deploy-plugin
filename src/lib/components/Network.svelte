@@ -10,7 +10,7 @@
   const { onSelected }: Props = $props();
 
   const networkToDropdownItem = (network: string) => ({
-    label: chainDisplayNames[network],
+    label: chainDisplayNames[network] ?? network,
     value: network,
   });
 

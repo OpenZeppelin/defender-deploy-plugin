@@ -50,4 +50,5 @@
   items={globalState.networks.map(networkToDropdownItem)}
   placeholder="Select Network"
   on:select={(e) => onNetworkSelect(e.detail)}
+  defaultItem={globalState.form.network ? networkToDropdownItem(globalState.form.network) : undefined}
 />

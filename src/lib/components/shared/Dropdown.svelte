@@ -18,6 +18,13 @@
   const { placeholder, items, disabled, emptyLabel, defaultItem, name }: Props =
     $props();
 
+  const groupedItems = $derived(items.reduce((acc, item) => {
+    const group = item.group || 'default';
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(item);
+    return acc;
+  }, {} as Record<string, DropdownItem[]>));
+
   // network selection logic
   let selected = $state<DropdownItem | undefined>(defaultItem);
   const onSelect = (item: DropdownItem) => {
@@ -44,14 +51,22 @@
     </span>
   </button>
   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-    {#each items as item}
-      <button
-        type="button"
-        class="dropdown-item"
-        onclick={() => onSelect(item)}
-      >
-        {item.label}
-      </button>
+    {#each Object.entries(groupedItems) as [group, items]}
+      {#if group !== 'default'}
+        <div class="dropdown-header">
+          <small>{group}</small>
+          <hr class="p-0 m-0 border-secondary"/>
+        </div>
+      {/if}
+      {#each items.sort((a, b) => a.label.localeCompare(b.label)) as item}
+        <button
+          type="button"
+          class="dropdown-item"
+          onclick={() => onSelect(item)}
+        >
+          {item.label}
+        </button>
+      {/each}
     {/each}
     {#if items.length === 0}
       <button type="button" class="dropdown-item" disabled>

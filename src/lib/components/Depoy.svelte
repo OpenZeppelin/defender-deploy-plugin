@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { globalState } from "$lib/state/state.svelte";
+  import { addAPToDropdown, clearErrorBanner, globalState, setErrorBanner } from "$lib/state/state.svelte";
   import type {
     ABIDescription,
     ABIParameter,
@@ -8,7 +8,7 @@
   import Button from "./shared/Button.svelte";
   import { AbiCoder } from "ethers";
   import { attempt } from "$lib/utils";
-  import { log, logError, logSuccess } from "$lib/remix/logger";
+  import { log, logError, logSuccess, logWarning } from "$lib/remix/logger";
   import type {
     ApprovalProcess,
     CreateApprovalProcessRequest,
@@ -99,12 +99,12 @@
     if (!ap) return;
 
     if (!globalState.form.network) {
-      globalState.error = "Please select a network";
+      setErrorBanner("Please select a network");
       return;
     }
 
     if (!ap.via || !ap.viaType) {
-      globalState.error = "Please select an approval process";
+      setErrorBanner("Please select an approval process");
       return;
     }
 
@@ -121,7 +121,7 @@
       await API.createApprovalProcess(apRequest);
 
     if (!result.success) {
-      globalState.error = result.error;
+      setErrorBanner(result.error);
       deploying = false;
 
       // log error in Remix terminal
@@ -131,12 +131,19 @@
       return;
     }
 
+
+    logSuccess("[Defender Deploy] Deployment Environment successfully created");
+    logWarning("[Defender Deploy] The created Deployment Environment has Deploy Approval Process configuration only, the Block Explorer API Key and Upgrade Approval Process are not set");
+    if (!result.data) return;
+
+    addAPToDropdown(result.data?.approvalProcess)
     return result.data?.approvalProcess;
   }
 
   async function triggerDeployment() {
     if (!globalState.form.network || !contractName || !contractPath) return;
 
+    clearErrorBanner();
     deploying = true;
 
     const [constructorBytecode, error] = await attempt<string>(async () => {
@@ -229,7 +236,7 @@
       logError(
         `[Defender Deploy] Contract deployment creation failed, error: ${JSON.stringify(result.error)}`,
       );
-      globalState.error = result.error;
+      setErrorBanner(result.error);
       deploying = false;
       return;
     }

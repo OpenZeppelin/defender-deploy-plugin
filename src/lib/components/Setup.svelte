@@ -3,7 +3,7 @@
   import type { AuthenticationResponse } from "$lib/models/auth";
   import type { APIResponse } from "$lib/models/ui";
   import { logError, logSuccess } from "$lib/remix/logger";
-  import { globalState } from "$lib/state/state.svelte";
+  import { clearErrorBanner, globalState } from "$lib/state/state.svelte";
   import Button from "./shared/Button.svelte";
 
   type Props = {
@@ -20,7 +20,7 @@
 
   const authenticate = async () => {
     loading = true;
-    globalState.error = undefined;
+    clearErrorBanner();
     successMessage = undefined;
     errorMessage = undefined;
 

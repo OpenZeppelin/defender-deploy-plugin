@@ -7,6 +7,7 @@ import type { TenantNetworkResponse } from "./network";
 export type DropdownItem = {
   label: string;
   value: any;
+  group?: string;
 }
 
 export type GlobalState = {

@@ -17,6 +17,11 @@ export const logSuccess = (msg: string) => {
   terminal?.log({ type: 'info', value: msg });
 }
 
+export const logWarning = (msg: string) => {
+  if (!terminal) throw new Error('Terminal not initialized');
+  terminal?.log({ type: 'warn', value: msg });
+}
+
 export const log = (msg: string) => {
   if (!terminal) throw new Error('Terminal not initialized');
   terminal?.log({ type: 'log', value: msg });

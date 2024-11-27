@@ -66,3 +66,11 @@ export const globalState = $state<GlobalState>({
     completed: false,
   },
 });
+
+export const clearErrorBanner = () => {
+  globalState.error = undefined;
+};
+
+export const setErrorBanner = (error?: string) => {
+  globalState.error = error;
+};

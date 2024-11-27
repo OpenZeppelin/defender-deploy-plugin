@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { globalState } from "$lib/state/state.svelte";
+  import { clearErrorBanner, globalState, setErrorBanner } from "$lib/state/state.svelte";
   import type {
     ABIDescription,
     ABIParameter,
@@ -99,12 +99,12 @@
     if (!ap) return;
 
     if (!globalState.form.network) {
-      globalState.error = "Please select a network";
+      setErrorBanner("Please select a network");
       return;
     }
 
     if (!ap.via || !ap.viaType) {
-      globalState.error = "Please select an approval process";
+      setErrorBanner("Please select an approval process");
       return;
     }
 
@@ -121,7 +121,7 @@
       await API.createApprovalProcess(apRequest);
 
     if (!result.success) {
-      globalState.error = result.error;
+      setErrorBanner(result.error);
       deploying = false;
 
       // log error in Remix terminal
@@ -137,6 +137,7 @@
   async function triggerDeployment() {
     if (!globalState.form.network || !contractName || !contractPath) return;
 
+    clearErrorBanner();
     deploying = true;
 
     const [constructorBytecode, error] = await attempt<string>(async () => {
@@ -229,7 +230,7 @@
       logError(
         `[Defender Deploy] Contract deployment creation failed, error: ${JSON.stringify(result.error)}`,
       );
-      globalState.error = result.error;
+      setErrorBanner(result.error);
       deploying = false;
       return;
     }

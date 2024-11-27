@@ -1,3 +1,4 @@
+import type { ApprovalProcess } from "$lib/models/approval-process";
 import type { GlobalState } from "$lib/models/ui";
 
 /**
@@ -73,4 +74,8 @@ export const clearErrorBanner = () => {
 
 export const setErrorBanner = (error?: string) => {
   globalState.error = error;
+};
+
+export const addAPToDropdown = (approvalProcess: ApprovalProcess) => {
+  globalState.approvalProcesses.push(approvalProcess);
 };

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { clearErrorBanner, globalState, setErrorBanner } from "$lib/state/state.svelte";
+  import { addAPToDropdown, clearErrorBanner, globalState, setErrorBanner } from "$lib/state/state.svelte";
   import type {
     ABIDescription,
     ABIParameter,
@@ -8,7 +8,7 @@
   import Button from "./shared/Button.svelte";
   import { AbiCoder } from "ethers";
   import { attempt } from "$lib/utils";
-  import { log, logError, logSuccess } from "$lib/remix/logger";
+  import { log, logError, logSuccess, logWarning } from "$lib/remix/logger";
   import type {
     ApprovalProcess,
     CreateApprovalProcessRequest,
@@ -131,6 +131,12 @@
       return;
     }
 
+
+    logSuccess("[Defender Deploy] Deployment Environment successfully created");
+    logWarning("[Defender Deploy] The created Deployment Environment has Deploy Approval Process configuration only, the Block Explorer API Key and Upgrade Approval Process are not set");
+    if (!result.data) return;
+
+    addAPToDropdown(result.data?.approvalProcess)
     return result.data?.approvalProcess;
   }
 

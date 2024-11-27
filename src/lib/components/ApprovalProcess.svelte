@@ -6,8 +6,13 @@
   import type {  DropdownItem, GlobalState } from "$lib/models/ui";
   import type { Relayer } from "$lib/models/relayer";
 
-  const approvalProcessByNetworkAndComponent = (ap: ApprovalProcess) =>
-    ap.network === globalState.form.network && ap.component?.includes("deploy");
+  function approvalProcessByNetworkAndComponent(ap: ApprovalProcess) {
+    const networkName = typeof globalState.form.network === 'string' 
+      ? globalState.form.network 
+      : globalState.form.network?.name;
+      
+    return ap.network === networkName && ap.component?.includes("deploy");
+  }
 
   // Approval processes load logic
   const toDisplayName = (ap: ApprovalProcess) => `${ap.name} (${ap.viaType})`;

@@ -8,6 +8,40 @@ export interface TenantNetworkResponse {
   name: string;
   chainId: number;
   networkType: 'private' | 'fork';
+  isProduction?: boolean;
+}
+
+export const productionNetworks = new Set([
+  'arbitrum',
+  'arbitrum-nova',
+  'aurora',
+  'avalanche',
+  'base',
+  'bsc',
+  'celo',
+  'fantom',
+  'fuse',
+  'hedera',
+  'japan',
+  'linea',
+  'mainnet',
+  'mantle',
+  'matic',
+  'matic-zkevm',
+  'meld',
+  'moonbeam',
+  'moonriver',
+  'optimism',
+  'scroll',
+  'xdai',
+  'zksync'
+]);
+
+export function isProductionNetwork(network: string | TenantNetworkResponse): boolean {
+  if (typeof network === 'string') {
+    return productionNetworks.has(network);
+  }
+  return network.isProduction ?? false;
 }
 
 export function getNetworkLiteral(network: string | TenantNetworkResponse): string {

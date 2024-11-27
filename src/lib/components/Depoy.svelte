@@ -20,7 +20,7 @@
   import { deployContract, switchToNetwork } from "$lib/ethereum";
   import { API } from "$lib/api";
   import type { APIResponse } from "$lib/models/ui";
-    import { getNetworkLiteral } from "$lib/models/network";
+  import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
 
   let contractName: string | undefined;
   let contractBytecode: string | undefined;
@@ -30,6 +30,13 @@
   let contractPath: string | undefined;
 
   let deploymentId = $state<string | undefined>(undefined);
+  const deploymentUrl = $derived(
+  deploymentId && globalState.form.network
+    ? `https://defender.openzeppelin.com/#/deploy/environment/${
+        isProductionNetwork(globalState.form.network) ? 'production' : 'test'
+      }?deploymentId=${deploymentId}`
+    : undefined
+);
   let deploying = $state(false);
   let isDeterministic = $state(false);
 
@@ -321,9 +328,11 @@
   <p class="m-0">
     <small class="lh-sm">
       Contract deployment submitted to Defender!<br>
-      <a class="text-success" href={`https://defender.openzeppelin.com/#/deploy/environment/test?deploymentId=${deploymentId}`} target="_blank">
-        View Deployment
-      </a>
+      {#if deploymentUrl}
+        <a class="text-success" href={deploymentUrl} target="_blank">
+          View Deployment
+        </a>
+      {/if}
     </small>
   </p>
 </div>

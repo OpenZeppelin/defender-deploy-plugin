@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     chainDisplayNames,
+    isProductionNetwork,
     type TenantNetworkResponse,
   } from "$lib/models/network";
   import type { DropdownItem } from "$lib/models/ui";
@@ -12,9 +13,22 @@
   };
   const { onSelected }: Props = $props();
 
+  const getNetworkGroup = (network: string | TenantNetworkResponse) => {
+    const type = typeof network !== "string" ? network.networkType : undefined;
+    if (type === 'fork') return 'Forked Networks';
+    if (type === 'private') return 'Private Networks';
+
+    const isProduction = isProductionNetwork(network);
+    return isProduction ? 'Production Networks' : 'Test Networks';
+  };
+
   const networkToDropdownItem = (network: string | TenantNetworkResponse) => {
     const n = typeof network === "string" ? network : network.name;
-    return { label: chainDisplayNames[n] ?? n, value: network };
+    return { 
+      label: chainDisplayNames[n] ?? n, 
+      value: network, 
+      group: getNetworkGroup(network),
+    };
   };
 
   // network selection logic
@@ -33,9 +47,7 @@
 </script>
 
 <Dropdown
-  items={globalState.networks
-    .map(networkToDropdownItem)
-    .sort((a, b) => (a.label > b.label ? 1 : -1))}
+  items={globalState.networks.map(networkToDropdownItem)}
   placeholder="Select Network"
   on:select={(e) => onNetworkSelect(e.detail)}
 />

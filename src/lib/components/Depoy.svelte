@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import { addAPToDropdown, clearErrorBanner, globalState, setErrorBanner } from "$lib/state/state.svelte";
   import type {
     ABIDescription,
@@ -28,6 +29,7 @@
   let salt: string | undefined;
   let inputsWithValue: Record<string, string | number | boolean> = {};
   let contractPath: string | undefined;
+  let timeout: NodeJS.Timeout | undefined;
 
   let deploymentId = $state<string | undefined>(undefined);
   const deploymentUrl = $derived(
@@ -39,6 +41,7 @@
 );
   let deploying = $state(false);
   let isDeterministic = $state(false);
+  let deploymentResult = $state<{ address: string, hash: string } | undefined>(undefined);
 
   /**
    * Finds constructor arguments and loads contract features.
@@ -140,6 +143,27 @@
     return result.data?.approvalProcess;
   }
 
+  function logDeploymentResult(result: { address: string, hash: string }) {
+    logSuccess(`[Defender Deploy] Contract deployed, address: ${result.address}, tx hash: ${result.hash}`);
+  }
+
+  function listenForDeployment(deploymentId: string) {
+    // polls the deployment status every 10 seconds
+    log("[Defender Deploy] Waiting for deployment...");
+    const interval = 10000;
+    timeout = setInterval(async () => {
+      const result: APIResponse<{ address: string, hash: string }> = await API.getDeployment(deploymentId);
+      if (result.success && result.data?.address) {
+        deploymentResult = {
+          address: result.data.address,
+          hash: result.data.hash,
+        };
+        logDeploymentResult(deploymentResult);
+        clearInterval(timeout);
+      }
+    }, interval);
+  }
+
   async function triggerDeployment() {
     if (!globalState.form.network || !contractName || !contractPath) return;
 
@@ -199,8 +223,12 @@
         `[Defender Deploy] Contract deployed, tx hash: ${result?.hash}`,
       );
 
-      contractAddress = result?.address;
-      hash = result?.hash;
+      if (result) {
+        contractAddress = result.address;
+        hash = result.hash;
+        deploymentResult = { address: contractAddress, hash: hash };
+        logDeploymentResult(deploymentResult);
+      }
 
       // loads global state with EOA approval process to create
       globalState.form.approvalProcessToCreate = {
@@ -264,6 +292,12 @@
         deploying = false;
         return;
       }
+      deploymentResult = { address: contractAddress, hash: hash };
+      logDeploymentResult(deploymentResult);
+    } else {
+      // If we're not using an injected provider
+      // we need to listen for the deployment to be finished.
+      listenForDeployment(deploymentId);
     }
 
     logSuccess("[Defender Deploy] Deployment submitted to Defender!");
@@ -280,6 +314,12 @@
     const target = event.target as HTMLInputElement;
     salt = target.value;
   }
+
+  onDestroy(() => {
+    if (timeout) {
+      clearInterval(timeout);
+    }
+  });
 </script>
 
 <input
@@ -334,7 +374,12 @@
   <i class="fa fa-check-circle-o mr-2"></i>
   <p class="m-0">
     <small class="lh-sm">
-      Contract deployment submitted to Defender!<br>
+      {#if deploymentResult}
+        Contract deployed
+      {:else}
+        Contract deployment submitted to Defender!
+      {/if}
+      <br>
       {#if deploymentUrl}
         <a class="text-success" href={deploymentUrl} target="_blank">
           View Deployment

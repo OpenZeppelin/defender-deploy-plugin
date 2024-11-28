@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { addAPToDropdown, clearErrorBanner, globalState, setErrorBanner } from "$lib/state/state.svelte";
+  import { addAPToDropdown, clearErrorBanner, globalState, setDeploymentCompleted, setErrorBanner } from "$lib/state/state.svelte";
   import type {
     ABIDescription,
     ABIParameter,
@@ -8,7 +8,7 @@
   } from "@remixproject/plugin-api";
   import Button from "./shared/Button.svelte";
   import { AbiCoder } from "ethers";
-  import { attempt } from "$lib/utils";
+  import { attempt, isDeploymentEnvironment, isSameNetwork } from "$lib/utils";
   import { log, logError, logSuccess, logWarning } from "$lib/remix/logger";
   import type {
     ApprovalProcess,
@@ -96,10 +96,25 @@
     const abi = contracts[path][contractName].abi;
     return { name: contractName, abi };
   }
+  
+  function findDeploymentEnvironment(via?: string, network?: string) {
+    if (!via || !network) return undefined;
+    return globalState.approvalProcesses.find((ap) => 
+      ap.network &&
+      isDeploymentEnvironment(ap) &&
+      isSameNetwork(ap.network, network) &&
+      ap.via?.toLocaleLowerCase() === via.toLocaleLowerCase()
+    );
+  }
 
-  async function createApprovalProcess(): Promise<ApprovalProcess | undefined> {
+  async function getOrCreateApprovalProcess(): Promise<ApprovalProcess | undefined> {
     const ap = globalState.form.approvalProcessToCreate;
     if (!ap) return;
+
+    const existing = findDeploymentEnvironment(ap.via, ap.network);
+    if (existing) {
+      return existing;
+    }
 
     if (!globalState.form.network) {
       setErrorBanner("Please select a network");
@@ -168,6 +183,7 @@
     if (!globalState.form.network || !contractName || !contractPath) return;
 
     clearErrorBanner();
+    setDeploymentCompleted(false);
     deploying = true;
 
     const [constructorBytecode, error] = await attempt<string>(async () => {
@@ -190,7 +206,6 @@
     let contractAddress: string | undefined;
     let hash: string | undefined;
     if (shouldUseInjectedProvider) {
-      log("[Defender Deploy] Switching network.");
       // ensures current network matches with the one selected.
       const [, error] = await attempt(async () =>
         switchToNetwork(globalState.form.network!),
@@ -234,13 +249,14 @@
       globalState.form.approvalProcessToCreate = {
         viaType: "EOA",
         via: result?.sender,
+        network: getNetworkLiteral(globalState.form.network),
       };
       globalState.form.approvalProcessSelected = undefined;
     }
 
     const selectedApprovalProcess = globalState.form.approvalProcessSelected;
     const approvalProcess: ApprovalProcess | undefined =
-      selectedApprovalProcess ?? (await createApprovalProcess());
+      selectedApprovalProcess ?? (await getOrCreateApprovalProcess());
     if (!approvalProcess) {
       deploying = false;
       logError("[Defender Deploy] No Approval Process selected");
@@ -301,7 +317,7 @@
     }
 
     logSuccess("[Defender Deploy] Deployment submitted to Defender!");
-    globalState.form.completed = true;
+    setDeploymentCompleted(true);
     deploying = false;
   }
 

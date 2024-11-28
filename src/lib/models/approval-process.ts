@@ -1,3 +1,5 @@
+import type { TenantNetworkResponse } from "./network";
+
 /**
  * Generic approval process model
  */
@@ -6,7 +8,7 @@ export type ApprovalProcess = {
   createdAt: string;
   name: string;
   component?: ComponentType;
-  network?: string;
+  network?: string | TenantNetworkResponse;
   via?: string;
   viaType?: 'EOA' | 'Contract' | 'Multisig' | 'Gnosis Safe' | 'Safe' | 'Gnosis Multisig' | 'Relayer' | 'Relayer Group' | 'Unknown' | 'Relayer Group' | 'Timelock Controller' | 'ERC20' | 'Governor' | 'Fireblocks';
   multisigSender?: string;

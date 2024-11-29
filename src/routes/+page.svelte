@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { initPlugin } from "$lib/remix";
+	import { initRemixPlugin } from "$lib/remix";
 	import { onMount } from "svelte";
 	import { globalState } from "$lib/state/state.svelte";
 	import { slide } from 'svelte/transition';
@@ -11,10 +11,13 @@
 
 	import { getAddress } from "ethers";
 	import { attempt, wait } from "$lib/utils";
+	import { dev } from '$app/environment';
 
 	// Accordeon logic
 	let currentTab = $state(0);
 	const toggle = (tab: number) => (currentTab = tab);
+
+	let parent = $state<'remix' | 'wizard' | 'none'>();
 
 	let isValidApprovalProcessStep = $derived.by(async () => {
 		if (globalState.form.approvalType === "injected") {
@@ -51,26 +54,57 @@
 		return false;
 	});
 
-	onMount(initPlugin);
+	onMount(() => {
+		const inIframe = window.location !== window.parent.location;
+		if (!inIframe) {
+			parent = 'none';
+			return;
+		}
+
+		if (dev) {
+			// Logic to init desired plugin.
+			// TODO: use flags.
+			return;
+		}
+
+		const url = document.location.ancestorOrigins[0];
+
+		if (url.includes("remix.ethereum")) {
+			parent = 'remix';
+			return initRemixPlugin();
+		}
+
+		if (url.includes("wizard.openzeppelin")) {
+			parent = 'wizard';
+			// TODO: init wizard plugin
+			return;
+		}
+	});
 </script>
 
 <div class="container">
-	<p>
-		<small
-			>To get started with <strong>Deploy With Defender</strong>, you need to
-			have an
-			<a href="https://defender.openzeppelin.com/" target="_blank"
-				>OpenZeppelin Defender Account</a
+	{#if parent === 'remix'}
+		<p>
+			<small
+				>To get started with <strong>Deploy With Defender</strong>, you need to
+				have an
+				<a href="https://defender.openzeppelin.com/" target="_blank"
+					>OpenZeppelin Defender Account</a
+				>
+				(It's free) and setup an
+				<a
+					href="https://defender.openzeppelin.com/#/settings/api-keys"
+					target="_blank"
+				>
+					API Key and Secret</a
+				>.</small
 			>
-			(It's free) and setup an
-			<a
-				href="https://defender.openzeppelin.com/#/settings/api-keys"
-				target="_blank"
-			>
-				API Key and Secret</a
-			>.</small
-		>
-	</p>
+		</p>
+	{/if}
+
+	{#if parent === 'wizard'}
+		<p>Defender Deploy in Wizard</p>
+	{/if}
 
 	{#if globalState.error}
 		<div class="alert alert-danger">

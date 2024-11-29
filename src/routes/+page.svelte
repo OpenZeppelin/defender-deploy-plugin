@@ -7,7 +7,7 @@
 	import Setup from "$lib/components/Setup.svelte";
 	import Network from "$lib/components/Network.svelte";
 	import ApprovalProcess from "$lib/components/ApprovalProcess.svelte";
-	import Deploy from "$lib/components/Depoy.svelte";
+	import Deploy from "$lib/components/Deploy.svelte";
 
 	import { getAddress } from "ethers";
 	import { attempt } from "$lib/utils/attempt";

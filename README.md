@@ -1,6 +1,10 @@
+<p align="center">
+  <img src="./src/docs/banner.png" width="350px" alt="OpenZeppelin Logo">
+</p>
+
 # Deploy with Defender - Remix Plugin
 
-Remix plugin to deploy smart contracts using OpenZeppelin Defender.
+Remix plugin to deploy smart contracts using OpenZeppelin Defender. For documentation about usage please refer to (https://docs.openzeppelin.com/defender/remix-plugin)[Defender Docs].
 
 ## Getting Started
 
@@ -16,8 +20,8 @@ The interface is ugly, but don't worry! it's not meant to be used directly, it's
 
 ## Testing in Remix
 
-1. Go to https://remix.ethereum.org/
-2. Click on plugin manager.
+1. Go to (https://remix.ethereum.org/)[Remix IDE].
+2. Click on Plugin Manager (bottom left corner - above settings).
 3. At the top, click on `Connect to a Local Plugin` button.
 4. Set following values
 ```bash
@@ -27,4 +31,4 @@ Url: http://localhost:5173 # or live version https://defeder-remix-deploy.netlif
 Type of connection: Iframe
 Location in Remix: Side Panel
 ```
-5. You should see the plugin added to the sidebar.
+5. You should see the plugin added to the sidebar (new icon with ? symbol).

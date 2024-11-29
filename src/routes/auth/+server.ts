@@ -1,6 +1,6 @@
 import { listApiKeyPermissions, listApprovalProcesses, listNetworks, listRelayers } from "$lib/defender";
 import type { Relayer } from "$lib/models/relayer";
-import { attempt } from "$lib/utils";
+import { attempt } from "$lib/utils/attempt";
 import { json } from '@sveltejs/kit';
 
 const parseError = (error: string, component: string) => {

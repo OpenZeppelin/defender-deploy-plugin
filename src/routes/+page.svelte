@@ -10,7 +10,8 @@
 	import Deploy from "$lib/components/Depoy.svelte";
 
 	import { getAddress } from "ethers";
-	import { attempt, wait } from "$lib/utils";
+	import { attempt } from "$lib/utils/attempt";
+  import { wait } from "$lib/utils/helpers";
 
 	// Accordeon logic
 	let currentTab = $state(0);

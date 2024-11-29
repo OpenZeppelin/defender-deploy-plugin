@@ -10,6 +10,10 @@
  * is the error from the catch statement.
  */
 
+import { getNetworkLiteral } from "./models/network";
+import type { ApprovalProcess } from "./models/approval-process";
+import type { TenantNetworkResponse } from "./models/network";
+
 type AttemptError = {
   msg: string;
   errorObject: any;
@@ -48,3 +52,11 @@ export const abbreviateAddress = (address: string, size = 6) => {
 }
 
 export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const isSameNetwork = (a: string | TenantNetworkResponse, b: string | TenantNetworkResponse) => {
+  return getNetworkLiteral(a) === getNetworkLiteral(b);
+}
+
+export const isDeploymentEnvironment = (approvalProcess: ApprovalProcess) => {
+  return approvalProcess.component?.includes('deploy');
+}

@@ -32,6 +32,7 @@ export type GlobalState = {
       viaType: 'EOA' | 'Safe' | 'Relayer';
       via?: string;
       relayerId?: string;
+      network?: string;
     }
     approvalType?: 'existing' | 'new' | 'injected';
     completed?: boolean;

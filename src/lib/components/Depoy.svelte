@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { addAPToDropdown, clearErrorBanner, globalState, setErrorBanner } from "$lib/state/state.svelte";
+  import { onDestroy } from "svelte";
+  import { addAPToDropdown, clearErrorBanner, globalState, setDeploymentCompleted, setErrorBanner } from "$lib/state/state.svelte";
   import type {
     ABIDescription,
     ABIParameter,
@@ -7,7 +8,7 @@
   } from "@remixproject/plugin-api";
   import Button from "./shared/Button.svelte";
   import { AbiCoder } from "ethers";
-  import { attempt } from "$lib/utils";
+  import { attempt, isDeploymentEnvironment, isSameNetwork } from "$lib/utils";
   import { log, logError, logSuccess, logWarning } from "$lib/remix/logger";
   import type {
     ApprovalProcess,
@@ -28,6 +29,7 @@
   let salt: string | undefined;
   let inputsWithValue: Record<string, string | number | boolean> = {};
   let contractPath: string | undefined;
+  let timeout: NodeJS.Timeout | undefined;
 
   let deploymentId = $state<string | undefined>(undefined);
   const deploymentUrl = $derived(
@@ -39,6 +41,7 @@
 );
   let deploying = $state(false);
   let isDeterministic = $state(false);
+  let deploymentResult = $state<{ address: string, hash: string } | undefined>(undefined);
 
   /**
    * Finds constructor arguments and loads contract features.
@@ -93,10 +96,25 @@
     const abi = contracts[path][contractName].abi;
     return { name: contractName, abi };
   }
+  
+  function findDeploymentEnvironment(via?: string, network?: string) {
+    if (!via || !network) return undefined;
+    return globalState.approvalProcesses.find((ap) => 
+      ap.network &&
+      isDeploymentEnvironment(ap) &&
+      isSameNetwork(ap.network, network) &&
+      ap.via?.toLocaleLowerCase() === via.toLocaleLowerCase()
+    );
+  }
 
-  async function createApprovalProcess(): Promise<ApprovalProcess | undefined> {
+  async function getOrCreateApprovalProcess(): Promise<ApprovalProcess | undefined> {
     const ap = globalState.form.approvalProcessToCreate;
     if (!ap) return;
+
+    const existing = findDeploymentEnvironment(ap.via, ap.network);
+    if (existing) {
+      return existing;
+    }
 
     if (!globalState.form.network) {
       setErrorBanner("Please select a network");
@@ -140,10 +158,32 @@
     return result.data?.approvalProcess;
   }
 
+  function logDeploymentResult(result: { address: string, hash: string }) {
+    logSuccess(`[Defender Deploy] Contract deployed, address: ${result.address}, tx hash: ${result.hash}`);
+  }
+
+  function listenForDeployment(deploymentId: string) {
+    // polls the deployment status every 10 seconds
+    log("[Defender Deploy] Waiting for deployment...");
+    const interval = 10000;
+    timeout = setInterval(async () => {
+      const result: APIResponse<{ address: string, hash: string }> = await API.getDeployment(deploymentId);
+      if (result.success && result.data?.address) {
+        deploymentResult = {
+          address: result.data.address,
+          hash: result.data.hash,
+        };
+        logDeploymentResult(deploymentResult);
+        clearInterval(timeout);
+      }
+    }, interval);
+  }
+
   async function triggerDeployment() {
     if (!globalState.form.network || !contractName || !contractPath) return;
 
     clearErrorBanner();
+    setDeploymentCompleted(false);
     deploying = true;
 
     const [constructorBytecode, error] = await attempt<string>(async () => {
@@ -166,7 +206,6 @@
     let contractAddress: string | undefined;
     let hash: string | undefined;
     if (shouldUseInjectedProvider) {
-      log("[Defender Deploy] Switching network.");
       // ensures current network matches with the one selected.
       const [, error] = await attempt(async () =>
         switchToNetwork(globalState.form.network!),
@@ -199,20 +238,25 @@
         `[Defender Deploy] Contract deployed, tx hash: ${result?.hash}`,
       );
 
-      contractAddress = result?.address;
-      hash = result?.hash;
+      if (result) {
+        contractAddress = result.address;
+        hash = result.hash;
+        deploymentResult = { address: contractAddress, hash: hash };
+        logDeploymentResult(deploymentResult);
+      }
 
       // loads global state with EOA approval process to create
       globalState.form.approvalProcessToCreate = {
         viaType: "EOA",
         via: result?.sender,
+        network: getNetworkLiteral(globalState.form.network),
       };
       globalState.form.approvalProcessSelected = undefined;
     }
 
     const selectedApprovalProcess = globalState.form.approvalProcessSelected;
     const approvalProcess: ApprovalProcess | undefined =
-      selectedApprovalProcess ?? (await createApprovalProcess());
+      selectedApprovalProcess ?? (await getOrCreateApprovalProcess());
     if (!approvalProcess) {
       deploying = false;
       logError("[Defender Deploy] No Approval Process selected");
@@ -264,10 +308,16 @@
         deploying = false;
         return;
       }
+      deploymentResult = { address: contractAddress, hash: hash };
+      logDeploymentResult(deploymentResult);
+    } else {
+      // If we're not using an injected provider
+      // we need to listen for the deployment to be finished.
+      listenForDeployment(deploymentId);
     }
 
     logSuccess("[Defender Deploy] Deployment submitted to Defender!");
-    globalState.form.completed = true;
+    setDeploymentCompleted(true);
     deploying = false;
   }
 
@@ -280,6 +330,12 @@
     const target = event.target as HTMLInputElement;
     salt = target.value;
   }
+
+  onDestroy(() => {
+    if (timeout) {
+      clearInterval(timeout);
+    }
+  });
 </script>
 
 <input
@@ -334,7 +390,12 @@
   <i class="fa fa-check-circle-o mr-2"></i>
   <p class="m-0">
     <small class="lh-sm">
-      Contract deployment submitted to Defender!<br>
+      {#if deploymentResult}
+        Contract deployed
+      {:else}
+        Contract deployment submitted to Defender!
+      {/if}
+      <br>
       {#if deploymentUrl}
         <a class="text-success" href={deploymentUrl} target="_blank">
           View Deployment

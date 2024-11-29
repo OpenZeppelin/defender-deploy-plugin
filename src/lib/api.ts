@@ -60,6 +60,18 @@ class ApiClient {
 
     return response.json();
   }
+
+  async getDeployment(deploymentId: string) {
+    const response = await fetch(`/deploy?deploymentId=${deploymentId}`, {
+      method: "GET",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": JSON.stringify(this.credentials)
+      },
+    });
+
+    return response.json();
+  }
 }
 
 export const API = new ApiClient();

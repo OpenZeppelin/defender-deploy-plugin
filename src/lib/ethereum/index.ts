@@ -1,6 +1,7 @@
 import { type Eip1193Provider, BrowserProvider, ContractFactory } from 'ethers';
 import { chainIds, type TenantNetworkResponse } from "$lib/models/network";
 import type { DeployContractResult } from '$lib/models/ethereum';
+import { log } from '$lib/remix/logger';
 
 function getEthereum(): Eip1193Provider {
   if (!window.ethereum) throw new Error('Injected provider not found');
@@ -21,6 +22,8 @@ export async function switchToNetwork(network: string | TenantNetworkResponse) {
   // ignore if user is already connected to target network.
   const current = await ethereum.request({ method: 'eth_chainId' });
   if (parseInt(current, 16) === chainId) return;
+
+  log("[Defender Deploy] Switching network...");
 
   await ethereum.request({
     method: 'wallet_switchEthereumChain',

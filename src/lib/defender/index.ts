@@ -69,3 +69,9 @@ export const updateDeployment = async (credentials: Credentials, updateReq: Upda
   });
   return response;
 }
+
+export const getDeployment = async (credentials: Credentials, deploymentId: string) => {
+  const client = getClient(credentials);
+  const response = await client.deploy.getDeployedContract(deploymentId);
+  return response;
+}

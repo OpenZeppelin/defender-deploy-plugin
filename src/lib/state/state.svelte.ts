@@ -78,4 +78,8 @@ export const setErrorBanner = (error?: string) => {
 
 export const addAPToDropdown = (approvalProcess: ApprovalProcess) => {
   globalState.approvalProcesses.push(approvalProcess);
-};
+}
+
+export function setDeploymentCompleted(completed: boolean) {
+  globalState.form.completed = completed;
+}

@@ -4,7 +4,7 @@
 
 # Deploy with Defender - Remix Plugin
 
-Remix plugin to deploy smart contracts using OpenZeppelin Defender. For documentation about usage please refer to (https://docs.openzeppelin.com/defender/remix-plugin)[Defender Docs].
+Remix plugin to deploy smart contracts using OpenZeppelin Defender. For documentation about usage please visit the [Defender Docs](https://docs.openzeppelin.com/defender/remix-plugin).
 
 ## Getting Started
 

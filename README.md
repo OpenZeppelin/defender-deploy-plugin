@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./src/docs/banner.png" width="350px" alt="OpenZeppelin Logo">
+  <img src="./src/docs/banner.png" width="100%" alt="OpenZeppelin Logo">
 </p>
 
 # Deploy with Defender - Remix Plugin

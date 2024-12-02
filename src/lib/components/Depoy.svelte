@@ -84,6 +84,12 @@
     return constructor.inputs as ABIParameter[];
   });
 
+  let enforceDeterministic = $derived.by(() => {
+    const selectedMultisig = globalState.form.approvalType === 'existing' && globalState.form.approvalProcessSelected?.viaType === "Safe";
+    const toCreateMultisig = globalState.form.approvalType === 'new' && globalState.form.approvalProcessToCreate?.viaType === "Safe";
+    return selectedMultisig || toCreateMultisig;
+  });
+
   function getContractFeatures(
     path: string,
     compilation: CompilationResult,
@@ -149,7 +155,6 @@
       return;
     }
 
-
     logSuccess("[Defender Deploy] Deployment Environment successfully created");
     logWarning("[Defender Deploy] The created Deployment Environment has Deploy Approval Process configuration only, the Block Explorer API Key and Upgrade Approval Process are not set");
     if (!result.data) return;
@@ -185,6 +190,12 @@
     clearErrorBanner();
     setDeploymentCompleted(false);
     deploying = true;
+
+    if ((enforceDeterministic || isDeterministic) && !salt) {
+      logError("[Defender Deploy] Salt is required for deterministic deployments.");
+      deploying = false;
+      return;
+    }
 
     const [constructorBytecode, error] = await attempt<string>(async () => {
       const abiCoder = new AbiCoder();
@@ -351,17 +362,21 @@
       class="form-check-input" 
       type="checkbox" 
       id="isDeterministic" 
-      checked={isDeterministic} 
+      checked={isDeterministic || enforceDeterministic} 
       onchange={() => (isDeterministic = !isDeterministic)}
+      disabled={enforceDeterministic}
     >
     <label class="form-check-label" for="isDeterministic">
       Deterministic
     </label>
+    {#if enforceDeterministic}
+      <i class="fa fa-question-circle ml-2" title="When using a Safe as the approval process, the salt is required to be deterministic."></i>
+    {/if}
   </div>
 </div>
 
 
-{#if isDeterministic}
+{#if isDeterministic || enforceDeterministic}
   <label for="salt">{`Salt`}</label>
   <input
     name="salt"

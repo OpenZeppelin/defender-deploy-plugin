@@ -1,4 +1,4 @@
-import { globalState } from "$lib/state/state.svelte";
+import { globalState } from "$lib/remix/state/state.svelte";
 import type { PluginClient } from "@remixproject/plugin"
 import type { CompilationFileSources, CompilationResult, lastCompilationResult } from "@remixproject/plugin-api";
 

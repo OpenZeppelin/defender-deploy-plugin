@@ -5,6 +5,7 @@
   import { approvalProcessTypes, type ApprovalProcess, type ApprovalProcessType } from "$lib/models/approval-process";
   import type {  DropdownItem, GlobalState } from "$lib/models/ui";
   import type { Relayer } from "$lib/models/relayer";
+  import { getNetworkLiteral } from "$lib/models/network";
 
   function approvalProcessByNetworkAndComponent(ap: ApprovalProcess) {
     const networkName = typeof globalState.form.network === 'string' 
@@ -58,6 +59,7 @@
         viaType: "Relayer",
         via: relayer.value.address,
         relayerId: relayer.value.relayerId,
+        network: globalState.form.network && getNetworkLiteral(globalState.form.network),
       };
     }
   };
@@ -69,6 +71,7 @@
     globalState.form.approvalProcessToCreate = {
       viaType: approvalProcessType as "EOA" | "Safe" | "Relayer",
       via: element.value,
+      network: globalState.form.network && getNetworkLiteral(globalState.form.network),
     };
   };
 

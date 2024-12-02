@@ -1,27 +1,31 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
+
+  // Lib
   import { addAPToDropdown, clearErrorBanner, globalState, setDeploymentCompleted, setErrorBanner } from "$lib/state/state.svelte";
-  import type {
-    ABIDescription,
-    ABIParameter,
-    CompilationResult,
-  } from "@remixproject/plugin-api";
-  import Button from "./shared/Button.svelte";
-  import { AbiCoder } from "ethers";
-  import { attempt, isDeploymentEnvironment, isSameNetwork } from "$lib/utils";
   import { log, logError, logSuccess, logWarning } from "$lib/remix/logger";
-  import type {
-    ApprovalProcess,
-    CreateApprovalProcessRequest,
-  } from "$lib/models/approval-process";
-  import type {
-    DeployContractRequest,
-    UpdateDeploymentRequest,
-  } from "$lib/models/deploy";
   import { deployContract, switchToNetwork } from "$lib/ethereum";
   import { API } from "$lib/api";
+
+  // Utils
+  import { attempt } from "$lib/utils/attempt";
+  import { isDeploymentEnvironment, isSameNetwork } from "$lib/utils/helpers";
+  import { getContractFeatures, getConstructorInputs, encodeConstructorArgs, getContractBytecode, createArtifactPayload } from "$lib/utils/contracts";
+
+  // Models
+  import { getNetworkLiteral, isProductionNetwork, type TenantNetworkResponse } from "$lib/models/network";
+  import type { ApprovalProcess, CreateApprovalProcessRequest} from "$lib/models/approval-process";
+  import type { DeployContractRequest, UpdateDeploymentRequest } from "$lib/models/deploy";
   import type { APIResponse } from "$lib/models/ui";
-  import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
+
+  // Components
+  import Button from "./shared/Button.svelte";
+
+  interface DeploymentResult {
+    address: string;
+    hash: string;
+    sender?: string;
+  }
 
   let contractName: string | undefined;
   let contractBytecode: string | undefined;
@@ -31,6 +35,9 @@
   let contractPath: string | undefined;
   let timeout: NodeJS.Timeout | undefined;
 
+  let deploying = $state(false);
+  let isDeterministic = $state(false);
+  let deploymentResult = $state<{ address: string, hash: string } | undefined>(undefined);
   let deploymentId = $state<string | undefined>(undefined);
   const deploymentUrl = $derived(
   deploymentId && globalState.form.network
@@ -38,64 +45,50 @@
         isProductionNetwork(globalState.form.network) ? 'production' : 'test'
       }?deploymentId=${deploymentId}`
     : undefined
-);
-  let deploying = $state(false);
-  let isDeterministic = $state(false);
-  let deploymentResult = $state<{ address: string, hash: string } | undefined>(undefined);
+  );
 
-  /**
-   * Finds constructor arguments and loads contract features.
-   */
-  const inputs = $derived.by(() => {
+   const inputs = $derived.by(() => {
     const path = globalState.contract?.target ?? "";
     const compilation = globalState.contract?.data;
-    const contractSources = globalState.contract?.source?.sources;
-
-    // if no compiled contracts found, then return empty inputs.
-    if (!compilation || !path) return [];
-
-    const { name, abi } = getContractFeatures(path, compilation);
-
-    contractPath = path;
-    contractName = name;
-    contractBytecode = compilation.contracts[path][name].evm.bytecode.object;
-
-    artifactPayload = JSON.stringify({
-      input: {
-        sources: {
-          // weird typing in contract sources
-          [path]: { content: (contractSources as any)[path].content },
-        },
-        settings: {
-          // we don't actually need these settings, but they are required in type.
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-        },
-      },
-      output: {
-        contracts: { ...compilation.contracts },
-      },
-    });
-
-    const constructor = abi.find((fragment) => fragment.type === "constructor");
-    if (!constructor || !constructor.inputs) return [];
-    return constructor.inputs as ABIParameter[];
+    return getConstructorInputs(path, compilation);
   });
 
-  function getContractFeatures(
-    path: string,
-    compilation: CompilationResult,
-  ): { name: string; abi: ABIDescription[] } {
-    const contracts = compilation.contracts;
-    const contractName =
-      Object.keys(contracts[path]).length > 0
-        ? Object.keys(contracts[path])[0]
-        : "";
-    const abi = contracts[path][contractName].abi;
-    return { name: contractName, abi };
-  }
+  const contractInfo = $derived.by(() => {
+    const path = globalState.contract?.target ?? "";
+    const compilation = globalState.contract?.data;
+    
+    if (!compilation || !path) {
+      return { path: "", name: "" };
+    }
+
+    const { name } = getContractFeatures(path, compilation);
+    return { path, name };
+  });
+
+  $effect(() => {
+    contractPath = contractInfo.path;
+    contractName = contractInfo.name;
+  });
+
+  $effect(() => {
+    if (contractInfo.path && contractInfo.name && globalState.contract?.data) {
+      contractBytecode = getContractBytecode(
+        contractInfo.path,
+        contractInfo.name,
+        globalState.contract.data
+      );
+    }
+  });
+
+  $effect(() => {
+    if (contractInfo.path && globalState.contract?.data && globalState.contract?.source?.sources) {
+      artifactPayload = createArtifactPayload(
+        contractInfo.path,
+        globalState.contract.source.sources,
+        globalState.contract.data.contracts
+      );
+    }
+  });
   
   function findDeploymentEnvironment(via?: string, network?: string) {
     if (!via || !network) return undefined;
@@ -109,11 +102,9 @@
 
   async function getOrCreateApprovalProcess(): Promise<ApprovalProcess | undefined> {
     const ap = globalState.form.approvalProcessToCreate;
-    if (!ap) return;
-
-    const existing = findDeploymentEnvironment(ap.via, ap.network);
-    if (existing) {
-      return existing;
+    if (!ap || !ap.via || !ap.viaType) {
+      setErrorBanner("Please select an approval process");
+      return;
     }
 
     if (!globalState.form.network) {
@@ -121,9 +112,9 @@
       return;
     }
 
-    if (!ap.via || !ap.viaType) {
-      setErrorBanner("Please select an approval process");
-      return;
+    const existing = findDeploymentEnvironment(ap.via, ap.network);
+    if (existing) {
+      return existing;
     }
 
     log("[Defender Deploy] Creating deployment environment in Defender...");
@@ -149,16 +140,15 @@
       return;
     }
 
-
     logSuccess("[Defender Deploy] Deployment Environment successfully created");
-    logWarning("[Defender Deploy] The created Deployment Environment has Deploy Approval Process configuration only, the Block Explorer API Key and Upgrade Approval Process are not set");
+    logWarning("Warning: The created Deployment Environment has Deploy Approval Process configuration only, the Block Explorer API Key and Upgrade Approval Process are not set");
     if (!result.data) return;
 
-    addAPToDropdown(result.data?.approvalProcess)
-    return result.data?.approvalProcess;
+    addAPToDropdown(result.data.approvalProcess)
+    return result.data.approvalProcess;
   }
 
-  function logDeploymentResult(result: { address: string, hash: string }) {
+  function logDeploymentResult(result: DeploymentResult) {
     logSuccess(`[Defender Deploy] Contract deployed, address: ${result.address}, tx hash: ${result.hash}`);
   }
 
@@ -179,143 +169,152 @@
     }, interval);
   }
 
+  export async function handleInjectedProviderDeployment(bytecode: string) {
+    // Switch network if needed
+    const [, networkError] = await attempt(async () => switchToNetwork(globalState.form.network!));
+    if (networkError) {
+      throw new Error(`Error switching network: ${networkError.msg}`);
+    }
+
+    log("[Defender Deploy] deploying contract...");
+    const [result, error] = await attempt(async () => deployContract(bytecode));
+    if (error) {
+      throw new Error(`Error deploying contract: ${error.msg}`);
+    }
+
+    if (!result) {
+      throw new Error("Deployment result not found");
+    }
+
+    logSuccess(`[Defender Deploy] Contract deployed, tx hash: ${result?.hash}`);
+    
+    return {
+      address: result.address,
+      hash: result.hash,
+      sender: result.sender
+    };
+  }
+
+  export async function createDefenderDeployment(request: DeployContractRequest) {
+    log("[Defender Deploy] Creating contract deployment in Defender...");
+    const result: APIResponse<{ deployment: { deploymentId: string } }> =
+      await API.createDeployment(request);
+
+    if (!result.success || !result.data) {
+      throw new Error(`Contract deployment creation failed: ${JSON.stringify(result.error)}`);
+    }
+
+    return result.data.deployment.deploymentId;
+  }
+
+  export async function updateDeploymentStatus(
+    deploymentId: string,
+    address: string,
+    hash: string
+  ) {
+    const updateRequest: UpdateDeploymentRequest = {
+      deploymentId,
+      hash,
+      address,
+    };
+    
+    const result = await API.updateDeployment(updateRequest);
+    if (!result.success) {
+      throw new Error(`Failed to update deployment status: ${JSON.stringify(result.error)}`);
+    }
+  }
+
   async function triggerDeployment() {
-    if (!globalState.form.network || !contractName || !contractPath) return;
+    if (!globalState.form.network || !contractName || !contractPath || !contractBytecode) return;
 
     clearErrorBanner();
     setDeploymentCompleted(false);
     deploying = true;
 
-    const [constructorBytecode, error] = await attempt<string>(async () => {
-      const abiCoder = new AbiCoder();
-      return abiCoder.encode(
-        inputs.map((input) => input.type),
-        inputs.map((input) => inputsWithValue[input.name]),
-      );
-    });
-    if (error) {
-      logError(
-        `[Defender Deploy] Error encoding constructor arguments: ${error.msg}`,
-      );
+    const [constructorBytecode, constructorError] = await encodeConstructorArgs(inputs, inputsWithValue);
+    if (constructorError) {
+      logError(`[Defender Deploy] Error encoding constructor arguments: ${constructorError.msg}`);
       deploying = false;
       return;
     }
 
-    const shouldUseInjectedProvider =
-      globalState.form.approvalType === "injected";
-    let contractAddress: string | undefined;
-    let hash: string | undefined;
+    let deploymentDetails: DeploymentResult | undefined;
+
+    // contract deployment requires contract bytecode
+    // and constructor bytecode to be concatenated.
+    const bytecode = contractBytecode + constructorBytecode?.slice(2);
+
+    const shouldUseInjectedProvider = globalState.form.approvalType === "injected";
     if (shouldUseInjectedProvider) {
-      // ensures current network matches with the one selected.
-      const [, error] = await attempt(async () =>
-        switchToNetwork(globalState.form.network!),
+      const [result, error] = await attempt(async () =>
+        handleInjectedProviderDeployment(bytecode),
       );
       if (error) {
-        logError(`[Defender Deploy] Error switching network: ${error.msg}`);
+        logError(`[Defender Deploy] ${error.msg}`);
         deploying = false;
         return;
       }
 
-      if (!contractBytecode) {
-        logError("[Defender Deploy] Contract bytecode not found.");
-        deploying = false;
-        return;
-      }
-
-      // contract deployment requires contract bytecode
-      // and constructor bytecode to be concatenated.
-      const bytecode = contractBytecode + constructorBytecode?.slice(2);
-
-      log("[Defender Deploy] deploying contract...");
-      const [result, err] = await attempt(async () => deployContract(bytecode));
-      if (err) {
-        logError(`[Defender Deploy] Error deploying contract: ${err.msg}`);
-        deploying = false;
-        return;
-      }
-
-      logSuccess(
-        `[Defender Deploy] Contract deployed, tx hash: ${result?.hash}`,
-      );
-
-      if (result) {
-        contractAddress = result.address;
-        hash = result.hash;
-        deploymentResult = { address: contractAddress, hash: hash };
-        logDeploymentResult(deploymentResult);
-      }
+      deploymentDetails = result;
 
       // loads global state with EOA approval process to create
       globalState.form.approvalProcessToCreate = {
         viaType: "EOA",
-        via: result?.sender,
+        via: deploymentDetails?.sender,
         network: getNetworkLiteral(globalState.form.network),
       };
       globalState.form.approvalProcessSelected = undefined;
     }
 
-    const selectedApprovalProcess = globalState.form.approvalProcessSelected;
-    const approvalProcess: ApprovalProcess | undefined =
-      selectedApprovalProcess ?? (await getOrCreateApprovalProcess());
+    const approvalProcess = globalState.form.approvalProcessSelected ?? await getOrCreateApprovalProcess();
     if (!approvalProcess) {
       deploying = false;
       logError("[Defender Deploy] No Approval Process selected");
       return;
     };
 
-    log("[Defender Deploy] Creating contract deployment in Defender...");
     const deployRequest: DeployContractRequest = {
-      contractName: contractName,
+      contractName,
       network: getNetworkLiteral(globalState.form.network),
       approvalProcessId: approvalProcess.approvalProcessId,
-      contractPath: contractPath,
+      contractPath,
       verifySourceCode: true,
-      artifactPayload: artifactPayload,
-      constructorBytecode: constructorBytecode,
+      artifactPayload,
+      constructorBytecode,
       salt,
     };
-    const result: APIResponse<{ deployment: { deploymentId: string } }> =
-      await API.createDeployment(deployRequest);
-    if (!result.success || !result.data) {
-      logError(
-        `[Defender Deploy] Contract deployment creation failed, error: ${JSON.stringify(result.error)}`,
-      );
-      setErrorBanner(result.error);
+    const [newDeploymentId, deployError] = await attempt(async () => createDefenderDeployment(deployRequest));
+    if (deployError) {
+      logError(`[Defender Deploy] ${deployError.msg}}`);
+      setErrorBanner(deployError.msg);
+      deploying = false;
+      return;
+    }
+    if (!newDeploymentId) {
+      logError("[Defender Deploy] Deployment failed to create");
       deploying = false;
       return;
     }
 
-    deploymentId = result.data.deployment.deploymentId;
-
-    if (shouldUseInjectedProvider) {
-      if (!contractAddress || !hash) {
-        logError("[Defender Deploy] Missing contract address or hash.");
+    if (shouldUseInjectedProvider && deploymentDetails) {
+      const [, updateError] = await attempt(async () => updateDeploymentStatus(
+        newDeploymentId,
+        deploymentDetails.address,
+        deploymentDetails.hash
+      ));
+      if (updateError) {
+        logError(`[Defender Deploy] ${updateError.msg}`);
         deploying = false;
         return;
       }
-      const updateDeployRequest: UpdateDeploymentRequest = {
-        deploymentId,
-        hash: hash,
-        address: contractAddress,
-      };
-      const res: APIResponse<null> =
-        await API.updateDeployment(updateDeployRequest);
-      if (!res.success) {
-        // log error in Remix terminal
-        logError(
-          `[Defender Deploy] Failed to update deployment to deployed state: ${JSON.stringify(result.error)}`,
-        );
-        deploying = false;
-        return;
-      }
-      deploymentResult = { address: contractAddress, hash: hash };
-      logDeploymentResult(deploymentResult);
+      logDeploymentResult(deploymentDetails);
     } else {
       // If we're not using an injected provider
       // we need to listen for the deployment to be finished.
-      listenForDeployment(deploymentId);
+      listenForDeployment(newDeploymentId);
     }
 
+    deploymentId = newDeploymentId;
     logSuccess("[Defender Deploy] Deployment submitted to Defender!");
     setDeploymentCompleted(true);
     deploying = false;

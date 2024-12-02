@@ -1,7 +1,7 @@
 import { deployContract, getDeployment, updateDeployment } from "$lib/defender";
 import type { Credentials } from "$lib/models/auth";
 import type { DeployContractRequest, UpdateDeploymentRequest } from "$lib/models/deploy";
-import { attempt } from "$lib/utils";
+import { attempt } from "$lib/utils/attempt";
 import { json } from '@sveltejs/kit';
 
 

@@ -7,10 +7,11 @@
 	import Setup from "$lib/components/Setup.svelte";
 	import Network from "$lib/components/Network.svelte";
 	import ApprovalProcess from "$lib/components/ApprovalProcess.svelte";
-	import Deploy from "$lib/components/Depoy.svelte";
+	import Deploy from "$lib/components/Deploy.svelte";
 
 	import { getAddress } from "ethers";
-	import { attempt, wait } from "$lib/utils";
+	import { attempt } from "$lib/utils/attempt";
+  import { wait } from "$lib/utils/helpers";
 
 	// Accordeon logic
 	let currentTab = $state(0);

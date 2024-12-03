@@ -17,4 +17,4 @@ declare interface Window {
 // solc does not have a type definition file.
 declare module 'solc' {
   export function compile(input: string, opts?: any): any;
-} 
+}

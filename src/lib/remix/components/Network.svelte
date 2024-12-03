@@ -5,7 +5,7 @@
     type TenantNetworkResponse,
   } from "$lib/models/network";
   import type { DropdownItem } from "$lib/models/ui";
-  import { globalState } from "$lib/state/state.svelte";
+  import { globalState } from "$lib/remix/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
 
   type Props = {

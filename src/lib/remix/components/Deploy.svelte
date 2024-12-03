@@ -2,7 +2,7 @@
   import { onDestroy } from "svelte";
 
   // Lib
-  import { addAPToDropdown, clearErrorBanner, globalState, setDeploymentCompleted, setErrorBanner } from "$lib/state/state.svelte";
+  import { addAPToDropdown, clearErrorBanner, globalState, setDeploymentCompleted, setErrorBanner } from "$lib/remix/state/state.svelte";
   import { log, logError, logSuccess, logWarning } from "$lib/remix/logger";
   import { deployContract, switchToNetwork } from "$lib/ethereum";
   import { API } from "$lib/api";

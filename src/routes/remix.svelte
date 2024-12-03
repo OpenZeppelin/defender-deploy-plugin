@@ -5,7 +5,8 @@
   import ApprovalProcess from "$lib/remix/components/ApprovalProcess.svelte";
   import Deploy from "$lib/remix/components/Deploy.svelte";
   import { getAddress } from "ethers";
-  import { attempt, wait } from "$lib/utils";
+  import { attempt } from "$lib/utils/attempt";
+  import { wait } from "$lib/utils/helpers";
   import { slide } from "svelte/transition";
 
 	// Accordeon logic

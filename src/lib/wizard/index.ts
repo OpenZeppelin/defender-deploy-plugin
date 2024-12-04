@@ -1,4 +1,4 @@
-import type { ContractSources } from "./models/sources";
+import type { ContractSources } from "../models/solc";
 import { wizardState } from "./state.svelte";
 
 export interface DefenderDeployMessage {

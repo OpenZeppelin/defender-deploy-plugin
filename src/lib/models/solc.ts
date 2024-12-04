@@ -7,7 +7,7 @@ export type CompilerInput = {
    * Name of the file and the content of the file.
    * e.g. { 'test.sol': { content: 'contract C { function f() public { L.f(); } }' } }
    */
-  sources: Record<string, { content: string }>;
+  sources: ContractSources;
   /**
    * Settings for the compiler.
    * e.g. { outputSelection: { '*': { '*': ['*'] } }"
@@ -17,4 +17,19 @@ export type CompilerInput = {
   };
 };
 
-export type ImportContents = Record<string, { contents: string }>;
+export type ContractSources = {
+  [source: string]: { content: string };
+};
+
+export function buildCompilerInput(sources: ContractSources): CompilerInput {
+  return {
+    sources,
+    language: 'Solidity',
+    settings: {
+      outputSelection: {
+        '*': { '*': ['*'] }
+      }
+    }
+  };
+}
+

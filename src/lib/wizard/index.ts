@@ -1,5 +1,10 @@
-import type { DefenderDeployMessage } from "./models/contract";
-import { globalState } from "./state.svelte";
+import type { ContractSources } from "./models/sources";
+import { wizardState } from "./state.svelte";
+
+export interface DefenderDeployMessage {
+  kind: 'oz-wizard-defender-deploy';
+  sources: ContractSources;
+}
 
 export const initWizardPlugin = () => {
   // when users configure a contract, the plugin gets the results.
@@ -9,7 +14,7 @@ export const initWizardPlugin = () => {
 function listenToContracts() {
   window.addEventListener('message', function (e: MessageEvent<DefenderDeployMessage>) {
     if (e.data.kind === 'oz-wizard-defender-deploy') {
-      globalState.contract = e.data.contract;
+      wizardState.sources = e.data.sources;
     }
   });
 }

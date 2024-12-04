@@ -1,6 +1,6 @@
 
-import type { Contract } from "./models/contract";
+import type { ContractSources } from "./models/sources";
 
-export const wizardState = $state<{ contract: Contract | undefined }>({
-  contract: undefined,
+export const wizardState = $state<{ sources: ContractSources | undefined }>({
+  sources: undefined,
 });

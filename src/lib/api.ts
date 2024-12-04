@@ -1,6 +1,7 @@
 import type { CreateApprovalProcessRequest } from "./models/approval-process";
 import type { Credentials } from "./models/auth";
 import type { DeployContractRequest, UpdateDeploymentRequest } from "./models/deploy";
+import type { ContractSources } from "./wizard/models/sources";
 
 class ApiClient {
   credentials: Credentials | null = null;

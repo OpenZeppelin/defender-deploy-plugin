@@ -1,5 +1,5 @@
 import type { ContractSources } from "../models/solc";
-import { wizardState } from "./state.svelte";
+import { globalState } from "$lib/state/state.svelte";
 
 export interface DefenderDeployMessage {
   kind: 'oz-wizard-defender-deploy';
@@ -14,7 +14,7 @@ export const initWizardPlugin = () => {
 function listenToContracts() {
   window.addEventListener('message', function (e: MessageEvent<DefenderDeployMessage>) {
     if (e.data.kind === 'oz-wizard-defender-deploy') {
-      wizardState.sources = e.data.sources;
+      globalState.contract = { source: e.data.sources } ;
     }
   });
 }

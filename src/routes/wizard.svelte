@@ -5,6 +5,8 @@
   import { onMount } from "svelte";
   import Configuration from "$lib/wizard/components/Configuration.svelte";
   import Network from "$lib/wizard/components/Network.svelte";
+    import { wait } from "$lib/utils/helpers";
+    import ApprovalProcess from "$lib/wizard/components/ApprovalProcess.svelte";
 
   let currentStep = $state(0);
   function toggleStep(step: number) {
@@ -34,7 +36,7 @@
   </h3>
   <div class:hidden={!(currentStep === 1)} >
     <div class="pl-4 pr-4"> 
-      <Network />
+      <Network onSelected={() => {}} />
     </div>
   </div>
   <h3>
@@ -45,7 +47,7 @@
   </h3>
   <div class:hidden={!(currentStep === 2)}>
     <div class="pl-4 pr-4"> 
-      Select approval process
+      <ApprovalProcess  />
     </div>
   </div>
 </div>

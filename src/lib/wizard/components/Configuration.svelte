@@ -21,10 +21,11 @@
   let loading = $state(false);
   let successMessage = $state<string | undefined>(undefined);
   let errorMessage = $state<string | undefined>(undefined);
-  let apiKey = "";
-  let apiSecret = "";
+  let apiKey = $state("");
+  let apiSecret = $state("");
 
   function handleGetApiKey() {
+    // TODO: Implement
   }
 
   async function authenticate() {

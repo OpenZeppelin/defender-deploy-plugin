@@ -35,15 +35,23 @@
 
 <div class="flex flex-col">
   <select name={name} id={name} bind:value={selected} disabled={disabled} class="border border-gray-300 rounded-md cursor-pointer p-2">
+    <option disabled selected value={undefined}>{placeholder}</option>
     {#each Object.entries(groupedItems) as [group, items]}
       {#if group !== 'default'}
-        <option value={group}>{group}</option>
+        <optgroup label={group}>
+          {#each items.sort((a, b) => a.label.localeCompare(b.label)) as item}
+            <option value={item.value} onclick={() => onSelect(item)}>{item.label}</option>
+          {/each}
+        </optgroup>
+      {:else}
+        {#each items.sort((a, b) => a.label.localeCompare(b.label)) as item}
+          <option value={item.value} onclick={() => onSelect(item)}>{item.label}</option>
+        {/each}
       {/if}
-  
-      {#each items as item}
-        <option value={item.value} onclick={() => onSelect(item)}>{item.label}</option>
-      {/each}
     {/each}
+    {#if items.length === 0}
+      <option disabled>{emptyLabel ?? "No items available"}</option>
+    {/if}
   </select>
 </div>
 

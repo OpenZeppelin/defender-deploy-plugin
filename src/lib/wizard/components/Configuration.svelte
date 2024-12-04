@@ -1,6 +1,8 @@
 <script lang="ts">
   import { API } from "$lib/api";
-  import { wizardState } from "../state.svelte";
+  import type { AuthenticationResponse } from "$lib/models/auth";
+  import type { APIResponse } from "$lib/models/ui";
+  import { globalState } from "$lib/state/state.svelte";
   
   // import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   // let compilationResult: any;
@@ -17,21 +19,51 @@
   // }
 
   let loading = $state(false);
+  let successMessage = $state<string | undefined>(undefined);
+  let errorMessage = $state<string | undefined>(undefined);
+  let apiKey = "";
+  let apiSecret = "";
 
   function handleGetApiKey() {
   }
 
   async function authenticate() {
-    if (!wizardState.apiKey || !wizardState.apiSecret) return;
 
     loading = true;
 
-    await API.authenticate({ 
-      apiKey: wizardState.apiKey, 
-      apiSecret: wizardState.apiSecret 
-    });
+    const result: APIResponse<AuthenticationResponse> = await API.authenticate({ apiKey, apiSecret });
 
-    loading = false;
+if (result.success) {
+  globalState.authenticated = true;
+  successMessage = "API Key Authenticated";
+} else {
+  errorMessage = result.error ?? "Defender Authentication Failed";
+}
+
+if (result?.data?.credentials) {
+  globalState.credentials = {
+    apiKey: result?.data?.credentials.apiKey,
+    apiSecret: result?.data?.credentials.apiSecret,
+  };
+}
+
+if (result?.data?.permissions) {
+  globalState.permissions = result?.data?.permissions;
+}
+
+if (result?.data?.networks) {
+  globalState.networks = result?.data?.networks;
+}
+
+if (result?.data?.approvalProcesses) {
+  globalState.approvalProcesses = result?.data?.approvalProcesses;
+}
+
+if (result?.data?.relayers) {
+  globalState.relayers = result?.data?.relayers;
+}
+
+loading = false;
   }
 
 </script>
@@ -44,10 +76,25 @@
     </div>
     <button onclick={handleGetApiKey} class="text-xs text-blue-600 font-bold">Get API Key</button>
   </div>
-  <input name="apiKey" type="text" bind:value={wizardState.apiKey} placeholder="Enter your API key" class="border border-gray-300 rounded-md p-2" />
+  <input name="apiKey" type="text" bind:value={apiKey} placeholder="Enter your API key" class="border border-gray-300 rounded-md p-2" />
 
   <label class="text-sm" for="apiSecret">Secret</label>
-  <input name="apiSecret" type="password" bind:value={wizardState.apiSecret} placeholder="Enter your API secret" class="border border-gray-300 rounded-md p-2" />
+  <input name="apiSecret" type="password" bind:value={apiSecret} placeholder="Enter your API secret" class="border border-gray-300 rounded-md p-2" />
 
-  <button onclick={authenticate} disabled={loading} class="bg-blue-600 text-white text-sm rounded-md p-2 mt-2">Authenticate</button>
+  <button onclick={authenticate} disabled={loading} class="bg-blue-600 text-white text-sm rounded-md p-2 mt-2" class:bg-gray-400={loading}>
+    {#if loading}
+      <i class="fa fa-spinner fa-spin"></i>
+    {/if}
+    {#if !loading}
+      Authenticate
+    {/if}
+  </button>
+
+  {#if successMessage}
+    <div class="text-green-600">{successMessage}</div>
+  {/if}
+
+  {#if errorMessage}
+    <div class="text-red-600">{errorMessage}</div>
+  {/if}
 </div>

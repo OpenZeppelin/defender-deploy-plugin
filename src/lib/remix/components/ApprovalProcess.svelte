@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { globalState } from "$lib/remix/state/state.svelte";
+  import { globalState } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
   import { abbreviateAddress } from "$lib/utils/helpers";
   import { approvalProcessTypes, type ApprovalProcess, type ApprovalProcessType } from "$lib/models/approval-process";

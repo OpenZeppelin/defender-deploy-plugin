@@ -5,6 +5,7 @@
 
 	import Wizard from "./wizard.svelte";
 	import Remix from "./remix.svelte";
+	import "../app.css";
 
 	let parent = $state<'remix' | 'wizard' | 'none'>();
 
@@ -36,7 +37,8 @@
 
 <div class="container">
 	{#if parent === 'none'}
-		<p>⚠️ This page is meant to be embedded in an iframe! ⚠️</p>
+		<!----<p>⚠️ This page is meant to be embedded in an iframe! ⚠️</p>-->
+		<Wizard />
 	{/if}
 
 	{#if parent === 'wizard'}

@@ -2,6 +2,8 @@
   import { API } from "$lib/api";
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   import { wizardState } from "../state.svelte";
+  import Button from "./Button.svelte";
+  import Input from "./Input.svelte";
 
   let compilationResult: any;
 
@@ -17,11 +19,8 @@
   }
 
 </script>
-
-<p>
-  Contract to compile: {getMainContractName(wizardState.sources)}
-  
-  <button onclick={compile} >
-    Compile
-  </button>
-</p>
+<div class="flex flex-col gap-2 space-y-4">
+  <div class="space-y-2"><Input label="API Key" />
+  <Input label="Secret" /></div>
+  <Button label="Authorise" onClick={compile} />
+</div>

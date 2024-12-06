@@ -143,7 +143,7 @@
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   />
   <label
-    class="text-sm"
+    class={`text-sm ${disableCreation ? 'text-gray-500' : ''}`}
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   >
@@ -197,7 +197,7 @@
     disabled={disableCreation}
   />
   <label
-    class="text-sm"
+    class={`text-sm ${disableCreation ? 'text-gray-500' : ''}`}
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   >

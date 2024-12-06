@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { initRemixPlugin } from "$lib/remix";
 	import { onMount } from "svelte";
 	import { dev } from '$app/environment';
 
@@ -17,13 +16,13 @@
 
 		const ancestorOrigin = document.location.ancestorOrigins[0];
 
-		// assumes that when in dev mode and 
-		// the ancestor origin is localhost, we are in the wizard
-		if (dev && ancestorOrigin.includes("localhost")) {
-			return parent = 'wizard';
+
+		if (dev) {
+			// add desired behaviour for dev mode.
 		}
 
-		if (ancestorOrigin.includes("wizard.openzeppelin")) {
+		// in case we are developing locally, we want to use the wizard as the parent..
+		if (ancestorOrigin.includes("wizard") || ancestorOrigin.includes("localhost")) {
 			return parent = 'wizard';
 		}
 

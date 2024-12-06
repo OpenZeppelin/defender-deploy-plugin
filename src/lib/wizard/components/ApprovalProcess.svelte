@@ -3,9 +3,12 @@
   import Dropdown from "./shared/Dropdown.svelte";
   import { abbreviateAddress } from "$lib/utils/helpers";
   import { approvalProcessTypes, type ApprovalProcess, type ApprovalProcessType } from "$lib/models/approval-process";
-  import type {  DropdownItem, GlobalState } from "$lib/models/ui";
+  import type { DropdownItem, GlobalState } from "$lib/models/ui";
   import type { Relayer } from "$lib/models/relayer";
   import { getNetworkLiteral } from "$lib/models/network";
+  import Input from "./shared/Input.svelte";
+
+  let address = $state<string>("");
 
   function approvalProcessByNetworkAndComponent(ap: ApprovalProcess) {
     const networkName = typeof globalState.form.network === 'string' 
@@ -104,7 +107,7 @@
     onclick={(e) => onRadioChange(e)}
     checked
   />
-  <label class="form-check-label" for="flexRadioDefault1">
+  <label class="text-sm" for="flexRadioDefault1">
     Use existing Approval Process
   </label>
 
@@ -131,7 +134,7 @@
   title={disableCreation ? "Deploy Environment already exists" : undefined}
 >
   <input
-    class="form-check-input"
+    class="text-xs"
     type="radio"
     name="flexRadioDefault"
     id="new"
@@ -140,7 +143,7 @@
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   />
   <label
-    class="form-check-label"
+    class="text-sm"
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   >
@@ -159,16 +162,9 @@
   />
 
   {#if approvalProcessType === "EOA" || approvalProcessType === "Safe"}
-    <label for="address"> Address (required) </label>
-    <input
-      id="address"
-      type="text"
-      class="form-control"
-      name="address"
-      placeholder="* Address"
-      onchange={onAddressChange}
-      disabled={radioSelected !== "new" || disableCreation}
-    />
+    <div class="mt-2">
+      <Input value={address} placeholder="* Address" type="text" />
+    </div>
   {:else if approvalProcessType === "Relayer"}
     {#if disableRelayers}
       <div class="alert alert-warning d-flex align-items-center mt-2">
@@ -178,7 +174,6 @@
         </p>
       </div>
     {:else}
-      <label for="relayer" class="mb-0"> Relayer (required) </label>
       <Dropdown
         name="relayer"
         items={globalState.relayers
@@ -202,7 +197,7 @@
     disabled={disableCreation}
   />
   <label
-    class="form-check-label"
+    class="text-sm"
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   >

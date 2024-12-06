@@ -1,5 +1,6 @@
 import type { ApprovalProcess } from "$lib/models/approval-process";
 import type { GlobalState } from "$lib/models/ui";
+import type { ContractSources } from "$lib/models/solc";
 
 /**
  * Global application state

@@ -34,42 +34,38 @@
 </script>
 
 
-<div class="pt-2">
-  <div class="flex flex-col gap-2">
-    <h3>
-      <button onclick={() => toggleStep(0)} class="flex items-center justify-between w-full p-4 font-medium rtl:text-right text-gray-800 rounded-t-xl" >
-        <span>Configuration</span>
-        <i class={`pr-2 ${currentStep === 0 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
-      </button>
-    </h3>
+<div class="h-[calc(100vh-2rem)] flex flex-col pt-2">
+  <div class="flex-1 overflow-y-auto">
+    <button onclick={() => toggleStep(0)} class="flex items-center justify-between w-full p-4 text-sm font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3" >
+      <span>Configuration</span>
+      <i class={`pr-2 ${currentStep === 0 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
+    </button>
     <div class:hidden={!(currentStep === 0)}>
       <div class="pl-4 pr-4"> 
         <Configuration />
       </div>
     </div>
-    <h3>
-      <button onclick={() => toggleStep(1)} class="flex items-center justify-between w-full p-4 font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3">
-        <span>Network</span>
-        <i class={`pr-2 ${currentStep === 1 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
-      </button>
-    </h3>
+    <button onclick={() => toggleStep(1)} class="flex items-center justify-between w-full p-4 text-sm font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3">
+      <span>Network</span>
+      <i class={`pr-2 ${currentStep === 1 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
+    </button>
     <div class:hidden={!(currentStep === 1)} >
       <div class="pl-4 pr-4"> 
         <Network onSelected={() => {}} />
       </div>
     </div>
-    <h3>
-      <button onclick={() => toggleStep(2)} class="flex items-center justify-between w-full p-4 font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3">
-        <span>Approval Process</span>
-        <i class={`pr-2 ${currentStep === 2 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
-      </button>
-    </h3>
+    <button onclick={() => toggleStep(2)} class="flex items-center justify-between w-full p-4 text-sm font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3">
+      <span>Approval Process</span>
+      <i class={`pr-2 ${currentStep === 2 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
+    </button>
     <div class:hidden={!(currentStep === 2)}>
       <div class="pl-4 pr-4"> 
         <ApprovalProcess  />
       </div>
     </div>
+  </div>
+  <div class="sticky px-4 flex flex-col gap-2">
+
     <Button loading={deploying} label="Deploy" onClick={deploy} />
   </div>
-
 </div>

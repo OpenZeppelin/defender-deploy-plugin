@@ -34,7 +34,7 @@
 </script>
 
 <div class="flex flex-col">
-  <select name={name} id={name} bind:value={selected} disabled={disabled} class="border border-gray-300 rounded-md cursor-pointer p-2">
+  <select name={name} id={name} bind:value={selected} disabled={disabled} class="border border-gray-300 disabled:opacity-50 rounded-md cursor-pointer p-2 text-xs">
     <option disabled selected value={undefined}>{placeholder}</option>
     {#each Object.entries(groupedItems) as [group, items]}
       {#if group !== 'default'}

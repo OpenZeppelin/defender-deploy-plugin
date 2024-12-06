@@ -107,7 +107,7 @@
     onclick={(e) => onRadioChange(e)}
     checked
   />
-  <label class="form-check-label" for="flexRadioDefault1">
+  <label class="text-sm" for="flexRadioDefault1">
     Use existing Approval Process
   </label>
 
@@ -134,7 +134,7 @@
   title={disableCreation ? "Deploy Environment already exists" : undefined}
 >
   <input
-    class="form-check-input"
+    class="text-xs"
     type="radio"
     name="flexRadioDefault"
     id="new"
@@ -143,7 +143,7 @@
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   />
   <label
-    class="form-check-label"
+    class="text-sm"
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   >
@@ -162,7 +162,9 @@
   />
 
   {#if approvalProcessType === "EOA" || approvalProcessType === "Safe"}
-    <Input label="Address (required)" value={address} placeholder="* Address" type="text" />
+    <div class="mt-2">
+      <Input value={address} placeholder="* Address" type="text" />
+    </div>
   {:else if approvalProcessType === "Relayer"}
     {#if disableRelayers}
       <div class="alert alert-warning d-flex align-items-center mt-2">
@@ -172,7 +174,6 @@
         </p>
       </div>
     {:else}
-      <label for="relayer" class="mb-0"> Relayer (required) </label>
       <Dropdown
         name="relayer"
         items={globalState.relayers
@@ -196,7 +197,7 @@
     disabled={disableCreation}
   />
   <label
-    class="form-check-label"
+    class="text-sm"
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   >

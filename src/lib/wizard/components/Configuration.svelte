@@ -12,12 +12,6 @@
   //   compilationResult = await API.compile(buildCompilerInput(wizardState.sources));
   // }
 
-  // function getMainContractName(sources?: ContractSources) {
-  //   if (!sources) return '';
-  //   // The first name that is not a dependency
-  //   return Object.keys(sources).find(name => !name.startsWith('@'));
-  // }
-
   let loading = $state(false);
   let successMessage = $state<string | undefined>(undefined);
   let errorMessage = $state<string | undefined>(undefined);

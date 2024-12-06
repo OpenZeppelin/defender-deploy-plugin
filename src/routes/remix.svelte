@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { initRemixPlugin } from "$lib/remix";
-  import { globalState } from "$lib/remix/state/state.svelte";
+  import { globalState } from "$lib/state/state.svelte";
   import Setup from "$lib/remix/components/Setup.svelte";
   import Network from "$lib/remix/components/Network.svelte";
   import ApprovalProcess from "$lib/remix/components/ApprovalProcess.svelte";

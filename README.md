@@ -2,9 +2,9 @@
   <img src="./src/docs/banner.png" width="100%" alt="OpenZeppelin Logo">
 </p>
 
-# Deploy with Defender - Remix Plugin
+# Defender Deploy Plugin
 
-Remix plugin to deploy smart contracts using OpenZeppelin Defender. For documentation about usage please visit the [Defender Docs](https://docs.openzeppelin.com/defender/remix-plugin).
+Plugin to deploy smart contracts using OpenZeppelin Defender. For documentation about usage in Remix please visit the [Defender Docs](https://docs.openzeppelin.com/defender/remix-plugin).
 
 ## Getting Started
 
@@ -16,7 +16,7 @@ pnpm install
 pnpm dev
 ```
 
-The interface is ugly, but don't worry! it's not meant to be used directly, it's used embedded in a Remix iframe instead, and adopts its styles.
+The interface is ugly, but don't worry! it's not meant to be used directly, it's used embedded in an iframe instead, and adopts the parent styles.
 
 ## Testing in Remix
 

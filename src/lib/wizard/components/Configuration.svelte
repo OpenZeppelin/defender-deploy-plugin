@@ -3,14 +3,8 @@
   import type { AuthenticationResponse } from "$lib/models/auth";
   import type { APIResponse } from "$lib/models/ui";
   import { globalState } from "$lib/state/state.svelte";
-  
-  // import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
-  // let compilationResult: any;
-
-  // async function compile() {
-  //   if (!wizardState.sources) return;
-  //   compilationResult = await API.compile(buildCompilerInput(wizardState.sources));
-  // }
+  import Button from "./shared/Button.svelte";
+  import Input from "./shared/Input.svelte";
 
   let loading = $state(false);
   let successMessage = $state<string | undefined>(undefined);
@@ -24,9 +18,9 @@
 
   async function authenticate() {
 
-    loading = true;
+  loading = true;
 
-    const result: APIResponse<AuthenticationResponse> = await API.authenticate({ apiKey, apiSecret });
+  const result: APIResponse<AuthenticationResponse> = await API.authenticate({ apiKey, apiSecret });
 
 if (result.success) {
   globalState.authenticated = true;
@@ -71,19 +65,11 @@ loading = false;
     </div>
     <button onclick={handleGetApiKey} class="text-xs text-blue-600 font-bold">Get API Key</button>
   </div>
-  <input name="apiKey" type="text" bind:value={apiKey} placeholder="Enter your API key" class="border border-gray-300 rounded-md p-2" />
+  <Input value={apiKey} placeholder="Enter your API key" type="text" />
 
-  <label class="text-sm" for="apiSecret">Secret</label>
-  <input name="apiSecret" type="password" bind:value={apiSecret} placeholder="Enter your API secret" class="border border-gray-300 rounded-md p-2" />
+  <Input label="Secret" value={apiSecret} placeholder="Enter your API secret" type="password" />
 
-  <button onclick={authenticate} disabled={loading} class="bg-blue-600 text-white text-sm rounded-md p-2 mt-2" class:bg-gray-400={loading}>
-    {#if loading}
-      <i class="fa fa-spinner fa-spin"></i>
-    {/if}
-    {#if !loading}
-      Authenticate
-    {/if}
-  </button>
+  <Button loading={loading} label="Authenticate" onClick={authenticate} />
 
   {#if successMessage}
     <div class="text-green-600">{successMessage}</div>

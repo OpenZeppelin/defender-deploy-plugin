@@ -6,6 +6,9 @@
   import type { DropdownItem, GlobalState } from "$lib/models/ui";
   import type { Relayer } from "$lib/models/relayer";
   import { getNetworkLiteral } from "$lib/models/network";
+  import Input from "./shared/Input.svelte";
+
+  let address = $state<string>("");
 
   function approvalProcessByNetworkAndComponent(ap: ApprovalProcess) {
     const networkName = typeof globalState.form.network === 'string' 
@@ -159,16 +162,7 @@
   />
 
   {#if approvalProcessType === "EOA" || approvalProcessType === "Safe"}
-    <label for="address"> Address (required) </label>
-    <input
-      id="address"
-      type="text"
-      class="form-control"
-      name="address"
-      placeholder="* Address"
-      onchange={onAddressChange}
-      disabled={radioSelected !== "new" || disableCreation}
-    />
+    <Input label="Address (required)" value={address} placeholder="* Address" type="text" />
   {:else if approvalProcessType === "Relayer"}
     {#if disableRelayers}
       <div class="alert alert-warning d-flex align-items-center mt-2">

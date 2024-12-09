@@ -10,7 +10,8 @@ export async function POST({ request }: { request: Request }) {
 
   const [deploymentResult, error] = await attempt(() => deployContract(credentials, deployment));
   if (error) {
-    return json({ success: false, error: error.msg });
+    const internalError = error.errorObject?.response?.data?.message;
+    return json({ success: false, error: internalError || error.msg });
   }
 
   return json({ success: true, data: { deployment: deploymentResult } });

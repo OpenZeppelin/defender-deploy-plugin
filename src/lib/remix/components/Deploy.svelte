@@ -81,7 +81,7 @@
       contractBytecode = getContractBytecode(
         contractInfo.path,
         contractInfo.name,
-        globalState.contract.data
+        globalState.contract.data.contracts
       );
     }
   });

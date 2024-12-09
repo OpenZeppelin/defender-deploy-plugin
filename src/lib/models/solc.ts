@@ -14,6 +14,10 @@ export type CompilerInput = {
    */
   settings: {
     outputSelection: Record<string, Record<string, string[]>>;
+    optimizer?: {
+      enabled: boolean,
+      runs: number,
+    },
   };
 };
 
@@ -26,6 +30,10 @@ export function buildCompilerInput(sources: ContractSources): CompilerInput {
     sources,
     language: 'Solidity',
     settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
       outputSelection: {
         '*': { '*': ['*'] }
       }

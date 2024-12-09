@@ -11,11 +11,22 @@
   import { API } from "$lib/api";
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   import Message from "$lib/wizard/components/shared/Message.svelte";
+  import type { Artifact, DeployContractRequest } from "$lib/models/deploy";
+  import { getNetworkLiteral } from "$lib/models/network";
 
   let busy = $state(false);
   let successMessage = $state<string>("");
   let errorMessage = $state<string>("");
-  let compilationResult = $state<any>();
+  let compilationResult = $state<{ output: Artifact['output'] }>();
+
+  let deploymentArtifact = $derived.by(() => {
+    if (!compilationResult || !globalState.contract?.target || !globalState.contract.source?.sources) return;
+   
+    return {
+      input: buildCompilerInput(globalState.contract.source?.sources as ContractSources),
+      output: compilationResult.output
+    }
+  });
 
   let currentStep = $state(0);
   function toggleStep(step: number) {
@@ -53,7 +64,45 @@
 
 
   const deploy = async () => {
-    // TODO: Implement deploy
+    if (!globalState.form.network) {
+      displayMessage("No network selected", "error");
+      return;
+    }
+
+    if (!globalState.form.approvalProcessSelected) {
+      displayMessage("No approval process selected", "error");
+      return;
+    }
+
+    if (!globalState.contract?.target || !globalState.contract.source?.sources) {
+      displayMessage("No contract selected", "error");
+      return;
+    }
+
+    if (!deploymentArtifact) {
+      displayMessage("No artifact found", "error");
+      return;
+    }
+
+    const deployRequest: DeployContractRequest = {
+      artifactPayload: JSON.stringify(deploymentArtifact),
+      network: getNetworkLiteral(globalState.form.network),
+      // TODO: Implement approval process creation
+      approvalProcessId: globalState.form.approvalProcessSelected.approvalProcessId,
+      contractName: globalState.contract!.target,
+      contractPath:  globalState.contract!.target,
+      verifySourceCode: true,
+      // TODO: Implement constructor arguments
+      constructorBytecode: '',
+    }
+
+    const res = await API.createDeployment(deployRequest);
+    if (!res.success) {
+      displayMessage(`Deployment failed: ${res.error}`, "error");
+      return;
+    }
+
+    displayMessage("Deployment successful", "success");
   };
 
   async function compileAndDeploy() {

@@ -67,7 +67,7 @@ export function createArtifactPayload(
 export function getContractBytecode(
   path: string,
   contractName: string,
-  compilation: CompilationResult
+  contractSources: Record<string, any>
 ): string {
-  return compilation.contracts[path][contractName].evm.bytecode.object;
+  return contractSources[path][contractName].evm.bytecode.object;
 }

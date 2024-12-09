@@ -8,7 +8,7 @@
   import { getNetworkLiteral } from "$lib/models/network";
   import Input from "./shared/Input.svelte";
 
-  let address = $state<string>("");
+  let address = $state<string>(globalState.form.approvalProcessToCreate?.via || "");
 
   function approvalProcessByNetworkAndComponent(ap: ApprovalProcess) {
     const networkName = typeof globalState.form.network === 'string' 
@@ -163,7 +163,7 @@
 
   {#if approvalProcessType === "EOA" || approvalProcessType === "Safe"}
     <div class="mt-2">
-      <Input value={address} placeholder="* Address" type="text" />
+      <Input value={address} placeholder="* Address" type="text" onchange={onAddressChange} />
     </div>
   {:else if approvalProcessType === "Relayer"}
     {#if disableRelayers}

@@ -15,7 +15,9 @@ function listenToContracts() {
   window.addEventListener('message', function (e: MessageEvent<DefenderDeployMessage>) {
     if (e.data.kind === 'oz-wizard-defender-deploy') {
       globalState.contract = { 
-        source: e.data.sources, 
+        source: {
+          sources: e.data.sources,
+        },
         target: getMainContractName(e.data.sources) 
       } ;
     }

@@ -2,6 +2,22 @@
   import type { DropdownItem } from "$lib/models/ui";
   import { createEventDispatcher } from "svelte";
 
+  function clickOutside(node: HTMLElement, handler: () => void) {
+    const handleClick = (event: MouseEvent) => {
+      if (!node.contains(event.target as Node)) {
+        handler();
+      }
+    };
+
+    document.addEventListener('click', handleClick, true);
+
+    return {
+      destroy() {
+        document.removeEventListener('click', handleClick, true);
+      }
+    };
+  }
+
   type Props = {
     placeholder: string;
     items: DropdownItem[];
@@ -31,39 +47,58 @@
     selected = item;
     dispatch("select", item);
   };  
+  let isOpen = $state(false);
+  
+  const toggleDropdown = () => {
+    if (!disabled) isOpen = !isOpen;
+  };
+
+  const handleSelect = (item: DropdownItem) => {
+    selected = item;
+    isOpen = false;
+    dispatch("select", item);
+  };
+
+  const handleClickOutside = () => {
+    isOpen = false;
+  };
 </script>
 
-<div class="flex flex-col">
-  <select name={name} id={name} bind:value={selected} disabled={disabled} class="border border-gray-300 disabled:opacity-50 rounded-md cursor-pointer p-2 text-xs">
-    <option disabled selected value={undefined}>{placeholder}</option>
-    {#each Object.entries(groupedItems) as [group, items]}
-      {#if group !== 'default'}
-        <optgroup label={group}>
-          {#each items.sort((a, b) => a.label.localeCompare(b.label)) as item}
-            <option value={item.value} onclick={() => onSelect(item)}>{item.label}</option>
-          {/each}
-        </optgroup>
-      {:else}
+<div class="relative w-full" use:clickOutside={handleClickOutside}>
+  <button
+    type="button"
+    class="w-full flex items-center justify-between border border-gray-300 disabled:opacity-50 rounded-md p-2 text-xs bg-white"
+    onclick={toggleDropdown}
+    disabled={disabled}
+    {name}
+  >
+    <span class="truncate">
+      {selected ? selected.label : placeholder}
+    </span>
+    <i class="fa fa-chevron-down text-[8px] transition-transform duration-200 font-light {isOpen ? 'rotate-180' : ''}"></i>
+  </button>
+
+  {#if isOpen}
+    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+      {#each Object.entries(groupedItems) as [group, items]}
+        {#if group !== 'default'}
+          <div class="px-2 py-1 text-xs font-semibold bg-gray-50 text-gray-700">{group}</div>
+        {/if}
         {#each items.sort((a, b) => a.label.localeCompare(b.label)) as item}
-          <option value={item.value} onclick={() => onSelect(item)}>{item.label}</option>
+          <button
+            type="button"
+            class="w-full text-left px-2 py-1.5 text-xs hover:bg-gray-100 focus:bg-gray-100 focus:outline-none {selected?.value === item.value ? 'bg-gray-50' : ''}"
+            onclick={() => handleSelect(item)}
+          >
+            {item.label}
+          </button>
         {/each}
+      {/each}
+      {#if items.length === 0}
+        <div class="px-2 py-1.5 text-xs text-gray-500">
+          {emptyLabel ?? "No items available"}
+        </div>
       {/if}
-    {/each}
-    {#if items.length === 0}
-      <option disabled>{emptyLabel ?? "No items available"}</option>
-    {/if}
-  </select>
+    </div>
+  {/if}
 </div>
-
-
-<style>
-  select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' d='M6 8l-6-6h12l-6 6z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 8px 8px;
-  }
-</style>

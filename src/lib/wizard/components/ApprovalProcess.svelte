@@ -98,7 +98,8 @@
   );
 </script>
 
-<div class="form-check">
+<div class="form-check flex flex-col gap-2">
+  <div>
   <input
     class="form-check-input"
     type="radio"
@@ -109,8 +110,8 @@
   />
   <label class="text-sm" for="flexRadioDefault1">
     Use existing Approval Process
-  </label>
-
+  </label></div>
+  <div class="pl-4">
   {#key globalState.form.approvalProcessSelected}
     <Dropdown
       items={globalState.approvalProcesses
@@ -129,10 +130,11 @@
     />
   {/key}
 </div>
+</div>
 <div
-  class="form-check mt-3"
+  class="form-check mt-3 flex flex-col gap-2"
   title={disableCreation ? "Deploy Environment already exists" : undefined}
->
+><div>
   <input
     class="text-xs"
     type="radio"
@@ -149,7 +151,8 @@
   >
     Create new Approval Process
   </label>
-
+  </div>
+  <div class="pl-4 gap-2 flex flex-col">
   <Dropdown
     items={approvalProcessTypes.map(approvalProcessTypeToDropdownItem)}
     placeholder="Approval Process Type"
@@ -162,12 +165,12 @@
   />
 
   {#if approvalProcessType === "EOA" || approvalProcessType === "Safe"}
-    <div class="mt-2">
+    <div>
       <Input value={address} placeholder="* Address" type="text" onchange={onAddressChange} />
     </div>
   {:else if approvalProcessType === "Relayer"}
     {#if disableRelayers}
-      <div class="alert alert-warning d-flex align-items-center mt-2">
+      <div class="alert alert-warning d-flex align-items-center">
         <i class="fa fa-exclamation-triangle mr-2"></i>
         <p class="m-0 lh-1">
           <small class="lh-sm">API Key not allowed to manage Relayers</small>
@@ -185,7 +188,7 @@
       />
     {/if}
   {/if}
-</div>
+</div></div>
 <div class="form-check mt-3">
   <input
     class="form-check-input"

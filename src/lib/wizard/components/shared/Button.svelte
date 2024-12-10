@@ -8,9 +8,9 @@
   const { loading, onClick, label, disabled }: Props = $props();
 </script>
 
-<button onclick={onClick} disabled={disabled || loading} class="bg-blue-600 text-white text-sm rounded-md p-2 mt-2" class:bg-gray-400={loading}>
+<button onclick={onClick} disabled={disabled || loading} class=" text-white text-sm rounded-md p-2 mt-2 {loading || disabled ? 'bg-gray-400' : 'bg-indigo-600'}">
   {#if loading}
-    <i class="fa fa-spinner fa-spin"></i>
+    <i class="fa fa-circle-o-notch fa-spin"></i>
   {/if}
   {#if !loading}
     {label}

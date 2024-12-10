@@ -67,7 +67,7 @@
 <div class="flex flex-col gap-2">
   <div class="flex flex-row justify-between">
     <div>
-      <label class="text-xs" for="apiKey">API Key</label>
+      <label class="text-sm" for="apiKey">API Key</label>
       <i
         class="fa fa-info-circle text-xs text-gray-500"
         title="Get your API key from the Defender Dashboard"
@@ -90,7 +90,7 @@
     type="password"
   />
 
-  <Button {loading} label="Authenticate" onClick={authenticate} />
+  <Button {loading} disabled={!(apiKey && apiSecret)}  label="Authenticate" onClick={authenticate} />
 
   {#if successMessage}
     <Message message={successMessage} type="success" />

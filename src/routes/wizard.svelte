@@ -311,7 +311,7 @@
 <div class="h-[calc(100vh-2rem)] flex flex-col pt-2">
   <div class="flex-1 overflow-y-auto">
     <button onclick={() => toggleStep(0)} class="flex items-center justify-between w-full p-4 text-sm font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3" >
-      <span>Configuration</span>
+      <h1>Configuration</h1>
       <i class={`pr-2 ${currentStep === 0 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
     </button>
     <div class:hidden={!(currentStep === 0)}>
@@ -320,7 +320,7 @@
       </div>
     </div>
     <button disabled={!globalState.authenticated} onclick={() => toggleStep(1)} class="flex items-center justify-between w-full p-4 text-sm font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3">
-      <span>Network</span>
+      <h1>Network</h1>
       <i class={`pr-2 ${currentStep === 1 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
     </button>
     <div class:hidden={!(currentStep === 1)} >
@@ -329,7 +329,7 @@
       </div>
     </div>
     <button disabled={!globalState.authenticated} onclick={() => toggleStep(2)} class="flex items-center justify-between w-full p-4 text-sm font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3">
-      <span>Approval Process</span>
+      <h1>Approval Process</h1>
       <i class={`pr-2 ${currentStep === 2 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
     </button>
     <div class:hidden={!(currentStep === 2)}>
@@ -346,3 +346,14 @@
     {/if}
   </div>
 </div>
+<style>
+  h1 {
+    margin-top: 0;
+    margin-bottom: 0;
+    text-transform: lowercase;
+    font-variant: small-caps;
+    font-size: 14px;
+    color: rgb(129, 137, 152);
+    font-weight: 600;
+  }
+  </style>

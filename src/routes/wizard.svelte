@@ -11,7 +11,7 @@
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   import Message from "$lib/wizard/components/shared/Message.svelte";
   import type { Artifact, DeployContractRequest, UpdateDeploymentRequest } from "$lib/models/deploy";
-  import { getNetworkLiteral } from "$lib/models/network";
+  import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import { attempt } from "$lib/utils/attempt";
   import { getContractBytecode } from "$lib/utils/contracts";
   import { deployContract, switchToNetwork } from "$lib/ethereum";
@@ -60,6 +60,15 @@
   function toggleStep(step: number) {
     currentStep = step;
   }
+
+  const deploymentUrl = $derived(
+  deploymentId && globalState.form.network
+    ? `https://defender.openzeppelin.com/#/deploy/environment/${
+        isProductionNetwork(globalState.form.network) ? 'production' : 'test'
+      }?deploymentId=${deploymentId}`
+    : undefined
+  );
+
 
   const displayMessage = (message: string, type: "success" | "error") => {
     successMessage = "";
@@ -294,7 +303,7 @@
     }
 
     deploymentId = newDeploymentId;
-    displayMessage("Deployment successful", "success");
+    displayMessage("Deployment successfuly created in Defender", "success");
   };
 
   async function compileAndDeploy() {
@@ -343,6 +352,10 @@
 
     {#if successMessage || errorMessage} 
       <Message message={successMessage || errorMessage} type={successMessage ? "success" : "error"} />
+
+      {#if deploymentUrl}
+        <Button label={"View Deployment"} onClick={() => window.open(deploymentUrl, "_blank")} type="secondary" />
+      {/if}
     {/if}
   </div>
 </div>

@@ -14,3 +14,9 @@ export const isSameNetwork = (a: string | TenantNetworkResponse, b: string | Ten
 export const isDeploymentEnvironment = (approvalProcess: ApprovalProcess) => {
   return approvalProcess.component?.includes('deploy');
 }
+
+export const isMultisig = (viaType?: ApprovalProcess['viaType']) => {
+  if (!viaType) return false;
+  const multisigTypes = ['Safe', 'Multisig', 'Gnosis Safe', 'Gnosis Multisig'];
+  return multisigTypes.includes(viaType);
+}

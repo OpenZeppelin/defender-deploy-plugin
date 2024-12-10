@@ -1,7 +1,7 @@
 <script lang="ts">
   type Props = {
     message: string;
-    type: 'success' | 'error' | 'warn';
+    type: 'success' | 'error' | 'warn' | 'info';
   };
 
   let { message, type }: Props = $props();
@@ -22,4 +22,10 @@
     <i class={`fa fa-exclamation-triangle text-yellow-600`}></i>
     <div class="text-xs text-yellow-600">{message}</div>
   </div>
+{:else if type === 'info'}
+  <div class="flex flex-row items-center gap-2">
+    <i class={`fa fa-info-circle text-blue-600`}></i>
+    <div class="text-xs text-blue-600">{message}</div>
+  </div>
 {/if}
+

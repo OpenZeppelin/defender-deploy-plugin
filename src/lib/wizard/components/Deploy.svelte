@@ -9,10 +9,10 @@
   import { addAPToDropdown, findDeploymentEnvironment, globalState } from "$lib/state/state.svelte";
   import { attempt } from "$lib/utils/attempt";
   import { encodeConstructorArgs, getConstructorInputsWizard, getContractBytecode } from "$lib/utils/contracts";
+  import { isMultisig } from "$lib/utils/helpers";
   import Button from "./shared/Button.svelte";
   import Input from "./shared/Input.svelte";
   import Message from "./shared/Message.svelte";
-
 
   let inputsWithValue = $state<Record<string, string | number | boolean>>({});
   let busy = $state(false);
@@ -22,6 +22,8 @@
   let compilationResult = $state<{ output: Artifact['output'] }>();
   let deploymentId = $state<string | undefined>(undefined);
   let deploymentResult = $state<DeploymentResult | undefined>(undefined);
+  let isDeterministic = $state(false);
+  let salt: string = $state("");
 
   let contractBytecode = $derived.by(() => {
     if (!globalState.contract?.target || !compilationResult) return;
@@ -44,6 +46,12 @@
   let inputs = $derived.by(() => {
     if (!compilationResult) return [];
     return getConstructorInputsWizard(globalState.contract?.target, compilationResult.output.contracts);
+  });
+
+  let enforceDeterministic = $derived.by(() => {
+    const selectedMultisig = globalState.form.approvalType === 'existing' && isMultisig(globalState.form.approvalProcessSelected?.viaType);
+    const toCreateMultisig = globalState.form.approvalType === 'new' && isMultisig(globalState.form.approvalProcessToCreate?.viaType);
+    return selectedMultisig || toCreateMultisig;
   });
 
   const deploymentUrl = $derived(
@@ -82,7 +90,7 @@
     compilationResult = res.data;
   }
 
-  const displayMessage = (message: string, type: "success" | "error") => {
+  function displayMessage(message: string, type: "success" | "error") {
     successMessage = "";
     errorMessage = "";
     if (type === "success") {
@@ -90,6 +98,11 @@
     } else {
       errorMessage = message;
     }
+  }
+
+  function handleSaltChanged(event: Event) {
+    const target = event.target as HTMLInputElement;
+    salt = target.value;
   }
 
   export async function handleInjectedProviderDeployment(bytecode: string) {
@@ -201,6 +214,9 @@
       return;
     }
 
+    errorMessage = "";
+    successMessage = "";
+
     const [constructorBytecode, constructorError] = await encodeConstructorArgs(inputs, inputsWithValue);
     if (constructorError) {
       displayMessage(`Error encoding constructor arguments: ${constructorError.msg}`, "error");
@@ -246,9 +262,8 @@
       verifySourceCode: true,
       licenseType: 'MIT',
       artifactPayload: JSON.stringify(deploymentArtifact),
-      // TODO: Implement constructor arguments + salt
-      constructorBytecode: '',
-      salt: '',
+      constructorBytecode,
+      salt,
     }
 
     const [newDeploymentId, deployError] = await attempt(async () => createDefenderDeployment(deployRequest));
@@ -286,6 +301,32 @@
 </script>
 
 <div class="px-4 flex flex-col gap-2">
+  <div class="pt-2 relative">
+    <input 
+      type="checkbox"
+      id="isDeterministic" 
+      checked={isDeterministic || enforceDeterministic} 
+      onchange={() => (isDeterministic = !isDeterministic)}
+      disabled={enforceDeterministic}
+    >
+    <label class="text-xs absolute bottom-1 left-4" for="isDeterministic">
+      Deterministic
+    </label>
+    {#if enforceDeterministic}
+      <i class="fa fa-question-circle ml-2" title="When using a Safe as the approval process, the salt is required to be deterministic."></i>
+    {/if}
+  </div>
+
+  {#if isDeterministic || enforceDeterministic}
+    <Input
+      name="salt"
+      type="text"
+      placeholder={"Salt"}
+      value={salt}
+      onchange={handleSaltChanged}
+    />
+  {/if}
+
   {#if compilationError}
     <Message message={compilationError} type="error" />
   {/if}
@@ -295,6 +336,8 @@
     {#each inputs as input}
       <Input name={input.name} placeholder={input.name} onchange={handleInputChange} value={''} type="text"/>
     {/each}
+  {:else}
+    <Message type="info" message="No constructor arguments found" />
   {/if}
 
   <Button disabled={!globalState.authenticated || busy} loading={busy} label="Deploy" onClick={triggerDeploy} />

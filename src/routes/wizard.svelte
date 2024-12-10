@@ -33,7 +33,7 @@
       onclick={() => toggleStep(1)} 
       class="flex items-center justify-between w-full p-4 text-sm font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3" 
       class:cursor-not-allowed={!globalState.authenticated}
-      class:text-gray-400={!globalState.authenticated}
+      class:text-gray-300={!globalState.authenticated}
     >
       <span>Network</span>
       <i class={`pr-2 ${currentStep === 1 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
@@ -48,7 +48,7 @@
       onclick={() => toggleStep(2)} 
       class="flex items-center justify-between w-full p-4 text-sm font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3"
       class:cursor-not-allowed={!globalState.authenticated}
-      class:text-gray-400={!globalState.authenticated}
+      class:text-gray-300={!globalState.authenticated}
     >
       <span>Approval Process</span>
       <i class={`pr-2 ${currentStep === 2 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
@@ -63,7 +63,7 @@
       onclick={() => toggleStep(3)} 
       class="flex items-center justify-between w-full p-4 text-sm font-medium rtl:text-right text-gray-800 gap-3"
       class:cursor-not-allowed={!globalState.authenticated}
-      class:text-gray-400={!globalState.authenticated}
+      class:text-gray-300={!globalState.authenticated}
     >
     <span>Deploy</span>
       <i class={`pr-2 ${currentStep === 3 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>

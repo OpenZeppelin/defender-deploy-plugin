@@ -214,6 +214,11 @@
       return;
     }
 
+    if ((isDeterministic || enforceDeterministic) && !salt) {
+      displayMessage("Salt is required", "error");
+      return;
+    }
+
     errorMessage = "";
     successMessage = "";
 
@@ -312,9 +317,6 @@
     <label class="text-xs absolute bottom-1 left-4" for="isDeterministic">
       Deterministic
     </label>
-    {#if enforceDeterministic}
-      <i class="fa fa-question-circle ml-2" title="When using a Safe as the approval process, the salt is required to be deterministic."></i>
-    {/if}
   </div>
 
   {#if isDeterministic || enforceDeterministic}

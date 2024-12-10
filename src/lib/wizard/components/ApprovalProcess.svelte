@@ -8,7 +8,7 @@
   import { getNetworkLiteral } from "$lib/models/network";
   import Input from "./shared/Input.svelte";
 
-  let address = $state<string>("");
+  let address = $state<string>(globalState.form.approvalProcessToCreate?.via || "");
 
   function approvalProcessByNetworkAndComponent(ap: ApprovalProcess) {
     const networkName = typeof globalState.form.network === 'string' 
@@ -143,7 +143,7 @@
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   />
   <label
-    class="text-sm"
+    class={`text-sm ${disableCreation ? 'text-gray-500' : ''}`}
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   >
@@ -163,7 +163,7 @@
 
   {#if approvalProcessType === "EOA" || approvalProcessType === "Safe"}
     <div class="mt-2">
-      <Input value={address} placeholder="* Address" type="text" />
+      <Input value={address} placeholder="* Address" type="text" onchange={onAddressChange} />
     </div>
   {:else if approvalProcessType === "Relayer"}
     {#if disableRelayers}
@@ -197,7 +197,7 @@
     disabled={disableCreation}
   />
   <label
-    class="text-sm"
+    class={`text-sm ${disableCreation ? 'text-gray-500' : ''}`}
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
   >

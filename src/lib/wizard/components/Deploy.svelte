@@ -9,7 +9,7 @@
   import { addAPToDropdown, findDeploymentEnvironment, globalState } from "$lib/state/state.svelte";
   import { attempt } from "$lib/utils/attempt";
   import { encodeConstructorArgs, getConstructorInputsWizard, getContractBytecode } from "$lib/utils/contracts";
-  import { isMultisig } from "$lib/utils/helpers";
+  import { isMultisig, isUpgradeable } from "$lib/utils/helpers";
   import Button from "./shared/Button.svelte";
   import Input from "./shared/Input.svelte";
   import Message from "./shared/Message.svelte";
@@ -46,6 +46,10 @@
   let inputs = $derived.by(() => {
     if (!compilationResult) return [];
     return getConstructorInputsWizard(globalState.contract?.target, compilationResult.output.contracts);
+  });
+
+  let displayUpgradeableWarning = $derived.by(() => {
+    return isUpgradeable(globalState.contract?.source?.sources as ContractSources);
   });
 
   let enforceDeterministic = $derived.by(() => {
@@ -306,6 +310,11 @@
 </script>
 
 <div class="px-4 flex flex-col gap-2">
+
+  {#if displayUpgradeableWarning}
+    <Message type="warn" message="Upgradable contracts are not yet fully supported. This action will only deploy the implementation contract without initializing. <br />We recommend using <u><a href='https://github.com/OpenZeppelin/openzeppelin-upgrades' target='_blank'>openzeppelin-upgrades</a></u> package instead." />
+  {/if}
+
   <div class="pt-2 relative">
     <input 
       type="checkbox"
@@ -336,7 +345,7 @@
   {#if inputs.length > 0}
     <h6 class="text-sm">Constructor Arguments</h6>
     {#each inputs as input}
-      <Input name={input.name} placeholder={input.name} onchange={handleInputChange} value={''} type="text"/>
+      <Input name={input.name} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={''} type="text"/>
     {/each}
   {:else}
     <Message type="info" message="No constructor arguments found" />

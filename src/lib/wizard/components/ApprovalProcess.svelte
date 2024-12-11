@@ -136,20 +136,20 @@
   class="form-check mt-3 flex flex-col gap-2"
   title={disableCreation ? "Deploy Environment already exists" : undefined}
 ><div>
-  <input
-    class="text-xs"
-    type="radio"
-    name="flexRadioDefault"
-    id="new"
-    onclick={(e) => onRadioChange(e)}
-    disabled={disableCreation}
-    title={disableCreation ? "Deploy Environment already exists" : undefined}
-  />
+
   <label
     class={`text-sm ${disableCreation ? 'text-gray-500' : ''}`}
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
-  >
+  >  <input
+  class="text-xs"
+  type="radio"
+  name="flexRadioDefault"
+  id="new"
+  onclick={(e) => onRadioChange(e)}
+  disabled={disableCreation}
+  title={disableCreation ? "Deploy Environment already exists" : undefined}
+/>
     Create new Approval Process
   </label>
   </div>

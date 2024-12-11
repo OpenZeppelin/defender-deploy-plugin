@@ -15,7 +15,7 @@
     if (type === 'secondary') {
       return 'bg-transparent text-gray-800 text-sm border border-gray-800 rounded-md p-2 mt-2';
     }
-    return 'bg-blue-600 text-white text-sm rounded-md p-2 mt-2';
+    return 'bg-indigo-600 text-white text-sm rounded-md p-2 mt-2';
   });
 </script>
 

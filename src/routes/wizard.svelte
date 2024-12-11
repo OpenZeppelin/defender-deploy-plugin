@@ -35,7 +35,7 @@
       class:cursor-not-allowed={!globalState.authenticated}
       class:text-gray-300={!globalState.authenticated}
     >
-      <span>Network</span>
+      <h1>Network</h1>
       <i class={`pr-2 ${currentStep === 1 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
     </button>
     <div class:hidden={!(currentStep === 1)} >
@@ -65,7 +65,7 @@
       class:cursor-not-allowed={!globalState.authenticated}
       class:text-gray-300={!globalState.authenticated}
     >
-    <span>Deploy</span>
+    <h1>Deploy</h1>
       <i class={`pr-2 ${currentStep === 3 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
     </button>
     <div class:hidden={!(currentStep === 3)}>
@@ -76,13 +76,13 @@
   </div>
 </div>
 <style>
-  h1 {
+  button h1 {
     margin-top: 0;
     margin-bottom: 0;
     text-transform: lowercase;
     font-variant: small-caps;
     font-size: 14px;
-    color: rgb(129, 137, 152);
+    /* color: rgb(129, 137, 152); */
     font-weight: 600;
   }
   </style>

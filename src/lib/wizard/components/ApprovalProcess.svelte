@@ -99,7 +99,8 @@
   );
 </script>
 
-<div class="form-check">
+<div class="form-check flex flex-col gap-2">
+  <div>
   <input
     class="form-check-input"
     type="radio"
@@ -110,8 +111,8 @@
   />
   <label class="text-sm" for="flexRadioDefault1">
     Use existing Approval Process
-  </label>
-
+  </label></div>
+  <div class="pl-4">
   {#key globalState.form.approvalProcessSelected}
     <Dropdown
       items={globalState.approvalProcesses
@@ -130,27 +131,29 @@
     />
   {/key}
 </div>
+</div>
 <div
-  class="form-check mt-3"
+  class="form-check mt-3 flex flex-col gap-2"
   title={disableCreation ? "Deploy Environment already exists" : undefined}
->
-  <input
-    class="text-xs"
-    type="radio"
-    name="flexRadioDefault"
-    id="new"
-    onclick={(e) => onRadioChange(e)}
-    disabled={disableCreation}
-    title={disableCreation ? "Deploy Environment already exists" : undefined}
-  />
+><div>
+
   <label
     class={`text-sm ${disableCreation ? 'text-gray-500' : ''}`}
     for="flexRadioDefault2"
     title={disableCreation ? "Deploy Environment already exists" : undefined}
-  >
+  >  <input
+  class="text-xs"
+  type="radio"
+  name="flexRadioDefault"
+  id="new"
+  onclick={(e) => onRadioChange(e)}
+  disabled={disableCreation}
+  title={disableCreation ? "Deploy Environment already exists" : undefined}
+/>
     Create new Approval Process
   </label>
-
+  </div>
+  <div class="pl-4 gap-2 flex flex-col">
   <Dropdown
     items={approvalProcessTypes.map(approvalProcessTypeToDropdownItem)}
     placeholder="Approval Process Type"
@@ -163,7 +166,7 @@
   />
 
   {#if approvalProcessType === "EOA" || approvalProcessType === "Safe"}
-    <div class="mt-2">
+    <div>
       <Input value={address} placeholder="* Address" type="text" onchange={onAddressChange} />
     </div>
   {:else if approvalProcessType === "Relayer"}
@@ -183,7 +186,7 @@
       />
     {/if}
   {/if}
-</div>
+</div></div>
 <div class="form-check mt-3">
   <input
     class="form-check-input"

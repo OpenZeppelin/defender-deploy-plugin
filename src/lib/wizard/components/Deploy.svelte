@@ -309,21 +309,30 @@
 
 </script>
 
-<div class="px-4 flex flex-col gap-2">
+<div class="flex flex-col gap-2">
 
   {#if displayUpgradeableWarning}
     <Message type="warn" message="Upgradable contracts are not yet fully supported. This action will only deploy the implementation contract without initializing. <br />We recommend using <u><a href='https://github.com/OpenZeppelin/openzeppelin-upgrades' target='_blank'>openzeppelin-upgrades</a></u> package instead." />
   {/if}
 
-  <div class="pt-2 relative">
+  {#if inputs.length > 0}
+  <h6 class="text-sm">Constructor Arguments</h6>
+  {#each inputs as input}
+    <Input name={input.name} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={''} type="text"/>
+  {/each}
+{:else}
+  <Message type="info" message="No constructor arguments found" />
+{/if}
+
+  <div class="pt-2 flex">
     <input 
-      type="checkbox"
-      id="isDeterministic" 
-      checked={isDeterministic || enforceDeterministic} 
-      onchange={() => (isDeterministic = !isDeterministic)}
-      disabled={enforceDeterministic}
-    >
-    <label class="text-xs absolute bottom-1 left-4" for="isDeterministic">
+    type="checkbox"
+    id="isDeterministic" 
+    checked={isDeterministic || enforceDeterministic} 
+    onchange={() => (isDeterministic = !isDeterministic)}
+    disabled={enforceDeterministic}
+  >
+    <label class="text-sm left-4 pl-2" for="isDeterministic">
       Deterministic
     </label>
   </div>
@@ -342,14 +351,7 @@
     <Message message={compilationError} type="error" />
   {/if}
 
-  {#if inputs.length > 0}
-    <h6 class="text-sm">Constructor Arguments</h6>
-    {#each inputs as input}
-      <Input name={input.name} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={''} type="text"/>
-    {/each}
-  {:else}
-    <Message type="info" message="No constructor arguments found" />
-  {/if}
+
 
   <Button disabled={!globalState.authenticated || busy} loading={busy} label="Deploy" onClick={triggerDeploy} />
 

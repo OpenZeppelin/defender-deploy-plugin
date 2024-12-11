@@ -15,7 +15,7 @@
 </script>
 
 {#if label}
-  <label class="text-xs" for="apiSecret">{label}</label>
+  <label class="text-sm" for="apiSecret">{label}</label>
 {/if}
 <input
   name={name}
@@ -24,5 +24,5 @@
   placeholder={placeholder}
   disabled={disabled}
   onchange={onchange}
-  class="border text-xs border-gray-300 disabled:opacity-50 rounded-md p-2 w-full"
+  class="border text-sm border-gray-300 disabled:opacity-50 rounded-md p-2 w-full"
 />

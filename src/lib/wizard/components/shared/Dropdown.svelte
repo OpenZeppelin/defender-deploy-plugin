@@ -67,7 +67,7 @@
 <div class="relative w-full" use:clickOutside={handleClickOutside}>
   <button
     type="button"
-    class="w-full flex items-center justify-between border border-gray-300 disabled:opacity-50 rounded-md p-2 text-xs bg-white"
+    class="w-full flex items-center justify-between border border-gray-300 disabled:opacity-50 rounded-md p-2 text-sm bg-white"
     onclick={toggleDropdown}
     disabled={disabled}
     {name}
@@ -82,12 +82,12 @@
     <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
       {#each Object.entries(groupedItems) as [group, items]}
         {#if group !== 'default'}
-          <div class="px-2 py-1 text-xs font-semibold bg-gray-50 text-gray-700">{group}</div>
+          <div class="px-2 py-1 text-sm font-semibold bg-gray-50 text-gray-700">{group}</div>
         {/if}
         {#each items.sort((a, b) => a.label.localeCompare(b.label)) as item}
           <button
             type="button"
-            class="w-full text-left px-2 py-1.5 text-xs hover:bg-gray-100 focus:bg-gray-100 focus:outline-none {selected?.value === item.value ? 'bg-gray-50' : ''}"
+            class="w-full text-left px-2 py-1.5 text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none {selected?.value === item.value ? 'bg-gray-50' : ''}"
             onclick={() => handleSelect(item)}
           >
             {item.label}
@@ -95,7 +95,7 @@
         {/each}
       {/each}
       {#if items.length === 0}
-        <div class="px-2 py-1.5 text-xs text-gray-500">
+        <div class="px-2 py-1.5 text-sm text-gray-500">
           {emptyLabel ?? "No items available"}
         </div>
       {/if}

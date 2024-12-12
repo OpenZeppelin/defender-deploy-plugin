@@ -2,7 +2,7 @@
   import { API } from "$lib/api";
   import { deployContract, switchToNetwork } from "$lib/ethereum";
   import type { ApprovalProcess, CreateApprovalProcessRequest } from "$lib/models/approval-process";
-  import type { Artifact, DeployContractRequest, DeploymentResult, UpdateDeploymentRequest } from "$lib/models/deploy";
+  import type { ABIParameter, Artifact, DeployContractRequest, DeploymentResult, UpdateDeploymentRequest } from "$lib/models/deploy";
   import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   import type { APIResponse } from "$lib/models/ui";
@@ -43,11 +43,6 @@
     }
   });
 
-  let inputs = $derived.by(() => {
-    if (!compilationResult) return [];
-    return getConstructorInputsWizard(globalState.contract?.target, compilationResult.output.contracts);
-  });
-
   let displayUpgradeableWarning = $derived.by(() => {
     return isUpgradeable(globalState.contract?.source?.sources as ContractSources);
   });
@@ -65,6 +60,9 @@
       }?deploymentId=${deploymentId}`
     : undefined
   );
+
+
+  let inputs: ABIParameter[] = $state([]);
 
   $effect(() => {
     if (globalState.contract?.source?.sources) {
@@ -92,6 +90,10 @@
       return;
     }
     compilationResult = res.data;
+
+    if (globalState.contract?.target && compilationResult) {
+      inputs = getConstructorInputsWizard(globalState.contract.target, compilationResult.output.contracts);
+    }
   }
 
   function displayMessage(message: string, type: "success" | "error") {
@@ -266,8 +268,8 @@
     const deployRequest: DeployContractRequest = {
       network: getNetworkLiteral(globalState.form.network),
       approvalProcessId: approvalProcess.approvalProcessId,
-      contractName: globalState.contract!.target,
-      contractPath:  globalState.contract!.target,
+      contractName: globalState.contract.target,
+      contractPath:  globalState.contract.target,
       verifySourceCode: true,
       licenseType: 'MIT',
       artifactPayload: JSON.stringify(deploymentArtifact),
@@ -310,19 +312,18 @@
 </script>
 
 <div class="flex flex-col gap-2">
-
   {#if displayUpgradeableWarning}
     <Message type="warn" message="Upgradable contracts are not yet fully supported. This action will only deploy the implementation contract without initializing. <br />We recommend using <u><a href='https://github.com/OpenZeppelin/openzeppelin-upgrades' target='_blank'>openzeppelin-upgrades</a></u> package instead." />
   {/if}
 
   {#if inputs.length > 0}
-  <h6 class="text-sm">Constructor Arguments</h6>
-  {#each inputs as input}
-    <Input name={input.name} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={''} type="text"/>
-  {/each}
-{:else}
-  <Message type="info" message="No constructor arguments found" />
-{/if}
+    <h6 class="text-sm">Constructor Arguments</h6>
+    {#each inputs as input}
+      <Input name={input.name} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={''} type="text"/>
+    {/each}
+  {:else}
+    <Message type="info" message="No constructor arguments found" />
+  {/if}
 
   <div class="pt-2 flex">
     <input 
@@ -350,8 +351,6 @@
   {#if compilationError}
     <Message message={compilationError} type="error" />
   {/if}
-
-
 
   <Button disabled={!globalState.authenticated || busy} loading={busy} label="Deploy" onClick={triggerDeploy} />
 

@@ -18,7 +18,7 @@
   const compileDebounced = debouncer(compile, 600);
 
   let inputsWithValue = $state<Record<string, string | number | boolean>>({});
-  let busy = $state(false);
+  let isDeploying = $state(false);
   let successMessage = $state<string>("");
   let errorMessage = $state<string>("");
   let compilationError = $state<string>("");
@@ -309,9 +309,9 @@
   };
 
   async function triggerDeploy() {
-    busy = true;
+    isDeploying = true;
     await deploy();
-    busy = false;
+    isDeploying = false;
   }
 
 </script>
@@ -359,7 +359,7 @@
     <Message message={compilationError} type="error" />
   {/if}
 
-  <Button disabled={!globalState.authenticated || busy} loading={busy} label="Deploy" onClick={triggerDeploy} />
+  <Button disabled={!globalState.authenticated || isDeploying || isCompiling} loading={isDeploying} label="Deploy" onClick={triggerDeploy} />
 
   {#if successMessage || errorMessage} 
     <Message message={successMessage || errorMessage} type={successMessage ? "success" : "error"} />

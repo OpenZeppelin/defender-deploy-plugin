@@ -41,7 +41,7 @@ Location in Remix: Side Panel
 For testing in Contracts Wizard, you must also run the Contracts Wizard UI locally to point to your local plugin.
 
 1. Run Contracts Wizard locally.
- - a. Go to (https://github.com/OpenZeppelin/contracts-wizard)[Contracts Wizard Repo].
+ - a. Go to [https://github.com/OpenZeppelin/contracts-wizard](Contracts Wizard Repo).
  - b. Clone the latest `master` branch and follow steps to setup the project.
  - c. Move to `pacakges/ui` and run it with `yarn dev`.
 2. In another terminal, run this project using `pnpm dev`, make sure the app is served in `http://localhost:5173`.

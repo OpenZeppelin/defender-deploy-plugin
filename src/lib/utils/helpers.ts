@@ -26,3 +26,11 @@ export const isUpgradeable = (sources?: ContractSources) => {
   if (!sources) return false;
   return Object.keys(sources).some((path) => path.includes('@openzeppelin/contracts-upgradeable'));
 }
+
+export const debouncer = (fn: (...args: any[]) => void, delay: number) => {
+  let timeout: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+}

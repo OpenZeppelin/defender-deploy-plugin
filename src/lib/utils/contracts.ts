@@ -1,6 +1,7 @@
 import type { ABIDescription, ABIParameter, CompilationResult } from "@remixproject/plugin-api";
 import { AbiCoder } from "ethers";
 import { attempt } from "./attempt";
+import type { Artifact } from "$lib/models/deploy";
 
 export function getContractFeatures(
   path: string,
@@ -23,6 +24,23 @@ export function getConstructorInputs(
   if (!compilation || !path) return [];
 
   const { abi } = getContractFeatures(path, compilation);
+  const constructor = abi.find((fragment) => fragment.type === "constructor");
+  if (!constructor || !constructor.inputs) return [];
+  return constructor.inputs as ABIParameter[];
+}
+
+export function getConstructorInputsWizard(
+  path: string | undefined,
+  contracts: Artifact['output']['contracts'],
+): ABIParameter[] {
+  // if no compiled contracts found, then return empty inputs.
+  if (!contracts || !path) return [];
+
+  const contractName =
+  Object.keys(contracts[path]).length > 0
+    ? Object.keys(contracts[path])[0]
+    : "";
+  const abi: Array<ABIDescription> = contracts[path][contractName].abi;
   const constructor = abi.find((fragment) => fragment.type === "constructor");
   if (!constructor || !constructor.inputs) return [];
   return constructor.inputs as ABIParameter[];
@@ -67,7 +85,7 @@ export function createArtifactPayload(
 export function getContractBytecode(
   path: string,
   contractName: string,
-  compilation: CompilationResult
+  contractSources: Record<string, any>
 ): string {
-  return compilation.contracts[path][contractName].evm.bytecode.object;
+  return contractSources[path][contractName].evm.bytecode.object;
 }

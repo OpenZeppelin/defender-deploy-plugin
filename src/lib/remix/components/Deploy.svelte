@@ -81,7 +81,7 @@
       contractBytecode = getContractBytecode(
         contractInfo.path,
         contractInfo.name,
-        globalState.contract.data
+        globalState.contract.data.contracts
       );
     }
   });
@@ -293,7 +293,7 @@
       verifySourceCode: true,
       artifactPayload,
       constructorBytecode,
-      salt,
+      salt: isDeterministic || enforceDeterministic ? salt : undefined,
     };
     const [newDeploymentId, deployError] = await attempt(async () => createDefenderDeployment(deployRequest));
     if (deployError) {

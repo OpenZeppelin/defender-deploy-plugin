@@ -71,3 +71,20 @@ export interface UpdateDeploymentRequest {
   address: string;
   hash: string;
 }
+
+export interface DeploymentResult {
+  deploymentId?: string;
+  address: string;
+  hash: string;
+  sender?: string;
+}
+
+export type ABITypeParameter = 'uint' | 'uint[]' | 'int' | 'int[]' | 'address' | 'address[]' | 'bool' | 'bool[]' | 'fixed' | 'fixed[]' | 'ufixed' | 'ufixed[]' | 'bytes' | 'bytes[]' | 'function' | 'function[]' | 'tuple' | 'tuple[]' | string;
+export interface ABIParameter {
+  /** The name of the parameter */
+  name: string;
+  /** The canonical type of the parameter */
+  type: ABITypeParameter;
+  /** Used for tuple types */
+  components?: ABIParameter[];
+}

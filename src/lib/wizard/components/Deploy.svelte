@@ -9,13 +9,16 @@
   import { addAPToDropdown, findDeploymentEnvironment, globalState } from "$lib/state/state.svelte";
   import { attempt } from "$lib/utils/attempt";
   import { encodeConstructorArgs, getConstructorInputsWizard, getContractBytecode } from "$lib/utils/contracts";
-  import { isMultisig, isUpgradeable } from "$lib/utils/helpers";
+  import { debouncer, isMultisig, isUpgradeable } from "$lib/utils/helpers";
   import Button from "./shared/Button.svelte";
   import Input from "./shared/Input.svelte";
   import Message from "./shared/Message.svelte";
 
+  // debounce the compile call to avoid sending too many requests while the user is editing.
+  const compileDebounced = debouncer(compile, 600);
+
   let inputsWithValue = $state<Record<string, string | number | boolean>>({});
-  let busy = $state(false);
+  let isDeploying = $state(false);
   let successMessage = $state<string>("");
   let errorMessage = $state<string>("");
   let compilationError = $state<string>("");
@@ -24,6 +27,7 @@
   let deploymentResult = $state<DeploymentResult | undefined>(undefined);
   let isDeterministic = $state(false);
   let salt: string = $state("");
+  let isCompiling = $state(false);
 
   let contractBytecode = $derived.by(() => {
     if (!globalState.contract?.target || !compilationResult) return;
@@ -61,12 +65,12 @@
     : undefined
   );
 
-
   let inputs: ABIParameter[] = $state([]);
 
   $effect(() => {
     if (globalState.contract?.source?.sources) {
-      compile();
+      isCompiling = true;
+      compileDebounced();
     }
   });
 
@@ -75,7 +79,7 @@
     inputsWithValue[target.name] = target.value;
   }
 
-  async function compile() {
+  async function compile(): Promise<void> {
     const sources = globalState.contract?.source?.sources;
     if (!sources) {
       return;
@@ -94,6 +98,7 @@
     if (globalState.contract?.target && compilationResult) {
       inputs = getConstructorInputsWizard(globalState.contract.target, compilationResult.output.contracts);
     }
+    isCompiling = false;
   }
 
   function displayMessage(message: string, type: "success" | "error") {
@@ -304,9 +309,9 @@
   };
 
   async function triggerDeploy() {
-    busy = true;
+    isDeploying = true;
     await deploy();
-    busy = false;
+    isDeploying = false;
   }
 
 </script>
@@ -316,7 +321,9 @@
     <Message type="warn" message="Upgradable contracts are not yet fully supported. This action will only deploy the implementation contract without initializing. <br />We recommend using <u><a href='https://github.com/OpenZeppelin/openzeppelin-upgrades' target='_blank'>openzeppelin-upgrades</a></u> package instead." />
   {/if}
 
-  {#if inputs.length > 0}
+  {#if isCompiling}
+    <Message type="loading" message="Compiling..." />
+  {:else if inputs.length > 0}
     <h6 class="text-sm">Constructor Arguments</h6>
     {#each inputs as input}
       <Input name={input.name} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={''} type="text"/>
@@ -352,7 +359,7 @@
     <Message message={compilationError} type="error" />
   {/if}
 
-  <Button disabled={!globalState.authenticated || busy} loading={busy} label="Deploy" onClick={triggerDeploy} />
+  <Button disabled={!globalState.authenticated || isDeploying || isCompiling} loading={isDeploying} label="Deploy" onClick={triggerDeploy} />
 
   {#if successMessage || errorMessage} 
     <Message message={successMessage || errorMessage} type={successMessage ? "success" : "error"} />

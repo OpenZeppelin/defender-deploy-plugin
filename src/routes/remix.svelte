@@ -112,7 +112,7 @@
       </button>
 
       {#if currentTab === index}
-        <div transition:slide class="collapse show">
+        <div transition:slide class="show">
           <div class="card-body">
             {#if index === 0}<Setup onSuccess={() => wait(1000).then(() => toggle(1))}/>{/if}
             {#if index === 1}<Network onSelected={() => wait(1000).then(() => toggle(2))}/>{/if}

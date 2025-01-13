@@ -280,6 +280,7 @@
       artifactPayload: JSON.stringify(deploymentArtifact),
       constructorBytecode,
       salt: isDeterministic || enforceDeterministic ? salt : undefined,
+      origin: 'Wizard',
     }
 
     const [newDeploymentId, deployError] = await attempt(async () => createDefenderDeployment(deployRequest));

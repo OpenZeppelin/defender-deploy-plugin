@@ -294,6 +294,7 @@
       artifactPayload,
       constructorBytecode,
       salt: isDeterministic || enforceDeterministic ? salt : undefined,
+      origin: 'Remix',
     };
     const [newDeploymentId, deployError] = await attempt(async () => createDefenderDeployment(deployRequest));
     if (deployError) {

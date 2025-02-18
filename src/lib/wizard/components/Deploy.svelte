@@ -54,7 +54,8 @@
   let enforceDeterministic = $derived.by(() => {
     const selectedMultisig = globalState.form.approvalType === 'existing' && isMultisig(globalState.form.approvalProcessSelected?.viaType);
     const toCreateMultisig = globalState.form.approvalType === 'new' && isMultisig(globalState.form.approvalProcessToCreate?.viaType);
-    return selectedMultisig || toCreateMultisig;
+    const hasReasonMessage = globalState.contract?.enforceDeterministicReason !== undefined;
+    return selectedMultisig || toCreateMultisig || hasReasonMessage;
   });
 
   const deploymentUrl = $derived(
@@ -97,6 +98,10 @@
 
     if (globalState.contract?.target && compilationResult) {
       inputs = getConstructorInputsWizard(globalState.contract.target, compilationResult.output.contracts);
+
+      // Clear deploy status messages
+      successMessage = "";
+      errorMessage = "";
     }
     isCompiling = false;
   }
@@ -226,7 +231,11 @@
     }
 
     if ((isDeterministic || enforceDeterministic) && !salt) {
-      displayMessage("Salt is required", "error");
+      if (globalState.contract?.enforceDeterministicReason) {
+        displayMessage(`Salt is required: ${globalState.contract.enforceDeterministicReason}`, "error");
+      } else {
+        displayMessage("Salt is required", "error");
+      }
       return;
     }
 

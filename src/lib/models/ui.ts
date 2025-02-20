@@ -24,6 +24,7 @@ export type GlobalState = {
     source?: CompilationFileSources | null | SourceWithTarget,
     version?: string,
     data?: CompilationResult | null,
+    enforceDeterministicReason?: string,
   }
   form: {
     network?: string | TenantNetworkResponse;

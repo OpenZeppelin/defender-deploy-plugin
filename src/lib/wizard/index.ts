@@ -4,6 +4,7 @@ import { globalState } from "$lib/state/state.svelte";
 export interface DefenderDeployMessage {
   kind: 'oz-wizard-defender-deploy';
   sources: ContractSources;
+  enforceDeterministicReason?: string;
 }
 
 export const initWizardPlugin = () => {
@@ -18,7 +19,8 @@ function listenToContracts() {
         source: {
           sources: e.data.sources,
         },
-        target: getMainContractName(e.data.sources) 
+        target: getMainContractName(e.data.sources),
+        enforceDeterministicReason: e.data.enforceDeterministicReason,
       };
     }
   });

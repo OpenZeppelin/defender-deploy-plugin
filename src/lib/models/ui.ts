@@ -36,6 +36,7 @@ export type GlobalState = {
       network?: string;
     }
     approvalType?: 'existing' | 'new' | 'injected';
+    constructorArgumentsFilled?: boolean;
     completed?: boolean;
   };
 };

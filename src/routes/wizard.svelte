@@ -7,6 +7,7 @@
   import { globalState } from "$lib/state/state.svelte";
   import ApprovalProcess from "$lib/wizard/components/ApprovalProcess.svelte";
   import Deploy from "$lib/wizard/components/Deploy.svelte";
+  import StatusIcon from "../lib/wizard/components/shared/StatusIcon.svelte";
 
   let currentStep = $state(0);
   function toggleStep(step: number) {
@@ -14,6 +15,23 @@
   }
 
   onMount(initWizardPlugin);
+
+  const isStateFormDefined = (
+    stateFormNames: (keyof typeof globalState.form)[]
+  ) =>
+    stateFormNames.reduce(
+      (stateFormDefinedResult, stateFormName) =>
+        stateFormDefinedResult || Boolean(globalState.form[stateFormName]),
+      false
+    );
+
+  const getStateFormStatus = (
+    stateFormNames: (keyof typeof globalState.form)[]
+  ) => (isStateFormDefined(stateFormNames) ? "success" : "pending");
+
+  const getStateFormStatusOnceAuthenticated = (
+    stateFormNames: (keyof typeof globalState.form)[]
+  ) => (globalState.authenticated && isStateFormDefined(stateFormNames) ? "success" : "pending");
 </script>
 
 
@@ -35,6 +53,7 @@
       class:cursor-not-allowed={!globalState.authenticated}
       class:text-gray-300={!globalState.authenticated}
     >
+      <StatusIcon type={getStateFormStatusOnceAuthenticated(["network"])} />
       <h1>Network</h1>
       <i class={`pr-2 ${currentStep === 1 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
     </button>
@@ -50,6 +69,12 @@
       class:cursor-not-allowed={!globalState.authenticated}
       class:text-gray-300={!globalState.authenticated}
     >
+      <StatusIcon
+        type={getStateFormStatusOnceAuthenticated([
+          "approvalProcessSelected",
+          "approvalProcessToCreate",
+        ])}
+      />
       <h1>Approval Process</h1>
       <i class={`pr-2 ${currentStep === 2 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
     </button>
@@ -65,6 +90,7 @@
       class:cursor-not-allowed={!globalState.authenticated}
       class:text-gray-300={!globalState.authenticated}
     >
+    <StatusIcon type={getStateFormStatusOnceAuthenticated(["constructorArgumentsFilled"])}/>
     <h1>Deploy</h1>
       <i class={`pr-2 ${currentStep === 3 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
     </button>

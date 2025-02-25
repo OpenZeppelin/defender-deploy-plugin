@@ -67,6 +67,7 @@
   );
 
   let inputs: ABIParameter[] = $state([]);
+  checkIfAllInputHaveValues()
 
   $effect(() => {
     if (globalState.contract?.source?.sources) {
@@ -116,9 +117,15 @@
     }
   }
 
+  function checkIfAllInputHaveValues() {
+    if (Object.keys(inputsWithValue).length === inputs.length)
+      globalState.form.constructorArgumentsFilled = true;
+  }
+
   function handleSaltChanged(event: Event) {
     const target = event.target as HTMLInputElement;
     salt = target.value;
+    checkIfAllInputHaveValues()
   }
 
   export async function handleInjectedProviderDeployment(bytecode: string) {

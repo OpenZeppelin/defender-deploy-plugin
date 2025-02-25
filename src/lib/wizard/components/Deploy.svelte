@@ -74,6 +74,7 @@
   );
 
   let inputs: ABIParameter[] = $state([]);
+  $inspect(inputs).with(checkIfAllInputHaveValues)
 
   $effect(() => {
     if (globalState.contract?.source?.sources) {
@@ -124,6 +125,10 @@
     }
   }
 
+  function checkIfAllInputHaveValues() {
+    globalState.form.constructorArgumentsFilled = Object.keys(inputsWithValue).length === inputs.length;
+  }
+
   function handleSaltChanged(event: Event) {
     const target = event.target as HTMLInputElement;
     salt = target.value;
@@ -172,7 +177,7 @@
     }
 
     const apRequest: CreateApprovalProcessRequest = {
-      name: `Deploy From Remix - ${ap.viaType}`,
+      name: `Deploy From Wizard - ${ap.viaType}`,
       via: ap.via,
       viaType: ap.viaType,
       network: getNetworkLiteral(globalState.form.network),

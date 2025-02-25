@@ -36,6 +36,9 @@
   // Approval process selection logic
   const onSelectApprovalProcess = (ap: DropdownItem) => {
     globalState.form.approvalProcessSelected = ap.value as ApprovalProcess;
+
+    // Clear deployment status
+    globalState.clearDeploymentStatus && globalState.clearDeploymentStatus();
   };
 
   // Approval process creation logic

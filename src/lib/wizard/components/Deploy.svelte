@@ -29,6 +29,13 @@
   let salt: string = $state("");
   let isCompiling = $state(false);
 
+  // Set callback for clearing deployment status messages
+  globalState.clearDeploymentStatus = () => {
+    setDeploymentCompleted(false);
+    successMessage = "";
+    errorMessage = "";
+  };
+
   let contractBytecode = $derived.by(() => {
     if (!globalState.contract?.target || !compilationResult) return;
 

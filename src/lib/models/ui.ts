@@ -38,7 +38,8 @@ export type GlobalState = {
     approvalType?: 'existing' | 'new' | 'injected';
     constructorArgumentsFilled?: boolean;
     completed?: boolean;
-  };
+  },
+  clearDeploymentStatus?: () => void;
 };
 
 export type APIResponse<T> = {

@@ -42,8 +42,8 @@
     globalState.form.approvalProcessToCreate = undefined;
     globalState.form.approvalType = "existing";
 
-    // Resets Deploy state.
-    setDeploymentCompleted(false);
+    // Clear deployment status
+    globalState.clearDeploymentStatus && globalState.clearDeploymentStatus();
 
     onSelected(network);
   };

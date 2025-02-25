@@ -1,6 +1,9 @@
 import type { ApprovalProcess } from "$lib/models/approval-process";
 import type { GlobalState } from "$lib/models/ui";
 import { isDeploymentEnvironment, isSameNetwork } from "$lib/utils/helpers";
+import { getAddress } from "ethers";
+import { attempt } from "$lib/utils/attempt";
+
 
 /**
  * Global application state
@@ -64,10 +67,54 @@ export const globalState = $state<GlobalState>({
     // Indicates if user is using existing approval process, creating one or injected provider
     approvalType: 'existing',
 
+    constructorArgumentsFilled: false,
+
     // Indicates if deployment is completed.
     completed: false,
   },
 });
+
+export const isValidFormAuthentication = () => globalState.authenticated
+
+const isFormFilledFor = (formInputToCheck: keyof typeof globalState.form) => () => Boolean(globalState.form[formInputToCheck])
+export const isValidFormNetwork = isFormFilledFor("network")
+export const isValidConstructorArguments = isFormFilledFor("constructorArgumentsFilled")
+
+export const isValidFormApprovalProcess = async () => {
+  if (globalState.form.approvalType === "injected") {
+    return true;
+  }
+
+  if (globalState.form.approvalType === 'existing' && globalState.form.approvalProcessSelected) {
+    return true;
+  }
+
+  if (
+    globalState.form.approvalType === 'new' &&
+    globalState.form.approvalProcessToCreate?.viaType === "Relayer" &&
+    globalState.form.approvalProcessToCreate?.relayerId
+  ) {
+    return true;
+  }
+
+  if (
+    globalState.form.approvalType === 'new' &&
+    globalState.form.approvalProcessToCreate?.viaType !== "Relayer" &&
+    globalState.form.approvalProcessToCreate?.via
+  ) {
+
+    const checkIfValidAddress = async () =>
+      getAddress(globalState.form.approvalProcessToCreate!.via!)
+    const [_checkSumed, error] = await attempt(checkIfValidAddress);
+    if (error) {
+      return false;
+    }
+    return true;
+  }
+
+  return false;
+}
+
 
 export const clearErrorBanner = () => {
   globalState.error = undefined;

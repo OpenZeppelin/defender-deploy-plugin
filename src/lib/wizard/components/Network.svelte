@@ -7,6 +7,7 @@
   import type { DropdownItem } from "$lib/models/ui";
   import { globalState } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
+  import Message from "./shared/Message.svelte";
 
   type Props = {
     onSelected: (network: string) => void;
@@ -52,3 +53,12 @@
   on:select={(e) => onNetworkSelect(e.detail)}
   defaultItem={globalState.form.network ? networkToDropdownItem(globalState.form.network) : undefined}
 />
+
+<div class="alert alert-success d-flex align-items-center mt-2">
+<div class="mt-2">
+  <Message
+    message="Tip: Ensure you have an Explorer API Key set in your <u><a href='https://defender.openzeppelin.com/#/deploy' target='_blank'>Deploy Environment</a></u> for this network to allow the contract to be verified automatically."
+    type="tip"
+  />
+</div>
+</div>

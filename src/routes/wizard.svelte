@@ -90,7 +90,7 @@
       class:cursor-not-allowed={!globalState.authenticated}
       class:text-gray-300={!globalState.authenticated}
     >
-    <StatusIcon type={getStateFormStatusOnceAuthenticated(["constructorArgumentsFilled"])}/>
+    <StatusIcon type={getStateFormStatusOnceAuthenticated(["completed"])}/>
     <h1>Deploy</h1>
       <i class={`pr-2 ${currentStep === 3 ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
     </button>

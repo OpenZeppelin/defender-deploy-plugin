@@ -6,7 +6,7 @@
   import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   import type { APIResponse } from "$lib/models/ui";
-  import { addAPToDropdown, findDeploymentEnvironment, globalState } from "$lib/state/state.svelte";
+  import { addAPToDropdown, findDeploymentEnvironment, globalState, setDeploymentCompleted } from "$lib/state/state.svelte";
   import { attempt } from "$lib/utils/attempt";
   import { encodeConstructorArgs, getConstructorInputsWizard, getContractBytecode } from "$lib/utils/contracts";
   import { debouncer, isMultisig, isUpgradeable } from "$lib/utils/helpers";
@@ -67,11 +67,11 @@
   );
 
   let inputs: ABIParameter[] = $state([]);
-  checkIfAllInputHaveValues()
 
   $effect(() => {
     if (globalState.contract?.source?.sources) {
       isCompiling = true;
+      setDeploymentCompleted(false);
       compileDebounced();
     }
   });
@@ -117,15 +117,9 @@
     }
   }
 
-  function checkIfAllInputHaveValues() {
-    if (Object.keys(inputsWithValue).length === inputs.length)
-      globalState.form.constructorArgumentsFilled = true;
-  }
-
   function handleSaltChanged(event: Event) {
     const target = event.target as HTMLInputElement;
     salt = target.value;
-    checkIfAllInputHaveValues()
   }
 
   export async function handleInjectedProviderDeployment(bytecode: string) {
@@ -327,7 +321,9 @@
 
   async function triggerDeploy() {
     isDeploying = true;
+    setDeploymentCompleted(false);
     await deploy();
+    setDeploymentCompleted(successMessage.length > 0 && errorMessage.length === 0);
     isDeploying = false;
   }
 

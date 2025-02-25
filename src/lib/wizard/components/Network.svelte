@@ -5,7 +5,7 @@
     type TenantNetworkResponse,
   } from "$lib/models/network";
   import type { DropdownItem } from "$lib/models/ui";
-  import { globalState } from "$lib/state/state.svelte";
+  import { globalState, setDeploymentCompleted } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
 
   type Props = {
@@ -41,6 +41,9 @@
     globalState.form.approvalProcessSelected = undefined;
     globalState.form.approvalProcessToCreate = undefined;
     globalState.form.approvalType = "existing";
+
+    // Resets Deploy state.
+    setDeploymentCompleted(false);
 
     onSelected(network);
   };

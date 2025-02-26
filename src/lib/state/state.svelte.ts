@@ -87,7 +87,7 @@ export const isValidFormAuthentication = () => globalState.authenticated
 const isFormFilledFor = (formInputToCheck: keyof typeof globalState.form) => () => globalState.form[formInputToCheck] !== undefined
 export const isValidFormNetwork = isFormFilledFor("network")
 
-export const isValidConstructorArguments = () => Object.keys(globalState.form.constructorArguments.values).length === globalState.form.constructorArguments.required && Object.values(globalState.form.constructorArguments.values).reduce((checkValueResult, currentValue) => checkValueResult && (currentValue !== undefined && currentValue !== ""), false)
+export const isValidConstructorArguments = () => Object.keys(globalState.form.constructorArguments.values).length === globalState.form.constructorArguments.required && Object.values(globalState.form.constructorArguments.values).reduce((checkValueResult: boolean, currentValue) => checkValueResult && (currentValue !== undefined && currentValue !== ""), true)
 
 export const isValidDeterministicConfiguration = () => globalState.form.deterministic.isSelected ? globalState.form.deterministic.salt !== undefined : true
 
@@ -149,6 +149,12 @@ export const updateSelectedApprovalProcessWithExisting = (approvalProcess: Appro
     approvalProcessToCreate: undefined
   }
 }
+
+export const setConstructorArgumentValues = (constructorArgumentName: string, constructorArgumentValue: string) => globalState.form.constructorArguments.values[constructorArgumentName] = constructorArgumentValue
+
+export const setNumberOfRequiredConstructorArguments = (numberOfRequiredConstructorArguments: number) => globalState.form.constructorArguments.required = numberOfRequiredConstructorArguments
+
+export const setDeterministicSalt = (deterministicSalt: string) => globalState.form.deterministic.salt = deterministicSalt
 
 export function setDeploymentCompleted(completed: boolean) {
   globalState.form.completed = completed;

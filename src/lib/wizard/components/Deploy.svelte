@@ -6,7 +6,7 @@
   import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   import type { APIResponse } from "$lib/models/ui";
-  import { findDeploymentEnvironment, globalState, setDeploymentCompleted, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
+  import { findDeploymentEnvironment, globalState, setConstructorArgumentValues, setDeploymentCompleted, setDeterministicSalt, setNumberOfRequiredConstructorArguments, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
   import { attempt } from "$lib/utils/attempt";
   import { encodeConstructorArgs, getConstructorInputsWizard, getContractBytecode } from "$lib/utils/contracts";
   import { debouncer, isMultisig, isUpgradeable } from "$lib/utils/helpers";
@@ -83,8 +83,8 @@
   });
 
   function handleInputChange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    globalState.form.constructorArguments.values[target.name] = target.value;
+    const {name: inputName, value: inputValue} = event.target as HTMLInputElement;
+    setConstructorArgumentValues(inputName, inputValue);
   }
 
   async function compile(): Promise<void> {
@@ -106,7 +106,7 @@
     if (globalState.contract?.target && compilationResult) {
       inputs = getConstructorInputsWizard(globalState.contract.target, compilationResult.output.contracts);
 
-      globalState.form.constructorArguments.required = inputs.length
+      setNumberOfRequiredConstructorArguments(inputs.length)
 
       // Clear deploy status messages
       successMessage = "";
@@ -126,8 +126,8 @@
   }
 
   function handleSaltChanged(event: Event) {
-    const target = event.target as HTMLInputElement;
-    globalState.form.deterministic.salt = target.value;
+    const {value: saltValue} = event.target as HTMLInputElement;
+    setDeterministicSalt(saltValue);
   }
 
   export async function handleInjectedProviderDeployment(bytecode: string) {

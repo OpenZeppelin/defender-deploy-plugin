@@ -17,7 +17,6 @@
   // debounce the compile call to avoid sending too many requests while the user is editing.
   const compileDebounced = debouncer(compile, 600);
 
-  let inputsWithValue = $state<Record<string, string | number | boolean>>({});
   let isDeploying = $state(false);
   let successMessage = $state<string>("");
   let errorMessage = $state<string>("");
@@ -25,9 +24,9 @@
   let compilationResult = $state<{ output: Artifact['output'] }>();
   let deploymentId = $state<string | undefined>(undefined);
   let deploymentResult = $state<DeploymentResult | undefined>(undefined);
-  let isDeterministic = $state(false);
-  let salt: string = $state("");
   let isCompiling = $state(false);
+
+  let deterministic = $derived.by(() => globalState.form.deterministic);
 
   // Set callback for clearing deployment status messages
   globalState.clearDeploymentStatus = () => {
@@ -74,7 +73,6 @@
   );
 
   let inputs: ABIParameter[] = $state([]);
-  $inspect(inputs).with(checkIfAllInputHaveValues)
 
   $effect(() => {
     if (globalState.contract?.source?.sources) {
@@ -86,7 +84,7 @@
 
   function handleInputChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    inputsWithValue[target.name] = target.value;
+    globalState.form.constructorArguments.values[target.name] = target.value;
   }
 
   async function compile(): Promise<void> {
@@ -108,6 +106,8 @@
     if (globalState.contract?.target && compilationResult) {
       inputs = getConstructorInputsWizard(globalState.contract.target, compilationResult.output.contracts);
 
+      globalState.form.constructorArguments.required = inputs.length
+
       // Clear deploy status messages
       successMessage = "";
       errorMessage = "";
@@ -125,13 +125,9 @@
     }
   }
 
-  function checkIfAllInputHaveValues() {
-    globalState.form.constructorArgumentsFilled = Object.keys(inputsWithValue).length === inputs.length;
-  }
-
   function handleSaltChanged(event: Event) {
     const target = event.target as HTMLInputElement;
-    salt = target.value;
+    globalState.form.deterministic.salt = target.value;
   }
 
   export async function handleInjectedProviderDeployment(bytecode: string) {
@@ -243,7 +239,7 @@
       return;
     }
 
-    if ((isDeterministic || enforceDeterministic) && !salt) {
+    if ((deterministic.isSelected || enforceDeterministic) && !deterministic.salt) {
       if (globalState.contract?.enforceDeterministicReason) {
         displayMessage(`Salt is required: ${globalState.contract.enforceDeterministicReason}`, "error");
       } else {
@@ -255,7 +251,7 @@
     errorMessage = "";
     successMessage = "";
 
-    const [constructorBytecode, constructorError] = await encodeConstructorArgs(inputs, inputsWithValue);
+    const [constructorBytecode, constructorError] = await encodeConstructorArgs(inputs, globalState.form.constructorArguments.values);
     if (constructorError) {
       displayMessage(`Error encoding constructor arguments: ${constructorError.msg}`, "error");
       return;
@@ -301,7 +297,7 @@
       licenseType: 'MIT',
       artifactPayload: JSON.stringify(deploymentArtifact),
       constructorBytecode,
-      salt: isDeterministic || enforceDeterministic ? salt : undefined,
+      salt: deterministic.isSelected || enforceDeterministic ? deterministic.salt : undefined,
       origin: 'Wizard',
     }
 
@@ -361,8 +357,8 @@
     <input 
     type="checkbox"
     id="isDeterministic" 
-    checked={isDeterministic || enforceDeterministic} 
-    onchange={() => (isDeterministic = !isDeterministic)}
+    checked={deterministic.isSelected || enforceDeterministic} 
+    onchange={() => (globalState.form.deterministic.isSelected = !deterministic.isSelected)}
     disabled={enforceDeterministic}
   >
     <label class="text-sm left-4 pl-2" for="isDeterministic">
@@ -370,12 +366,12 @@
     </label>
   </div>
 
-  {#if isDeterministic || enforceDeterministic}
+  {#if deterministic.isSelected || enforceDeterministic}
     <Input
       name="salt"
       type="text"
       placeholder={"Salt"}
-      value={salt}
+      value={deterministic.salt || ""}
       onchange={handleSaltChanged}
     />
   {/if}

@@ -4,7 +4,7 @@
   import { onMount } from "svelte";
   import Configuration from "$lib/wizard/components/Configuration.svelte";
   import Network from "$lib/wizard/components/Network.svelte";
-  import { globalState,  isValidConstructorArguments,  isValidFormApprovalProcess, isValidFormAuthentication, isValidFormNetwork } from "$lib/state/state.svelte";
+  import { globalState,  isValidConstructorArguments,  isValidDeterministicConfiguration,  isValidFormApprovalProcess, isValidFormAuthentication, isValidFormNetwork } from "$lib/state/state.svelte";
   import ApprovalProcess from "$lib/wizard/components/ApprovalProcess.svelte";
   import Deploy from "$lib/wizard/components/Deploy.svelte";
   import StatusIcon from "../lib/wizard/components/shared/StatusIcon.svelte";
@@ -34,6 +34,7 @@
   let networkFormFilled = $derived.by(isValidFormNetwork)
   let approvalProcessFormFilledPromise = $derived.by(isValidFormApprovalProcess)
   let constructorArgumentsFilled = $derived.by(isValidConstructorArguments)
+  let deterministicConfigurationFilled = $derived.by(isValidDeterministicConfiguration)
 
   $inspect(globalState).with(async (stateUpdateType) => {
     if(stateUpdateType === "init") return
@@ -108,7 +109,10 @@
       >
       <div class="flex items-center gap-3"> 
         <StatusIcon
-          type={getStateFormStatus(constructorArgumentsFilled && currentStepIs(FormSteps.constructorArguments))}
+          type={getStateFormStatus(
+            constructorArgumentsFilled && deterministicConfigurationFilled && 
+            currentStepIs(FormSteps.constructorArguments)
+          )}
         />
         <h1>Deploy</h1>
       </div>

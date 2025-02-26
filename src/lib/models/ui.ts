@@ -3,6 +3,7 @@ import type { Relayer } from "./relayer";
 import type { ApiKeyCapability, Credentials } from "./auth";
 import type { ApprovalProcess } from "./approval-process";
 import type { TenantNetworkResponse } from "./network";
+import type { ABIParameter } from "./deploy";
 
 export type DropdownItem = {
   label: string;
@@ -36,7 +37,14 @@ export type GlobalState = {
       network?: string;
     }
     approvalType?: 'existing' | 'new' | 'injected';
-    constructorArgumentsFilled?: boolean;
+    constructorArguments: {
+      values: Record<string, string | number | boolean>,
+      required: number
+    }
+    deterministic: {
+      isSelected: boolean;
+      salt?: string
+    };
     completed?: boolean;
   },
   clearDeploymentStatus?: () => void;

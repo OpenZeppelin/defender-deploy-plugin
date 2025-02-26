@@ -67,7 +67,15 @@ export const globalState = $state<GlobalState>({
     // Indicates if user is using existing approval process, creating one or injected provider
     approvalType: 'existing',
 
-    constructorArgumentsFilled: false,
+    constructorArguments: {
+      values: {},
+      required: 0
+    },
+
+    deterministic: {
+      isSelected: false,
+      salt: undefined
+    },
 
     // Indicates if deployment is completed.
     completed: false,
@@ -78,7 +86,10 @@ export const isValidFormAuthentication = () => globalState.authenticated
 
 const isFormFilledFor = (formInputToCheck: keyof typeof globalState.form) => () => Boolean(globalState.form[formInputToCheck])
 export const isValidFormNetwork = isFormFilledFor("network")
-export const isValidConstructorArguments = isFormFilledFor("constructorArgumentsFilled")
+
+export const isValidConstructorArguments = () => Object.keys(globalState.form.constructorArguments.values).length === globalState.form.constructorArguments.required
+
+export const isValidDeterministicConfiguration = () => globalState.form.deterministic.isSelected ? Boolean(globalState.form.deterministic.salt) : true
 
 export const isValidFormApprovalProcess = async () => {
   if (globalState.form.approvalType === "injected") {

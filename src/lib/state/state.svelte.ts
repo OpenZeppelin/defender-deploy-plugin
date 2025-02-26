@@ -89,7 +89,7 @@ export const isValidFormNetwork = isFormFilledFor("network")
 
 export const isValidConstructorArguments = () => Object.keys(globalState.form.constructorArguments.values).length === globalState.form.constructorArguments.required && Object.values(globalState.form.constructorArguments.values).reduce((checkValueResult, currentValue) => checkValueResult && (currentValue !== undefined && currentValue !== ""), false)
 
-export const isValidDeterministicConfiguration = () => globalState.form.deterministic.isSelected ? Boolean(globalState.form.deterministic.salt) : true
+export const isValidDeterministicConfiguration = () => globalState.form.deterministic.isSelected ? globalState.form.deterministic.salt !== undefined : true
 
 export const isValidFormApprovalProcess = async () => {
 

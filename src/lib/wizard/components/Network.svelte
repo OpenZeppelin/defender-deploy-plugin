@@ -43,7 +43,7 @@
     globalState.form.approvalType = "existing";
 
     // Clear deployment status
-    globalState.clearDeploymentStatus && globalState.clearDeploymentStatus();
+    globalState.clearDeploymentStatus?.();
 
     onSelected(network);
   };

@@ -92,6 +92,7 @@ export const isValidConstructorArguments = () => Object.keys(globalState.form.co
 export const isValidDeterministicConfiguration = () => globalState.form.deterministic.isSelected ? Boolean(globalState.form.deterministic.salt) : true
 
 export const isValidFormApprovalProcess = async () => {
+
   if (globalState.form.approvalType === "injected") {
     return true;
   }
@@ -135,8 +136,18 @@ export const setErrorBanner = (error?: string) => {
   globalState.error = error;
 };
 
-export const addAPToDropdown = (approvalProcess: ApprovalProcess) => {
+export const addApprovalProcessToDropdown = (approvalProcess: ApprovalProcess) => {
   globalState.approvalProcesses.push(approvalProcess);
+}
+
+export const updateSelectedApprovalProcessWithExisting = (approvalProcess: ApprovalProcess) => {
+  addApprovalProcessToDropdown(approvalProcess)
+  globalState.form = {
+    ...globalState.form,
+    approvalType: "existing",
+    approvalProcessSelected: {...approvalProcess},
+    approvalProcessToCreate: undefined
+  }
 }
 
 export function setDeploymentCompleted(completed: boolean) {

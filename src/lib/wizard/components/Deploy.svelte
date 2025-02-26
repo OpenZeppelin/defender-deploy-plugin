@@ -6,7 +6,7 @@
   import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   import type { APIResponse } from "$lib/models/ui";
-  import { addAPToDropdown, findDeploymentEnvironment, globalState, setDeploymentCompleted } from "$lib/state/state.svelte";
+  import { findDeploymentEnvironment, globalState, setDeploymentCompleted, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
   import { attempt } from "$lib/utils/attempt";
   import { encodeConstructorArgs, getConstructorInputsWizard, getContractBytecode } from "$lib/utils/contracts";
   import { debouncer, isMultisig, isUpgradeable } from "$lib/utils/helpers";
@@ -155,6 +155,7 @@
     };
   }
 
+
   async function getOrCreateApprovalProcess(): Promise<ApprovalProcess | undefined> {
     const ap = globalState.form.approvalProcessToCreate;
     if (!ap || !ap.via || !ap.viaType) {
@@ -191,7 +192,8 @@
     displayMessage("Deployment Environment successfully created", "success");
     if (!result.data) return;
 
-    addAPToDropdown(result.data.approvalProcess)
+    updateSelectedApprovalProcessWithExisting(result.data.approvalProcess)
+
     return result.data.approvalProcess;
   }
 
@@ -347,7 +349,7 @@
   {:else if inputs.length > 0}
     <h6 class="text-sm">Constructor Arguments</h6>
     {#each inputs as input}
-      <Input name={input.name} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={''} type="text"/>
+      <Input name={input.name} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={String(globalState.form.constructorArguments.values[input.name])} type="text"/>
     {/each}
   {:else}
     <Message type="info" message="No constructor arguments found" />

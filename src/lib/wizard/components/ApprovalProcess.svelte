@@ -13,7 +13,7 @@
   import Input from "./shared/Input.svelte";
   import Message from "./shared/Message.svelte";
 
-  let address = $state<string>(
+  let address = $derived<string>(
     globalState.form.approvalProcessToCreate?.via || ""
   );
 

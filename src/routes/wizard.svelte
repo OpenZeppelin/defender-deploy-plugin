@@ -17,6 +17,8 @@
   } as const 
 
   let currentStep = $state<keyof typeof FormSteps>(FormSteps.authentication);
+  const currentStepIsEndOfForm = currentStepIs(FormSteps.constructorArguments)
+
   function toggleStep(stepToToggle: keyof typeof FormSteps) {
     currentStep = stepToToggle;
   }
@@ -36,14 +38,22 @@
   let constructorArgumentsFilled = $derived.by(isValidConstructorArguments)
   let deterministicConfigurationFilled = $derived.by(isValidDeterministicConfiguration)
 
-  $inspect(globalState).with(async (stateUpdateType) => {
-    if(stateUpdateType === "init") return
-    
-    if(await approvalProcessFormFilledPromise) toggleStep(FormSteps.constructorArguments)
-    else if (networkFormFilled) toggleStep(FormSteps.approvalProcess)
-    else if(authenticationFilled) toggleStep(FormSteps.network)
+  $inspect(globalState.authenticated).with(async () => {
+    if(authenticationFilled) toggleStep(FormSteps.network)
   });
 
+  $inspect(globalState.form.network).with(async () => {
+    if (networkFormFilled) toggleStep(FormSteps.approvalProcess)
+  });
+
+  $inspect(
+    globalState.form.approvalProcessSelected, 
+    globalState.form.approvalProcessToCreate
+  ).with(async () => {
+    if(currentStepIsEndOfForm) return
+
+    if(await approvalProcessFormFilledPromise) toggleStep(FormSteps.constructorArguments)
+  });
 </script>
 
 

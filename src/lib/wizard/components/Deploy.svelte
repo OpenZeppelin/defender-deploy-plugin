@@ -349,7 +349,7 @@
   {:else if inputs.length > 0}
     <h6 class="text-sm">Constructor Arguments</h6>
     {#each inputs as input}
-      <Input name={input.name} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={String(globalState.form.constructorArguments.values[input.name])} type="text"/>
+      <Input name={input.name} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={String(globalState.form.constructorArguments.values[input.name] || "")} type="text"/>
     {/each}
   {:else}
     <Message type="info" message="No constructor arguments found" />

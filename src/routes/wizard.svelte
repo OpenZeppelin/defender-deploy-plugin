@@ -56,7 +56,7 @@
   });
 </script>
 
-
+{JSON.stringify(globalState.form)}
 <div class="h-[calc(100vh-2rem)] flex flex-col pt-2">
   <div class="flex-1 overflow-y-auto">
     <button onclick={() => toggleStep(FormSteps.authentication)} class="flex items-center justify-between w-full p-4 text-sm font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3" >

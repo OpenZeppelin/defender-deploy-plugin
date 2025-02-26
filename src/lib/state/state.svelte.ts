@@ -87,7 +87,7 @@ export const isValidFormAuthentication = () => globalState.authenticated
 const isFormFilledFor = (formInputToCheck: keyof typeof globalState.form) => () => globalState.form[formInputToCheck] !== undefined
 export const isValidFormNetwork = isFormFilledFor("network")
 
-export const isValidConstructorArguments = () => Object.keys(globalState.form.constructorArguments.values).length === globalState.form.constructorArguments.required
+export const isValidConstructorArguments = () => Object.keys(globalState.form.constructorArguments.values).length === globalState.form.constructorArguments.required && Object.values(globalState.form.constructorArguments.values).reduce((checkValueResult, currentValue) => checkValueResult && (currentValue !== undefined && currentValue !== ""), false)
 
 export const isValidDeterministicConfiguration = () => globalState.form.deterministic.isSelected ? Boolean(globalState.form.deterministic.salt) : true
 

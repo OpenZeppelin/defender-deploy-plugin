@@ -5,11 +5,12 @@
     type TenantNetworkResponse,
   } from "$lib/models/network";
   import type { DropdownItem } from "$lib/models/ui";
-  import { globalState, setDeploymentCompleted } from "$lib/state/state.svelte";
+  import { globalState, setApprovalProcessToCreate, setNetwork, setSelectedApprovalProcess, setSelectedApprovalProcessType, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
+  import { approvalProcessByNetworkAndComponent } from "../../models/approval-process";
   import Dropdown from "./shared/Dropdown.svelte";
 
   type Props = {
-    onSelected: (network: string) => void;
+    onSelected: (network: string | TenantNetworkResponse) => void;
   };
   const { onSelected }: Props = $props();
 
@@ -32,20 +33,21 @@
   };
 
   // network selection logic
-  let network = $state("");
-  const onNetworkSelect = (item: DropdownItem) => {
-    network = item.value;
-    globalState.form.network = network;
+  const onNetworkSelect = ({value: networkName}: DropdownItem<string | TenantNetworkResponse>) => {
+    setNetwork(networkName);
 
-    // Resets Approval process state.
-    globalState.form.approvalProcessSelected = undefined;
-    globalState.form.approvalProcessToCreate = undefined;
-    globalState.form.approvalType = "existing";
+    setSelectedApprovalProcess(undefined)
+    setApprovalProcessToCreate(undefined);
+
+    const approvalExistingApprovalProcess = globalState.approvalProcesses.find(approvalProcessByNetworkAndComponent(networkName))
+
+    if(approvalExistingApprovalProcess) setSelectedApprovalProcessType("existing")
+    else setSelectedApprovalProcessType("new")
 
     // Clear deployment status
     globalState.clearDeploymentStatus?.();
 
-    onSelected(network);
+    onSelected(networkName);
   };
 </script>
 

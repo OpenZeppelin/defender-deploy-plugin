@@ -16,7 +16,7 @@
   import { getNetworkLiteral, isProductionNetwork, type TenantNetworkResponse } from "$lib/models/network";
   import type { ApprovalProcess, CreateApprovalProcessRequest} from "$lib/models/approval-process";
   import type { DeployContractRequest, UpdateDeploymentRequest } from "$lib/models/deploy";
-  import type { APIResponse } from "$lib/models/ui";
+  import type { APIResponse, HTMLInputElementEvent } from "$lib/models/ui";
 
   // Components
   import Button from "./shared/Button.svelte";
@@ -333,14 +333,12 @@
     deploying = false;
   }
 
-  function handleInputChange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    inputsWithValue[target.name] = target.value;
+  function handleInputChange({currentTarget: {name: argumentName, value: argumentValue}}: HTMLInputElementEvent) {
+    inputsWithValue[argumentName] = argumentValue;
   }
 
-  function handleSaltChanged(event: Event) {
-    const target = event.target as HTMLInputElement;
-    salt = target.value;
+  function handleSaltChanged({currentTarget: {value: saltValue}}: HTMLInputElementEvent) {
+    salt = saltValue
   }
 
   onDestroy(() => {

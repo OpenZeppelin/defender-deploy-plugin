@@ -1,4 +1,6 @@
+import type { globalState } from "../state/state.svelte";
 import type { TenantNetworkResponse } from "./network";
+import type { GlobalState } from "./ui";
 
 /**
  * Generic approval process model
@@ -17,12 +19,19 @@ export type ApprovalProcess = {
   stackResourceId?: string;
 }
 
+export type ApprovalProcessToCreate = {
+  viaType: "EOA" | "Safe" | "Relayer";
+  via?: string;
+  relayerId?: string;
+  network?: string;
+}
+
 export type ComponentType = ('deploy' | 'upgrade')[];
 
 /**
  * Supported approval process creation types
  */
-export const approvalProcessTypes = ['EOA', 'Safe', 'Relayer'];
+export const approvalProcessTypes = ['EOA', 'Safe', 'Relayer'] as const;
 export type ApprovalProcessType = typeof approvalProcessTypes[number];
 
 
@@ -38,4 +47,16 @@ export interface CreateApprovalProcessRequest {
   via: string;
   multisigSender?: string;
   relayerId?: string;
+}
+
+
+export function approvalProcessByNetworkAndComponent(network: GlobalState["form"]["network"]) {
+  return (ap: ApprovalProcess) => {
+    const networkName =
+    typeof network === "string"
+      ? network
+      : network?.name;
+
+  return ap.network === networkName && ap.component?.includes("deploy");
+  }
 }

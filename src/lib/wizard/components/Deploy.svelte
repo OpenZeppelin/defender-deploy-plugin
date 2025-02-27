@@ -6,7 +6,7 @@
   import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   import type { APIResponse } from "$lib/models/ui";
-  import { findDeploymentEnvironment, globalState, resetConstructorArgumentValues, setConstructorArgumentValues, setDeploymentCompleted, setDeterministicSalt, setNumberOfRequiredConstructorArguments, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
+  import { addApprovalProcessToDropdown, addNewApprovalProcessAndSelectExisting, findDeploymentEnvironment, globalState, resetConstructorArgumentValues, setConstructorArgumentValues, setDeploymentCompleted, setDeterministicSalt, setNumberOfRequiredConstructorArguments, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
   import { attempt } from "$lib/utils/attempt";
   import { encodeConstructorArgs, getConstructorInputsWizard, getContractBytecode } from "$lib/utils/contracts";
   import { debouncer, isMultisig, isUpgradeable } from "$lib/utils/helpers";
@@ -193,7 +193,7 @@
     displayMessage("Deployment Environment successfully created", "success");
     if (!result.data) return;
 
-    updateSelectedApprovalProcessWithExisting(result.data.approvalProcess)
+    addNewApprovalProcessAndSelectExisting(result.data.approvalProcess)
 
     return result.data.approvalProcess;
   }

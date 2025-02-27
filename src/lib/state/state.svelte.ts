@@ -1,8 +1,9 @@
-import type { ApprovalProcess } from "$lib/models/approval-process";
-import type { GlobalState } from "$lib/models/ui";
+import type { ApprovalProcess, ApprovalProcessToCreate } from "$lib/models/approval-process";
+import type { GlobalState, SelectedApprovalProcessType } from "$lib/models/ui";
 import { isDeploymentEnvironment, isSameNetwork } from "$lib/utils/helpers";
 import { getAddress } from "ethers";
 import { attempt } from "$lib/utils/attempt";
+import type { TenantNetworkResponse } from "../models/network";
 
 
 /**
@@ -65,7 +66,7 @@ export const globalState = $state<GlobalState>({
     approvalProcessToCreate: undefined,
 
     // Indicates if user is using existing approval process, creating one or injected provider
-    approvalType: 'existing',
+    approvalType: undefined,
 
     constructorArguments: {
       values: {},
@@ -140,8 +141,12 @@ export const addApprovalProcessToDropdown = (approvalProcess: ApprovalProcess) =
   globalState.approvalProcesses.push(approvalProcess);
 }
 
+export const addNewApprovalProcessAndSelectExisting = (newApprovalProcess: ApprovalProcess) => {
+  addApprovalProcessToDropdown(newApprovalProcess)
+  updateSelectedApprovalProcessWithExisting(newApprovalProcess)
+}
+
 export const updateSelectedApprovalProcessWithExisting = (approvalProcess: ApprovalProcess) => {
-  addApprovalProcessToDropdown(approvalProcess)
   globalState.form = {
     ...globalState.form,
     approvalType: "existing",
@@ -157,6 +162,14 @@ export const resetConstructorArgumentValues = () => globalState.form.constructor
 export const setNumberOfRequiredConstructorArguments = (numberOfRequiredConstructorArguments: number) => globalState.form.constructorArguments.required = numberOfRequiredConstructorArguments
 
 export const setDeterministicSalt = (deterministicSalt: string) => globalState.form.deterministic.salt = deterministicSalt
+
+export const setSelectedApprovalProcess = (selectedApprovalProcess: ApprovalProcess | undefined) => globalState.form.approvalProcessSelected = selectedApprovalProcess ? {...selectedApprovalProcess} : undefined
+
+export const setApprovalProcessToCreate = (approvalProcessToCreate: ApprovalProcessToCreate | undefined) => globalState.form.approvalProcessToCreate = approvalProcessToCreate ? {...approvalProcessToCreate} : undefined
+
+export const setSelectedApprovalProcessType = (approvalProcessType: SelectedApprovalProcessType) => globalState.form.approvalType = approvalProcessType
+
+export const setNetwork = (networkName: string | TenantNetworkResponse) => globalState.form.network = networkName
 
 export function setDeploymentCompleted(completed: boolean) {
   globalState.form.completed = completed;

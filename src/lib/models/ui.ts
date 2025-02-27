@@ -1,15 +1,18 @@
 import type { CompilationFileSources, CompilationResult, SourceWithTarget } from "@remixproject/plugin-api";
 import type { Relayer } from "./relayer";
 import type { ApiKeyCapability, Credentials } from "./auth";
-import type { ApprovalProcess } from "./approval-process";
+import type { ApprovalProcess, ApprovalProcessToCreate } from "./approval-process";
 import type { TenantNetworkResponse } from "./network";
-import type { ABIParameter } from "./deploy";
 
-export type DropdownItem = {
+export type DropdownItem<TValue = any> = {
   label: string;
-  value: any;
+  value: TValue;
   group?: string;
 }
+
+export type HTMLInputExtendedElement<TId = string, TValue = string, TName = string> = HTMLInputElement & { id: TId, name: TName, value: TValue, checked: boolean}
+export type HTMLInputElementEvent<TId = string, TValue = string, TName = string> = Event & { currentTarget: HTMLInputExtendedElement<TId, TValue, TName> }
+
 
 export type GlobalState = {
   authenticated: boolean;
@@ -30,13 +33,8 @@ export type GlobalState = {
   form: {
     network?: string | TenantNetworkResponse;
     approvalProcessSelected?: ApprovalProcess;
-    approvalProcessToCreate?: {
-      viaType: 'EOA' | 'Safe' | 'Relayer';
-      via?: string;
-      relayerId?: string;
-      network?: string;
-    }
-    approvalType?: 'existing' | 'new' | 'injected';
+    approvalProcessToCreate?: ApprovalProcessToCreate
+    approvalType?: SelectedApprovalProcessType;
     constructorArguments: {
       values: Record<string, string | number | boolean>,
       required: number
@@ -55,3 +53,10 @@ export type APIResponse<T> = {
   error?: string;
   data?: T;
 }
+
+const selectedApprovalProcessType = ['existing', 'new', 'injected'] as const
+export type SelectedApprovalProcessType = typeof selectedApprovalProcessType[number]
+
+export const isSelectedApprovalProcessType = (selectedApprovalProcessType: string): selectedApprovalProcessType is SelectedApprovalProcessType => {
+  return selectedApprovalProcessType.includes(selectedApprovalProcessType);
+};

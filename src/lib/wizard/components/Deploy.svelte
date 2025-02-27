@@ -6,7 +6,7 @@
   import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   import type { APIResponse } from "$lib/models/ui";
-  import { findDeploymentEnvironment, globalState, setConstructorArgumentValues, setDeploymentCompleted, setDeterministicSalt, setNumberOfRequiredConstructorArguments, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
+  import { findDeploymentEnvironment, globalState, resetConstructorArgumentValues, setConstructorArgumentValues, setDeploymentCompleted, setDeterministicSalt, setNumberOfRequiredConstructorArguments, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
   import { attempt } from "$lib/utils/attempt";
   import { encodeConstructorArgs, getConstructorInputsWizard, getContractBytecode } from "$lib/utils/contracts";
   import { debouncer, isMultisig, isUpgradeable } from "$lib/utils/helpers";
@@ -106,6 +106,7 @@
     if (globalState.contract?.target && compilationResult) {
       inputs = getConstructorInputsWizard(globalState.contract.target, compilationResult.output.contracts);
 
+      resetConstructorArgumentValues()
       setNumberOfRequiredConstructorArguments(inputs.length)
 
       // Clear deploy status messages

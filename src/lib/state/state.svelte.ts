@@ -152,6 +152,8 @@ export const updateSelectedApprovalProcessWithExisting = (approvalProcess: Appro
 
 export const setConstructorArgumentValues = (constructorArgumentName: string, constructorArgumentValue: string) => globalState.form.constructorArguments.values[constructorArgumentName] = constructorArgumentValue
 
+export const resetConstructorArgumentValues = () => globalState.form.constructorArguments.values = {}
+
 export const setNumberOfRequiredConstructorArguments = (numberOfRequiredConstructorArguments: number) => globalState.form.constructorArguments.required = numberOfRequiredConstructorArguments
 
 export const setDeterministicSalt = (deterministicSalt: string) => globalState.form.deterministic.salt = deterministicSalt

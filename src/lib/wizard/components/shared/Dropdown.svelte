@@ -25,13 +25,14 @@
     emptyLabel?: string;
     defaultItem?: DropdownItem;
     name?: string;
+    groupPriority?: { [key: string]: number };
   };
 
   const dispatch = createEventDispatcher<{
     select: DropdownItem;
   }>();
 
-  const { placeholder, items, disabled, emptyLabel, defaultItem, name }: Props =
+  const { placeholder, items, disabled, emptyLabel, defaultItem, name, groupPriority }: Props =
     $props();
 
   const groupedItems = $derived(items.reduce((acc, item) => {
@@ -40,6 +41,14 @@
     acc[group].push(item);
     return acc;
   }, {} as Record<string, DropdownItem[]>));
+
+  // sort groups by priority if provided
+  // default priority is 0, numbers towards negative infinity are ordered first
+  const orderedGroups = $derived(
+    Object.keys(groupedItems).sort((a, b) => {
+      return (groupPriority?.[a] ?? 0) - (groupPriority?.[b] ?? 0);
+    })
+  );
 
   // network selection logic
   let selected = $state<DropdownItem | undefined>(defaultItem);
@@ -80,11 +89,11 @@
 
   {#if isOpen}
     <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-      {#each Object.entries(groupedItems) as [group, items]}
+      {#each orderedGroups as group}
         {#if group !== 'default'}
           <div class="px-2 py-1 text-sm font-semibold bg-gray-50 text-gray-700">{group}</div>
         {/if}
-        {#each items.sort((a, b) => a.label.localeCompare(b.label)) as item}
+        {#each groupedItems[group].sort((a, b) => a.label.localeCompare(b.label)) as item}
           <button
             type="button"
             class="w-full text-left px-2 py-1.5 text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none {selected?.value === item.value ? 'bg-gray-50' : ''}"

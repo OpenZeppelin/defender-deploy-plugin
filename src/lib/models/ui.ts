@@ -25,6 +25,7 @@ export type GlobalState = {
     version?: string,
     data?: CompilationResult | null,
     enforceDeterministicReason?: string,
+    groupNetworksBy?: 'superchain',
   }
   form: {
     network?: string | TenantNetworkResponse;

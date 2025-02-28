@@ -1,25 +1,48 @@
 <script lang="ts">
   import {
     chainDisplayNames,
+    chainIds,
     isProductionNetwork,
     type TenantNetworkResponse,
   } from "$lib/models/network";
   import type { DropdownItem } from "$lib/models/ui";
   import { globalState } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
+  import SuperchainRegistry from "$lib/generated/superchain-registry/chainList.json";
 
   type Props = {
     onSelected: (network: string) => void;
   };
   const { onSelected }: Props = $props();
 
+  const superchainChainIds: number[] = SuperchainRegistry.map((chain) => chain.chainId);
+
+  function isSuperchainNetwork(network: string | TenantNetworkResponse) {
+    if (typeof network === "string") {
+      return superchainChainIds.includes(chainIds[network]);
+    } else {
+      return superchainChainIds.includes(network.chainId);
+    }
+  }
+
+  function formatGroupLabel(isProduction: boolean, isSuperchain: boolean, groupNetworksBy?: string) {
+    let group = isProduction ? 'Production Networks' : 'Test Networks';
+    if (groupNetworksBy === 'superchain') {
+      group = `${group} (${isSuperchain ? 'Superchain' : 'Non-Superchain'})`;
+    }
+    return group;
+  }
+
   const getNetworkGroup = (network: string | TenantNetworkResponse) => {
     const type = typeof network !== "string" ? network.networkType : undefined;
     if (type === 'fork') return 'Forked Networks';
     if (type === 'private') return 'Private Networks';
 
-    const isProduction = isProductionNetwork(network);
-    return isProduction ? 'Production Networks' : 'Test Networks';
+    return formatGroupLabel(
+      isProductionNetwork(network),
+      isSuperchainNetwork(network),
+      globalState.contract?.groupNetworksBy
+    );
   };
 
   const networkToDropdownItem = (network: string | TenantNetworkResponse) => {
@@ -44,6 +67,12 @@
 
     onSelected(network);
   };
+
+  // default priority is 0, numbers towards negative infinity are ordered first
+  const groupPriorities = {
+    'Production Networks (Superchain)': -2,
+    'Test Networks (Superchain)': -1,
+  };
 </script>
 
 <Dropdown
@@ -51,4 +80,5 @@
   placeholder="Select Network"
   on:select={(e) => onNetworkSelect(e.detail)}
   defaultItem={globalState.form.network ? networkToDropdownItem(globalState.form.network) : undefined}
+  groupPriority={groupPriorities}
 />

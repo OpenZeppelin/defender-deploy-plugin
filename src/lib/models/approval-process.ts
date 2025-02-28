@@ -1,4 +1,3 @@
-import type { globalState } from "../state/state.svelte";
 import type { TenantNetworkResponse } from "./network";
 import type { GlobalState } from "./ui";
 
@@ -20,7 +19,7 @@ export type ApprovalProcess = {
 }
 
 export type ApprovalProcessToCreate = {
-  viaType: "EOA" | "Safe" | "Relayer";
+  viaType: ApprovalProcessType;
   via?: string;
   relayerId?: string;
   network?: string;
@@ -40,7 +39,7 @@ export type ApprovalProcessType = typeof approvalProcessTypes[number];
  * https://github.com/OpenZeppelin/defender-sdk/blob/main/packages/approval-process/src/models/approval-process.ts
  */
 export interface CreateApprovalProcessRequest {
-  viaType: 'EOA' | 'Relayer' | 'Safe';
+  viaType: ApprovalProcessType;
   name: string;
   component?: ComponentType;
   network: string;
@@ -53,10 +52,10 @@ export interface CreateApprovalProcessRequest {
 export function approvalProcessByNetworkAndComponent(network: GlobalState["form"]["network"]) {
   return (ap: ApprovalProcess) => {
     const networkName =
-    typeof network === "string"
-      ? network
-      : network?.name;
+      typeof network === "string"
+        ? network
+        : network?.name;
 
-  return ap.network === networkName && ap.component?.includes("deploy");
+    return ap.network === networkName && ap.component?.includes("deploy");
   }
 }

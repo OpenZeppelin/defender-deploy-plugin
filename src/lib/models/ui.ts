@@ -10,9 +10,8 @@ export type DropdownItem<TValue = any> = {
   group?: string;
 }
 
-export type HTMLInputExtendedElement<TId = string, TValue = string, TName = string> = HTMLInputElement & { id: TId, name: TName, value: TValue, checked: boolean}
+type HTMLInputExtendedElement<TId = string, TValue = string, TName = string> = HTMLInputElement & { id: TId, name: TName, value: TValue, checked: boolean}
 export type HTMLInputElementEvent<TId = string, TValue = string, TName = string> = Event & { currentTarget: HTMLInputExtendedElement<TId, TValue, TName> }
-
 
 export type GlobalState = {
   authenticated: boolean;
@@ -29,18 +28,20 @@ export type GlobalState = {
     version?: string,
     data?: CompilationResult | null,
     enforceDeterministicReason?: string,
+    groupNetworksBy?: 'superchain',
   }
   form: {
     network?: string | TenantNetworkResponse;
     approvalProcessSelected?: ApprovalProcess;
-    approvalProcessToCreate?: ApprovalProcessToCreate
+    approvalProcessToCreate?: ApprovalProcessToCreate;
     approvalType?: SelectedApprovalProcessType;
     constructorArguments: {
       values: Record<string, string | number | boolean>,
-      required: number
+      required: string[],
     }
     deterministic: {
       isSelected: boolean;
+      isEnforced: boolean;
       salt?: string
     };
     completed?: boolean;
@@ -54,9 +55,10 @@ export type APIResponse<T> = {
   data?: T;
 }
 
-const selectedApprovalProcessType = ['existing', 'new', 'injected'] as const
-export type SelectedApprovalProcessType = typeof selectedApprovalProcessType[number]
+const selectedApprovalProcessTypes = ['existing', 'new', 'injected'] as const;
+export type SelectedApprovalProcessType = typeof selectedApprovalProcessTypes[number];
 
 export const isSelectedApprovalProcessType = (selectedApprovalProcessType: string): selectedApprovalProcessType is SelectedApprovalProcessType => {
-  return selectedApprovalProcessType.includes(selectedApprovalProcessType);
+  const expectedTypes: string[] = [...selectedApprovalProcessTypes];
+  return expectedTypes.includes(selectedApprovalProcessType);
 };

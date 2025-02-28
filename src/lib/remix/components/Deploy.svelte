@@ -333,12 +333,13 @@
     deploying = false;
   }
 
-  function handleInputChange({currentTarget: {name: argumentName, value: argumentValue}}: HTMLInputElementEvent) {
-    inputsWithValue[argumentName] = argumentValue;
+  function handleInputChange(event: HTMLInputElementEvent) {
+    const { name, value } = event.currentTarget;
+    inputsWithValue[name] = value;
   }
 
-  function handleSaltChanged({currentTarget: {value: saltValue}}: HTMLInputElementEvent) {
-    salt = saltValue
+  function handleSaltChanged(event: HTMLInputElementEvent) {
+    salt = event.currentTarget.value;
   }
 
   onDestroy(() => {

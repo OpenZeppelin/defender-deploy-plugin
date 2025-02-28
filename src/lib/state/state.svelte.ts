@@ -70,11 +70,12 @@ export const globalState = $state<GlobalState>({
 
     constructorArguments: {
       values: {},
-      required: 0
+      required: [],
     },
 
     deterministic: {
       isSelected: false,
+      isEnforced: false,
       salt: undefined
     },
 
@@ -83,17 +84,19 @@ export const globalState = $state<GlobalState>({
   },
 });
 
-export const isValidFormAuthentication = () => globalState.authenticated
+export const isValidFormAuthentication = () => globalState.authenticated;
 
-const isFormFilledFor = (formInputToCheck: keyof typeof globalState.form) => () => globalState.form[formInputToCheck] !== undefined
-export const isValidFormNetwork = isFormFilledFor("network")
+const isFormFilledFor = (formInputToCheck: keyof typeof globalState.form) => () => globalState.form[formInputToCheck] !== undefined;
+export const isValidFormNetwork = isFormFilledFor("network");
 
-export const isValidConstructorArguments = () => Object.keys(globalState.form.constructorArguments.values).length === globalState.form.constructorArguments.required && Object.values(globalState.form.constructorArguments.values).reduce((checkValueResult: boolean, currentValue) => checkValueResult && (currentValue !== undefined && currentValue !== ""), true)
+export const isValidConstructorArguments = () => globalState.form.constructorArguments.required.every((name) => {
+  const value = globalState.form.constructorArguments.values[name];
+  return value !== undefined && value !== "";
+});
 
-export const isValidDeterministicConfiguration = () => globalState.form.deterministic.isSelected ? (globalState.form.deterministic.salt !== undefined && globalState.form.deterministic.salt.length > 0) : true;
+export const isValidDeterministicConfiguration = () => (globalState.form.deterministic.isSelected || globalState.form.deterministic.isEnforced) ? (globalState.form.deterministic.salt !== undefined && globalState.form.deterministic.salt.length > 0) : true;
 
 export const isValidFormApprovalProcess = async () => {
-
   if (globalState.form.approvalType === "injected") {
     return true;
   }
@@ -115,7 +118,6 @@ export const isValidFormApprovalProcess = async () => {
     globalState.form.approvalProcessToCreate?.viaType !== "Relayer" &&
     globalState.form.approvalProcessToCreate?.via
   ) {
-
     const checkIfValidAddress = async () =>
       getAddress(globalState.form.approvalProcessToCreate!.via!)
     const [_checkSumed, error] = await attempt(checkIfValidAddress);
@@ -155,21 +157,19 @@ export const updateSelectedApprovalProcessWithExisting = (approvalProcess: Appro
   }
 }
 
-export const setConstructorArgumentValues = (constructorArgumentName: string, constructorArgumentValue: string) => globalState.form.constructorArguments.values[constructorArgumentName] = constructorArgumentValue
+export const setConstructorArgumentValues = (constructorArgumentName: string, constructorArgumentValue: string) => globalState.form.constructorArguments.values[constructorArgumentName] = constructorArgumentValue;
 
-export const resetConstructorArgumentValues = () => globalState.form.constructorArguments.values = {}
+export const setRequiredConstructorArguments = (requiredConstructorArguments: string[]) => globalState.form.constructorArguments.required = requiredConstructorArguments;
 
-export const setNumberOfRequiredConstructorArguments = (numberOfRequiredConstructorArguments: number) => globalState.form.constructorArguments.required = numberOfRequiredConstructorArguments
+export const setDeterministicSalt = (deterministicSalt: string) => globalState.form.deterministic.salt = deterministicSalt;
 
-export const setDeterministicSalt = (deterministicSalt: string) => globalState.form.deterministic.salt = deterministicSalt
+export const setSelectedApprovalProcess = (selectedApprovalProcess: ApprovalProcess | undefined) => globalState.form.approvalProcessSelected = selectedApprovalProcess ? {...selectedApprovalProcess} : undefined;
 
-export const setSelectedApprovalProcess = (selectedApprovalProcess: ApprovalProcess | undefined) => globalState.form.approvalProcessSelected = selectedApprovalProcess ? {...selectedApprovalProcess} : undefined
+export const setApprovalProcessToCreate = (approvalProcessToCreate: ApprovalProcessToCreate | undefined) => globalState.form.approvalProcessToCreate = approvalProcessToCreate ? {...approvalProcessToCreate} : undefined;
 
-export const setApprovalProcessToCreate = (approvalProcessToCreate: ApprovalProcessToCreate | undefined) => globalState.form.approvalProcessToCreate = approvalProcessToCreate ? {...approvalProcessToCreate} : undefined
+export const setSelectedApprovalProcessType = (approvalProcessType: SelectedApprovalProcessType) => globalState.form.approvalType = approvalProcessType;
 
-export const setSelectedApprovalProcessType = (approvalProcessType: SelectedApprovalProcessType) => globalState.form.approvalType = approvalProcessType
-
-export const setNetwork = (networkName: string | TenantNetworkResponse) => globalState.form.network = networkName
+export const setNetwork = (networkName: string | TenantNetworkResponse) => globalState.form.network = networkName;
 
 export function setDeploymentCompleted(completed: boolean) {
   globalState.form.completed = completed;

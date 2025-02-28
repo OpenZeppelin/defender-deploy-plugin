@@ -50,23 +50,23 @@
     globalState.form.approvalProcessSelected, 
     globalState.form.approvalProcessToCreate
   ).with(async () => {
-    if(currentStepIsEndOfForm) return
+    if (currentStepIsEndOfForm) return;
 
-    if(await approvalProcessFormFilledPromise) toggleStep(FormSteps.constructorArguments)
+    if (await approvalProcessFormFilledPromise) toggleStep(FormSteps.constructorArguments);
   });
 </script>
 
 <div class="h-[calc(100vh-2rem)] flex flex-col pt-2">
   <div class="flex-1 overflow-y-auto">
     <button onclick={() => toggleStep(FormSteps.authentication)} class="flex items-center justify-between w-full p-4 text-sm font-medium rtl:text-right text-gray-800 rounded-t-xl gap-3" >
-      <div class="flex items-center gap-3"> 
+      <div class="flex items-center gap-3">
         <StatusIcon type={getStateFormStatus(authenticationFilled)} />
         <h1>Configuration</h1>
       </div>
       <i class={`pr-2 ${currentStepIs(FormSteps.authentication) ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
     </button>
     <div class:hidden={!currentStepIs(FormSteps.authentication)}>
-      <div class="pl-4 pr-4"> 
+      <div class="pl-4 pr-4">
         <Configuration />
       </div>
     </div>
@@ -77,14 +77,14 @@
       class:cursor-not-allowed={!authenticationFilled}
       class:text-gray-300={!authenticationFilled}
     >
-      <div class="flex items-center gap-3"> 
+      <div class="flex items-center gap-3">
         <StatusIcon type={getStateFormStatus(networkFormFilled)} />
         <h1>Network</h1>
       </div>
       <i class={`pr-2 ${currentStepIs(FormSteps.network) ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
     </button>
     <div class:hidden={!currentStepIs(FormSteps.network)} >
-      <div class="pl-4 pr-4"> 
+      <div class="pl-4 pr-4">
         <Network onSelected={() => {}} />
       </div>
     </div>
@@ -96,7 +96,7 @@
         class:cursor-not-allowed={!networkFormFilled}
         class:text-gray-300={!networkFormFilled}
       >
-        <div class="flex items-center gap-3"> 
+        <div class="flex items-center gap-3">
           <StatusIcon
             type={getStateFormStatus(approvalProcessFormFilled)}
           />
@@ -105,7 +105,7 @@
         <i class={`pr-2 ${currentStepIs(FormSteps.approvalProcess) ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
       </button>
       <div class:hidden={!currentStepIs(FormSteps.approvalProcess)}>
-        <div class="pl-4 pr-4"> 
+        <div class="pl-4 pr-4">
           <ApprovalProcess  />
         </div>
       </div>
@@ -116,23 +116,23 @@
       class:cursor-not-allowed={!approvalProcessFormFilled}
       class:text-gray-300={!approvalProcessFormFilled}
       >
-      <div class="flex items-center gap-3"> 
-        <StatusIcon
-          type={getStateFormStatus(
-            constructorArgumentsFilled && deterministicConfigurationFilled && 
-            currentStepIs(FormSteps.constructorArguments)
-          )}
-        />
-        <h1>Deploy</h1>
+        <div class="flex items-center gap-3">
+          <StatusIcon
+            type={getStateFormStatus(
+              constructorArgumentsFilled && deterministicConfigurationFilled &&
+              currentStepIs(FormSteps.constructorArguments)
+            )}
+          />
+          <h1>Deploy</h1>
+        </div>
+        <i class={`pr-2 ${currentStepIs(FormSteps.constructorArguments) ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
+      </button>
+    {/await}
+    <div class:hidden={!currentStepIs(FormSteps.constructorArguments)}>
+      <div class="pl-4 pr-4">
+        <Deploy />
       </div>
-      <i class={`pr-2 ${currentStepIs(FormSteps.constructorArguments) ? "fa fa-angle-down" : "fa fa-angle-right"}`}></i>
-    </button>
-  {/await}
-  <div class:hidden={!currentStepIs(FormSteps.constructorArguments)}>
-    <div class="pl-4 pr-4"> 
-      <Deploy />
     </div>
-  </div>
   </div>
 </div>
 <style>

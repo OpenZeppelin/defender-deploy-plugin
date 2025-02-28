@@ -72,7 +72,9 @@
     }
   };
 
-  const onAddressChange = ({currentTarget: {value: viaAddress}}: HTMLInputElementEvent) => {
+  const onAddressChange = (event: HTMLInputElementEvent) => {
+    const viaAddress = event.currentTarget.value;
+
     setApprovalProcessToCreate({
       viaType: approvalProcessType ,
       via: viaAddress,
@@ -83,7 +85,9 @@
 
   // Radio logic
   let radioSelectedApprovalProcessType = $derived(globalState.form.approvalType);
-  const onRadioChange = ({currentTarget : {id: selectedApprovalProcessType, checked}}: HTMLInputElementEvent) => {
+  const onRadioChange = (event: HTMLInputElementEvent) => {
+    const { id: selectedApprovalProcessType, checked } = event.currentTarget;
+
     if (checked && isSelectedApprovalProcessType(selectedApprovalProcessType)) {
       setSelectedApprovalProcessType(selectedApprovalProcessType)
     }

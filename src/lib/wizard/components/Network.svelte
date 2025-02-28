@@ -8,7 +8,7 @@
   import type { DropdownItem } from "$lib/models/ui";
   import { globalState } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
-  import SuperchainRegistry from "$lib/generated/superchain-registry/chainList.json";
+  import SuperchainRegistry from "$lib/generated/superchainRegistryChainList.json";
 
   type Props = {
     onSelected: (network: string) => void;

@@ -13,6 +13,8 @@
   import Button from "./shared/Button.svelte";
   import Input from "./shared/Input.svelte";
   import Message from "./shared/Message.svelte";
+  import fileSaver from "file-saver";
+  import { version as solcVersion } from "$lib/generated/solcVersion.json";
 
   // debounce the compile call to avoid sending too many requests while the user is editing.
   const compileDebounced = debouncer(compile, 600);
@@ -58,11 +60,20 @@
     return selectedMultisig || toCreateMultisig || hasReasonMessage;
   });
 
-  const deploymentUrl = $derived(
-    deploymentId && globalState.form.network
-      ? `https://defender.openzeppelin.com/#/deploy/environment/${
-        isProductionNetwork(globalState.form.network) ? 'production' : 'test'
-      }?deploymentId=${deploymentId}`
+  const deploymentEnvironmentUrl: string | undefined = $derived(
+    globalState.form.network ? `https://defender.openzeppelin.com/#/deploy/environment/${
+      isProductionNetwork(globalState.form.network) ? 'production' : 'test'
+    }`
+    : undefined
+  );
+
+  const deploymentEnvironmentUrlWithFallback: string = $derived(
+    deploymentEnvironmentUrl ?? 'https://defender.openzeppelin.com/#/deploy'
+  );
+
+  const deploymentUrl: string | undefined = $derived(
+    deploymentId && deploymentEnvironmentUrl
+      ? `${deploymentEnvironmentUrl}?deploymentId=${deploymentId}`
     : undefined
   );
 
@@ -324,6 +335,12 @@
     isDeploying = false;
   }
 
+  const downloadSolcInputHandler = async () => {
+    if (deploymentArtifact !== undefined && globalState?.contract?.target !== undefined) {
+      const blob = new Blob([JSON.stringify(deploymentArtifact?.input, null, 2)], { type: 'text/plain' });
+      fileSaver.saveAs(blob, `${globalState.contract.target}-solc-input.json`);
+    }
+  };
 </script>
 
 <div class="flex flex-col gap-2">
@@ -377,5 +394,17 @@
     {#if deploymentUrl}
       <Button label={"View Deployment"} onClick={() => window.open(deploymentUrl, "_blank")} type="secondary" />
     {/if}
+  {/if}
+
+  {#if !isCompiling}
+  <div class="alert alert-success d-flex align-items-center mt-2">
+    <div class="flex flex-row items-center gap-2">
+      <i class={`fa fa-lightbulb-o text-lime-600`}></i>
+      <div class="text-xs text-gray-600">
+        <p>Ensure you have an Explorer API Key set in your <u><a href='{deploymentEnvironmentUrlWithFallback}' target='_blank'>Deploy Environment</a></u> for the current network to allow the contract to be verified automatically.</p>
+        <p class="mt-2">Or download the <button type="button" onclick={downloadSolcInputHandler}><u>Solidity standard input JSON</u></button> for this contract to verify it manually on block explorers, using Solidity compiler version <code>{solcVersion}</code>.</p>
+      </div>
+    </div>
+  </div>
   {/if}
 </div>

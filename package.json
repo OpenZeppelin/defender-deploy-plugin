@@ -3,11 +3,12 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"prepare": "node scripts/prepare.js",
+		"dev": "pnpm prepare && vite dev",
+		"build": "pnpm prepare && vite build",
+		"preview": "pnpm prepare && vite preview",
+		"check": "pnpm prepare && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "pnpm prepare && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",
@@ -30,6 +31,7 @@
 		"@sveltejs/adapter-netlify": "^4.3.6",
 		"bootstrap": "^5.3.3",
 		"ethers": "^6.13.4",
-		"solc": "^0.8.28"
+		"solc": "^0.8.28",
+		"superchain-registry": "github:ethereum-optimism/superchain-registry"
 	}
 }

@@ -33,6 +33,7 @@ export const productionNetworks = new Set([
   'moonriver',
   'optimism',
   'scroll',
+  'unichain',
   'xdai',
   'zksync'
 ]);
@@ -92,6 +93,7 @@ export const chainIds: { [key in string]: number } = {
   'scroll-sepolia': 534351,
   'sepolia': 11155111,
   'sokol': 77,
+  'unichain': 130,
   'unichain-sepolia': 1301,
   'x-dfk-avax-chain': 53935,
   'x-dfk-avax-chain-test': 335,
@@ -147,6 +149,7 @@ export const chainDisplayNames: { [key in string]: string } = {
   'scroll-sepolia': 'Scroll Sepolia',
   'sepolia': 'Sepolia',
   'sokol': 'Sokol',
+  'unichain': 'Unichain',
   'unichain-sepolia': 'Unichain Sepolia',
   'x-dfk-avax-chain': 'Avalanche X-DFK',
   'x-dfk-avax-chain-test': 'Avalanche X-DFK Testnet',

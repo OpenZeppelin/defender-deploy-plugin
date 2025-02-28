@@ -5,6 +5,7 @@ export interface DefenderDeployMessage {
   kind: 'oz-wizard-defender-deploy';
   sources: ContractSources;
   enforceDeterministicReason?: string;
+  groupNetworksBy?: 'superchain';
 }
 
 export const initWizardPlugin = () => {
@@ -21,6 +22,7 @@ function listenToContracts() {
         },
         target: getMainContractName(e.data.sources),
         enforceDeterministicReason: e.data.enforceDeterministicReason,
+        groupNetworksBy: e.data.groupNetworksBy,
       };
     }
   });

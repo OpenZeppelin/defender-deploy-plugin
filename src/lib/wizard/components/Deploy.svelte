@@ -29,6 +29,8 @@
   let salt: string = $state("");
   let isCompiling = $state(false);
 
+  const hasSetUpBlockExplorerKeyForCurrentNetwork = $derived.by(() => globalState.blockExplorerKeys.some((key) => key.network === globalState.form.network));
+
   let contractBytecode = $derived.by(() => {
     if (!globalState.contract?.target || !compilationResult) return;
 
@@ -367,6 +369,10 @@
 
   {#if compilationError}
     <Message message={compilationError} type="error" />
+  {/if}
+
+  {#if !hasSetUpBlockExplorerKeyForCurrentNetwork}
+    <Message message="It seems you have not yet configured an Block Explorer Api key for {globalState.form.network}" type="warn" />
   {/if}
 
   <Button disabled={!globalState.authenticated || isDeploying || isCompiling} loading={isDeploying} label="Deploy" onClick={triggerDeploy} />

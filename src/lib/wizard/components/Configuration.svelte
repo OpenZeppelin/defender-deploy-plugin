@@ -25,7 +25,7 @@
     successMessage = undefined;
     errorMessage = undefined;
 
-    const result: APIResponse<AuthenticationResponse> = await API.authenticate({
+    const result = await API.authenticate({
       apiKey,
       apiSecret,
     });
@@ -58,6 +58,10 @@
 
     if (result?.data?.relayers) {
       globalState.relayers = result?.data?.relayers;
+    }
+
+    if (result?.data?.blockExplorerKeys) {
+      globalState.blockExplorerKeys = result?.data?.blockExplorerKeys;
     }
 
     loading = false;

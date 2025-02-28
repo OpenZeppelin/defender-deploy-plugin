@@ -36,6 +36,9 @@ export const globalState = $state<GlobalState>({
   // Relayers list for approval process creation
   relayers: [],
 
+  // Block Explorer keys to display warning to user
+  blockExplorerKeys: [],
+
   contract: {
     // path of the contract
     target: undefined,

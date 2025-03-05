@@ -78,12 +78,6 @@
     'Production Networks (Superchain)': -2,
     'Test Networks (Superchain)': -1,
   };
-
-  // default priority is 0, numbers towards negative infinity are ordered first
-  const groupPriorities = {
-    'Production Networks (Superchain)': -2,
-    'Test Networks (Superchain)': -1,
-  };
 </script>
 
 <Dropdown

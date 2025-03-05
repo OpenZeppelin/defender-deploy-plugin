@@ -9,13 +9,13 @@
 
 	onMount(() => {
 		const inIframe = window.location !== window.parent.location;
+
 		if (!inIframe) {
 			parent = 'none';
 			return;
 		}
 
 		const ancestorOrigin = document.location.ancestorOrigins[0];
-
 
 		if (dev) {
 			// add desired behaviour for dev mode.

@@ -9,8 +9,9 @@
     type: 'text' | 'password';
     disabled?: boolean;
     onchange?: ChangeEventHandler<HTMLInputElement>;
+    title?: string;
   };
-  let { label, name, value = $bindable(), placeholder, type, disabled, onchange }: Props = $props();
+  let { label, name, value = $bindable(), placeholder, type, disabled, onchange, title }: Props = $props();
     
 </script>
 
@@ -24,5 +25,6 @@
   placeholder={placeholder}
   disabled={disabled}
   onchange={onchange}
+  title={title}
   class="border text-sm border-gray-300 disabled:opacity-50 rounded-md p-2 w-full"
 />

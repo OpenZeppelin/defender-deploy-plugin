@@ -1,8 +1,7 @@
 import { listApiKeyPermissions, listApprovalProcesses, listBlockExplorerKeys, listNetworks, listRelayers } from "$lib/defender";
 import type { Relayer } from "$lib/models/relayer";
-import { attempt } from "$lib/utils/attempt";
 import { json } from '@sveltejs/kit';
-import type { AuthenticationResponse } from "../../lib/models/auth";
+import type { AuthenticationResponse } from "$lib/models/auth";
 
 type ApiKeysPermissions = Awaited<ReturnType<typeof listApiKeyPermissions>>
 type ApiCredentials = { apiKey: string, apiSecret: string }

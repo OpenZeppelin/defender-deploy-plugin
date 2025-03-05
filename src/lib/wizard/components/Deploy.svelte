@@ -371,10 +371,6 @@
     <Message message={compilationError} type="error" />
   {/if}
 
-  {#if !hasSetUpBlockExplorerKeyForCurrentNetwork}
-    <Message message="It seems you have not yet configured an Block Explorer Api key for {globalState.form.network}" type="warn" />
-  {/if}
-
   <Button disabled={!globalState.authenticated || isDeploying || isCompiling} loading={isDeploying} label="Deploy" onClick={triggerDeploy} />
 
   {#if successMessage || errorMessage} 
@@ -383,5 +379,18 @@
     {#if deploymentUrl}
       <Button label={"View Deployment"} onClick={() => window.open(deploymentUrl, "_blank")} type="secondary" />
     {/if}
+  {/if}
+
+  {#if !isCompiling}
+    <div class="alert alert-success d-flex align-items-center mt-2">
+      <div class="flex flex-row items-center gap-2">
+        <i class={`fa fa-lightbulb-o text-lime-600`}></i>
+        <div class="text-xs text-gray-600">
+          {#if !hasSetUpBlockExplorerKeyForCurrentNetwork}
+            It seems you have not yet configured an Block Explorer Api key for {globalState.form.network}
+          {/if}
+        </div>
+      </div>
+    </div>
   {/if}
 </div>

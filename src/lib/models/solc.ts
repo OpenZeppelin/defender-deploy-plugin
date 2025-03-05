@@ -27,8 +27,6 @@ export type ContractSources = {
   [source: string]: { content: string };
 };
 
-export type CompiledContract = {contracts: Record<string, any>, sources: {[source: string]: {id: number}}}
-
 export function buildCompilerInput(sources: ContractSources): CompilerInput {
   return {
     sources,

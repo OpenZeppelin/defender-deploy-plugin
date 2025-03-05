@@ -4,7 +4,7 @@ import type { ImportContents } from "$lib/models/solc";
 import type { CompilerInput } from "$lib/models/solc";
 
 export class SolidityCompiler {
-  getContent(path: string, contents: Record<string, { contents: string }>) {
+  getContent(path: string, contents: ContractSources) {
     if (contents[path]) {
       return contents[path];
     }

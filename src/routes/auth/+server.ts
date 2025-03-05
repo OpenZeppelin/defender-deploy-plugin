@@ -22,11 +22,6 @@ const awaitRequestOrFailWith = async <T>(requestPromise: Promise<T>, component: 
   }
 };
 
-const getRelayerDependingOnPermissions = async (apiCredentials: ApiCredentials,apiKeyPermissions: ApiKeysPermissions) => {
-  if (apiKeyPermissions?.includes('manage-relayers')) return awaitRequestOrFailWith(listRelayers(apiCredentials), 'Relayers')
-    else return []
-}
-
 export async function POST({ request }: { request: Request }): Promise<Response> {
   try {
     const { apiKey, apiSecret }: ApiCredentials = await request.json();
@@ -46,7 +41,10 @@ export async function POST({ request }: { request: Request }): Promise<Response>
       throw new Error('API Key is not allowed to deploy contracts');
     }
 
-    const relayers: Relayer[] = await getRelayerDependingOnPermissions({ apiKey, apiSecret }, apiKeyPermissions)
+    const relayers: Relayer[] =
+      apiKeyPermissions?.includes('manage-relayers') ?
+      await awaitRequestOrFailWith(listRelayers({ apiKey, apiSecret }), 'Relayers')
+      : []
 
     const authenticationResponse: AuthenticationResponse = {
       permissions: apiKeyPermissions,

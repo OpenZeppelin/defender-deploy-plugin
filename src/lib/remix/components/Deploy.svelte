@@ -2,7 +2,7 @@
   import { onDestroy } from "svelte";
 
   // Lib
-  import { addAPToDropdown, clearErrorBanner, globalState, setDeploymentCompleted, setErrorBanner } from "$lib/state/state.svelte";
+  import { updateSelectedApprovalProcessWithExisting, clearErrorBanner, globalState, setDeploymentCompleted, setErrorBanner } from "$lib/state/state.svelte";
   import { log, logError, logSuccess, logWarning } from "$lib/remix/logger";
   import { deployContract, switchToNetwork } from "$lib/ethereum";
   import { API } from "$lib/api";
@@ -16,7 +16,7 @@
   import { getNetworkLiteral, isProductionNetwork, type TenantNetworkResponse } from "$lib/models/network";
   import type { ApprovalProcess, CreateApprovalProcessRequest} from "$lib/models/approval-process";
   import type { DeployContractRequest, UpdateDeploymentRequest } from "$lib/models/deploy";
-  import type { APIResponse } from "$lib/models/ui";
+  import type { APIResponse, HTMLInputElementEvent } from "$lib/models/ui";
 
   // Components
   import Button from "./shared/Button.svelte";
@@ -150,7 +150,7 @@
     logWarning("Warning: The created Deployment Environment has Deploy Approval Process configuration only, the Block Explorer API Key and Upgrade Approval Process are not set");
     if (!result.data) return;
 
-    addAPToDropdown(result.data.approvalProcess)
+    updateSelectedApprovalProcessWithExisting(result.data.approvalProcess)
     return result.data.approvalProcess;
   }
 
@@ -333,14 +333,13 @@
     deploying = false;
   }
 
-  function handleInputChange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    inputsWithValue[target.name] = target.value;
+  function handleInputChange(event: HTMLInputElementEvent) {
+    const { name, value } = event.currentTarget;
+    inputsWithValue[name] = value;
   }
 
-  function handleSaltChanged(event: Event) {
-    const target = event.target as HTMLInputElement;
-    salt = target.value;
+  function handleSaltChanged(event: HTMLInputElementEvent) {
+    salt = event.currentTarget.value;
   }
 
   onDestroy(() => {

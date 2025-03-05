@@ -34,7 +34,8 @@ Url: http://localhost:5173 # or live version https://defeder-remix-deploy.netlif
 Type of connection: Iframe
 Location in Remix: Side Panel
 ```
-5. You should see the plugin added to the sidebar (new icon with ? symbol).
+5. You should see the plugin added to the sidebar (new icon with ? symbol).  
+(Note: If accessing Remix through Brave browser, you might have to turn down Shields configuration for this website on the right of the search bar.)
 
 ## Testing in Contracts Wizard
 

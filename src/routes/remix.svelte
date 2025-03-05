@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { initRemixPlugin } from "$lib/remix";
-  import { globalState } from "$lib/state/state.svelte";
+  import { globalState, isValidFormApprovalProcess } from "$lib/state/state.svelte";
   import Setup from "$lib/remix/components/Setup.svelte";
   import Network from "$lib/remix/components/Network.svelte";
   import ApprovalProcess from "$lib/remix/components/ApprovalProcess.svelte";
@@ -16,40 +16,7 @@
 	const toggle = (tab: number) => (currentTab = tab);
 
 
-	let isValidApprovalProcessStep = $derived.by(async () => {
-		if (globalState.form.approvalType === "injected") {
-			return true;
-		}
-
-		if (globalState.form.approvalType === 'existing' && globalState.form.approvalProcessSelected) {
-			return true;
-		}
-
-		if (
-			globalState.form.approvalType === 'new' &&
-			globalState.form.approvalProcessToCreate?.viaType === "Relayer" &&
-			globalState.form.approvalProcessToCreate?.relayerId
-		) {
-			return true;
-		}
-
-		if (
-			globalState.form.approvalType === 'new' &&
-			globalState.form.approvalProcessToCreate?.viaType !== "Relayer" &&
-			globalState.form.approvalProcessToCreate?.via
-		) {
-			// check if address is valid
-			const [checksumed, err] = await attempt(async () =>
-				getAddress(globalState.form.approvalProcessToCreate!.via!),
-			);
-			if (err) {
-				return false;
-			}
-			return true;
-		}
-
-		return false;
-	});
+	let isValidApprovalProcessStep = $derived.by(isValidFormApprovalProcess);
 
   onMount(initRemixPlugin);
 </script>

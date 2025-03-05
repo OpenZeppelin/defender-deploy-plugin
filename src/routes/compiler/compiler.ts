@@ -1,25 +1,20 @@
 import solc from 'solc';
 
-import type { CompiledContract, CompilerInput , ImportContents} from "$lib/models/solc";
+import type { ImportContents } from "$lib/models/solc";
+import type { CompilerInput } from "$lib/models/solc";
 
 export class SolidityCompiler {
-  private getContentIfExist = (path: string, contents: ImportContents) =>
-    contents?.[path] ?? { error: 'File not found' };
-
-  private findImports = (contents?: ImportContents) => (path: string) =>
-    contents ? this.getContentIfExist(path, contents) : undefined;
-
-  private doCompile = (contractToCompile: CompilerInput, importContents?: ImportContents): CompiledContract => {
-    const shouldUseFindImports = importContents !== undefined;
-
-    const compiledContracts = solc.compile(JSON.stringify(contractToCompile), shouldUseFindImports ? { import: this.findImports(importContents) } : undefined)
-
-    return JSON.parse(compiledContracts)
+  getContent(path: string, contents: Record<string, { contents: string }>) {
+    if (contents[path]) {
+      return contents[path];
+    }
+    return { error: 'File not found' };
   }
   
-  compile(contractToCompile: CompilerInput, importContents?: ImportContents) {
-    const compiledContracts = this.doCompile(contractToCompile, importContents)
-
-    return JSON.stringify(compiledContracts);
+  compile(input: CompilerInput, contents?: ImportContents) {
+    const shouldFindImports = contents !== undefined;
+    const findImports = (path: string) => shouldFindImports ? this.getContent(path, contents) : undefined;
+    const output = solc.compile(JSON.stringify(input), shouldFindImports ? { import: findImports } : undefined);
+    return output;
   }
 }

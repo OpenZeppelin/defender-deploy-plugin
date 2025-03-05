@@ -40,7 +40,7 @@ export async function POST({ request }: { request: Request }): Promise<Response>
       awaitRequestOrFailWith( listApiKeyPermissions({ apiKey, apiSecret }), 'Permissions'),
       awaitRequestOrFailWith( listNetworks({ apiKey, apiSecret }), 'Networks'),
       awaitRequestOrFailWith( listApprovalProcesses({ apiKey, apiSecret }), 'Approval Processes'),
-      awaitRequestOrFailWith( listBlockExplorerKeys({ apiKey, apiSecret }), 'Block Explorer ApiKeys'),
+      awaitRequestOrFailWith( listBlockExplorerKeys({ apiKey, apiSecret }), 'Block Explorer API Keys'),
     ]);
 
     if (!apiKeyPermissions?.includes('manage-deployments')) {

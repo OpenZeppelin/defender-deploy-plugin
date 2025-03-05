@@ -15,6 +15,6 @@ export type AuthenticationResponse = {
   permissions: ApiKeyCapability[],
   networks: (string | TenantNetworkResponse)[], 
   approvalProcesses: ApprovalProcess[], 
-  relayers: Relayer[]
+  relayers: Relayer[],
   blockExplorerKeys: BlockExplorerKey[]
 };

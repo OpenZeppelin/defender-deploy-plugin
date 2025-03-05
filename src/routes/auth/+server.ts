@@ -14,12 +14,11 @@ const parseError = (error: string, component: string) => {
   return `Loading ${component}: ${error}`;
 }
 
-const awaitRequestOrFailWith = async <T>(requestPromise: Promise<T>, component?: string) => {
+const awaitRequestOrFailWith = async <T>(requestPromise: Promise<T>, component: string) => {
   try {
     return await requestPromise
   } catch(error) {
-    if (component) throw new Error(parseError((error as Error).message, component))
-    else throw new Error((error as Error).message)
+    throw new Error(parseError((error as Error).message, component))
   }
 };
 

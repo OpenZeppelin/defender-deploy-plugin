@@ -64,7 +64,6 @@ export function createArtifactPayload(
   contractSources: Record<string, any>,
   contracts: Record<string, any>
 ): string {
-  console.log(JSON.stringify(contractSources[path], undefined,2));
   return JSON.stringify({
     input: {
       sources: {

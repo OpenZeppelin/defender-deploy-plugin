@@ -1,30 +1,23 @@
 <script lang="ts">
-  import { globalState } from "$lib/state/state.svelte";
+  import { globalState, setApprovalProcessToCreate, setSelectedApprovalProcess, setSelectedApprovalProcessType } from "$lib/state/state.svelte";
   import Dropdown from "./shared/Dropdown.svelte";
   import { abbreviateAddress } from "$lib/utils/helpers";
   import {
+  approvalProcessByNetworkAndComponent,
     approvalProcessTypes,
     type ApprovalProcess,
+    type ApprovalProcessToCreate,
     type ApprovalProcessType,
   } from "$lib/models/approval-process";
-  import type { DropdownItem, GlobalState } from "$lib/models/ui";
+  import { isSelectedApprovalProcessType, type DropdownItem, type HTMLInputElementEvent } from "$lib/models/ui";
   import type { Relayer } from "$lib/models/relayer";
   import { getNetworkLiteral } from "$lib/models/network";
   import Input from "./shared/Input.svelte";
   import Message from "./shared/Message.svelte";
 
-  let address = $state<string>(
+  let address = $derived<string>(
     globalState.form.approvalProcessToCreate?.via || ""
   );
-
-  function approvalProcessByNetworkAndComponent(ap: ApprovalProcess) {
-    const networkName =
-      typeof globalState.form.network === "string"
-        ? globalState.form.network
-        : globalState.form.network?.name;
-
-    return ap.network === networkName && ap.component?.includes("deploy");
-  }
 
   // Approval processes load logic
   const toDisplayName = (ap: ApprovalProcess) => `${ap.name} (${ap.viaType})`;
@@ -34,8 +27,11 @@
   });
 
   // Approval process selection logic
-  const onSelectApprovalProcess = (ap: DropdownItem) => {
-    globalState.form.approvalProcessSelected = ap.value as ApprovalProcess;
+  const onSelectApprovalProcess = ({value: selectedApprovalProcess}: DropdownItem<ApprovalProcess>) => {
+    setSelectedApprovalProcess(selectedApprovalProcess);
+
+    // Clear deployment status
+    globalState.clearDeploymentStatus?.();
   };
 
   // Approval process creation logic
@@ -45,15 +41,14 @@
   });
 
   let approvalProcessType = $state<ApprovalProcessType>("EOA");
-  const onSelectApprovalProcessType = (type: DropdownItem) => {
+  const onSelectApprovalProcessType = (type: DropdownItem<ApprovalProcessToCreate["viaType"]>) => {
     if (type.value) {
       approvalProcessType = type.value;
 
-      // Save the type to create the approval process.
-      globalState.form.approvalProcessToCreate = {
+      setApprovalProcessToCreate({
         ...globalState.form.approvalProcessToCreate,
-        viaType: approvalProcessType as "EOA" | "Safe" | "Relayer",
-      };
+        viaType: approvalProcessType,
+      });
     }
   };
 
@@ -64,49 +59,46 @@
     label: `${relayer.name} (${abbreviateAddress(relayer.address)})`,
     value: relayer,
   });
-  const onSelectRelayer = (relayer: DropdownItem) => {
+  const onSelectRelayer = (relayer: DropdownItem<{address: string, relayerId: string}>) => {
     if (relayer.value) {
-      globalState.form.approvalProcessToCreate = {
+      setApprovalProcessToCreate({
         viaType: "Relayer",
         via: relayer.value.address,
         relayerId: relayer.value.relayerId,
         network:
           globalState.form.network &&
           getNetworkLiteral(globalState.form.network),
-      };
+      })
     }
   };
 
-  const onAddressChange = (e: Event) => {
-    const element = e.target as HTMLInputElement;
+  const onAddressChange = (event: HTMLInputElementEvent) => {
+    const viaAddress = event.currentTarget.value;
 
-    // Save the type to create the approval process.
-    globalState.form.approvalProcessToCreate = {
-      viaType: approvalProcessType as "EOA" | "Safe" | "Relayer",
-      via: element.value,
+    setApprovalProcessToCreate({
+      viaType: approvalProcessType ,
+      via: viaAddress,
       network:
         globalState.form.network && getNetworkLiteral(globalState.form.network),
-    };
+    })
   };
 
   // Radio logic
-  let radioSelected = $state<GlobalState["form"]["approvalType"]>("existing");
-  const onRadioChange = (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    if (target.checked) {
-      radioSelected = target.id as GlobalState["form"]["approvalType"];
+  let radioSelectedApprovalProcessType = $derived(globalState.form.approvalType);
+  const onRadioChange = (event: HTMLInputElementEvent) => {
+    const { id: selectedApprovalProcessType, checked } = event.currentTarget;
 
-      globalState.form.approvalType = radioSelected;
+    if (checked && isSelectedApprovalProcessType(selectedApprovalProcessType)) {
+      setSelectedApprovalProcessType(selectedApprovalProcessType)
     }
   };
 
-  let disableCreation = $derived.by(() =>
-    globalState.approvalProcesses.some(approvalProcessByNetworkAndComponent)
-  );
+  let approvalProcessExistForThisNetwork = $derived.by(() => globalState.approvalProcesses.some(approvalProcessByNetworkAndComponent(globalState.form.network)));
 
   let disableRelayers = $derived.by(
     () => !globalState.permissions?.includes("manage-relayers")
   );
+
 </script>
 
 <div class="form-check flex flex-col gap-2">
@@ -116,10 +108,11 @@
       type="radio"
       name="flexRadioDefault"
       id="existing"
+      checked= {radioSelectedApprovalProcessType === "existing"}
+      disabled={!approvalProcessExistForThisNetwork}
       onclick={(e) => onRadioChange(e)}
-      checked
     />
-    <label class="text-sm" for="flexRadioDefault1">
+    <label class="text-sm {approvalProcessExistForThisNetwork ? "" : "text-gray-500"}" for="flexRadioDefault1">
       Use existing Approval Process
     </label>
   </div>
@@ -127,11 +120,11 @@
     {#key globalState.form.approvalProcessSelected}
       <Dropdown
         items={globalState.approvalProcesses
-          .filter(approvalProcessByNetworkAndComponent)
+          .filter(approvalProcessByNetworkAndComponent(globalState.form.network))
           .map(approvalProcessToDropdownItem)}
         placeholder="Select Approval Process"
         on:select={(e) => onSelectApprovalProcess(e.detail)}
-        disabled={radioSelected !== "existing"}
+        disabled={radioSelectedApprovalProcessType !== "existing"}
         defaultItem={globalState.form.approvalProcessSelected
           ? {
               label: toDisplayName(globalState.form.approvalProcessSelected),
@@ -145,22 +138,23 @@
 </div>
 <div
   class="form-check mt-3 flex flex-col gap-2"
-  title={disableCreation ? "Deploy Environment already exists" : undefined}
+  title={approvalProcessExistForThisNetwork ? "Deploy Environment already exists" : undefined}
 >
   <div>
     <label
-      class={`text-sm ${disableCreation ? "text-gray-500" : ""}`}
+      class={`text-sm ${approvalProcessExistForThisNetwork ? "text-gray-500" : ""}`}
       for="flexRadioDefault2"
-      title={disableCreation ? "Deploy Environment already exists" : undefined}
+      title={approvalProcessExistForThisNetwork ? "Deploy Environment already exists" : undefined}
     >
       <input
         class="text-xs"
         type="radio"
         name="flexRadioDefault"
         id="new"
-        onclick={(e) => onRadioChange(e)}
-        disabled={disableCreation}
-        title={disableCreation
+        checked= {radioSelectedApprovalProcessType === "new"}
+        onclick={onRadioChange}
+        disabled={approvalProcessExistForThisNetwork}
+        title={approvalProcessExistForThisNetwork
           ? "Deploy Environment already exists"
           : undefined}
       />
@@ -172,7 +166,7 @@
       items={approvalProcessTypes.map(approvalProcessTypeToDropdownItem)}
       placeholder="Approval Process Type"
       on:select={(e) => onSelectApprovalProcessType(e.detail)}
-      disabled={radioSelected !== "new" || disableCreation}
+      disabled={radioSelectedApprovalProcessType !== "new" || approvalProcessExistForThisNetwork}
       defaultItem={{
         label: approvalProcessType,
         value: approvalProcessType,
@@ -204,7 +198,7 @@
             .map(relayerToDropdownItem)}
           placeholder="* Select Relayer"
           on:select={(e) => onSelectRelayer(e.detail)}
-          disabled={radioSelected !== "new" || disableCreation}
+          disabled={radioSelectedApprovalProcessType !== "new" || approvalProcessExistForThisNetwork}
         />
       {/if}
     {/if}
@@ -216,14 +210,14 @@
     type="radio"
     name="flexRadioDefault"
     id="injected"
-    onclick={(e) => onRadioChange(e)}
-    title={disableCreation ? "Deploy Environment already exists" : undefined}
-    disabled={disableCreation}
+    onclick={onRadioChange}
+    title={approvalProcessExistForThisNetwork ? "Deploy Environment already exists" : undefined}
+    disabled={approvalProcessExistForThisNetwork}
   />
   <label
-    class={`text-sm ${disableCreation ? "text-gray-500" : ""}`}
+    class={`text-sm ${approvalProcessExistForThisNetwork ? "text-gray-500" : ""}`}
     for="flexRadioDefault2"
-    title={disableCreation ? "Deploy Environment already exists" : undefined}
+    title={approvalProcessExistForThisNetwork ? "Deploy Environment already exists" : undefined}
   >
     Approve using injected provider
   </label>

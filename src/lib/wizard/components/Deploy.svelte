@@ -5,19 +5,20 @@
   import type { ABIParameter, Artifact, DeployContractRequest, DeploymentResult, UpdateDeploymentRequest } from "$lib/models/deploy";
   import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
-  import type { APIResponse } from "$lib/models/ui";
-  import { addAPToDropdown, findDeploymentEnvironment, globalState } from "$lib/state/state.svelte";
+  import type { APIResponse, HTMLInputElementEvent } from "$lib/models/ui";
+  import { addNewApprovalProcessAndSelectExisting, findDeploymentEnvironment, globalState, setConstructorArgumentValues, setDeploymentCompleted, setDeterministicSalt, setRequiredConstructorArguments, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
   import { attempt } from "$lib/utils/attempt";
   import { encodeConstructorArgs, getConstructorInputsWizard, getContractBytecode } from "$lib/utils/contracts";
   import { debouncer, isMultisig, isUpgradeable } from "$lib/utils/helpers";
   import Button from "./shared/Button.svelte";
   import Input from "./shared/Input.svelte";
   import Message from "./shared/Message.svelte";
+  import fileSaver from "file-saver";
+  import { version as solcVersion } from "$lib/generated/solcVersion.json";
 
   // debounce the compile call to avoid sending too many requests while the user is editing.
   const compileDebounced = debouncer(compile, 600);
 
-  let inputsWithValue = $state<Record<string, string | number | boolean>>({});
   let isDeploying = $state(false);
   let successMessage = $state<string>("");
   let errorMessage = $state<string>("");
@@ -25,9 +26,16 @@
   let compilationResult = $state<{ output: Artifact['output'] }>();
   let deploymentId = $state<string | undefined>(undefined);
   let deploymentResult = $state<DeploymentResult | undefined>(undefined);
-  let isDeterministic = $state(false);
-  let salt: string = $state("");
   let isCompiling = $state(false);
+
+  let deterministic = $derived.by(() => globalState.form.deterministic);
+
+  // Set callback for clearing deployment status messages
+  globalState.clearDeploymentStatus = () => {
+    setDeploymentCompleted(false);
+    successMessage = "";
+    errorMessage = "";
+  };
 
   let contractBytecode = $derived.by(() => {
     if (!globalState.contract?.target || !compilationResult) return;
@@ -51,18 +59,27 @@
     return isUpgradeable(globalState.contract?.source?.sources as ContractSources);
   });
 
-  let enforceDeterministic = $derived.by(() => {
+  $effect(() => {
     const selectedMultisig = globalState.form.approvalType === 'existing' && isMultisig(globalState.form.approvalProcessSelected?.viaType);
     const toCreateMultisig = globalState.form.approvalType === 'new' && isMultisig(globalState.form.approvalProcessToCreate?.viaType);
     const hasReasonMessage = globalState.contract?.enforceDeterministicReason !== undefined;
-    return selectedMultisig || toCreateMultisig || hasReasonMessage;
+    globalState.form.deterministic.isEnforced = selectedMultisig || toCreateMultisig || hasReasonMessage;
   });
 
-  const deploymentUrl = $derived(
-    deploymentId && globalState.form.network
-      ? `https://defender.openzeppelin.com/#/deploy/environment/${
-        isProductionNetwork(globalState.form.network) ? 'production' : 'test'
-      }?deploymentId=${deploymentId}`
+  const deploymentEnvironmentUrl: string | undefined = $derived(
+    globalState.form.network ? `https://defender.openzeppelin.com/#/deploy/environment/${
+      isProductionNetwork(globalState.form.network) ? 'production' : 'test'
+    }`
+    : undefined
+  );
+
+  const deploymentEnvironmentUrlWithFallback: string = $derived(
+    deploymentEnvironmentUrl ?? 'https://defender.openzeppelin.com/#/deploy'
+  );
+
+  const deploymentUrl: string | undefined = $derived(
+    deploymentId && deploymentEnvironmentUrl
+      ? `${deploymentEnvironmentUrl}?deploymentId=${deploymentId}`
     : undefined
   );
 
@@ -71,13 +88,14 @@
   $effect(() => {
     if (globalState.contract?.source?.sources) {
       isCompiling = true;
+      setDeploymentCompleted(false);
       compileDebounced();
     }
   });
 
-  function handleInputChange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    inputsWithValue[target.name] = target.value;
+  function handleInputChange(event: HTMLInputElementEvent) {
+    const {name, value} = event.currentTarget;
+    setConstructorArgumentValues(name, value);
   }
 
   async function compile(): Promise<void> {
@@ -99,6 +117,8 @@
     if (globalState.contract?.target && compilationResult) {
       inputs = getConstructorInputsWizard(globalState.contract.target, compilationResult.output.contracts);
 
+      setRequiredConstructorArguments(inputs.map((input) => input.name));
+
       // Clear deploy status messages
       successMessage = "";
       errorMessage = "";
@@ -116,9 +136,9 @@
     }
   }
 
-  function handleSaltChanged(event: Event) {
-    const target = event.target as HTMLInputElement;
-    salt = target.value;
+  function handleSaltChanged(event: HTMLInputElementEvent) {
+    const saltValue = event.currentTarget.value;
+    setDeterministicSalt(saltValue);
   }
 
   export async function handleInjectedProviderDeployment(bytecode: string) {
@@ -146,6 +166,7 @@
     };
   }
 
+
   async function getOrCreateApprovalProcess(): Promise<ApprovalProcess | undefined> {
     const ap = globalState.form.approvalProcessToCreate;
     if (!ap || !ap.via || !ap.viaType) {
@@ -164,7 +185,7 @@
     }
 
     const apRequest: CreateApprovalProcessRequest = {
-      name: `Deploy From Remix - ${ap.viaType}`,
+      name: `Deploy From Wizard - ${ap.viaType}`,
       via: ap.via,
       viaType: ap.viaType,
       network: getNetworkLiteral(globalState.form.network),
@@ -182,7 +203,8 @@
     displayMessage("Deployment Environment successfully created", "success");
     if (!result.data) return;
 
-    addAPToDropdown(result.data.approvalProcess)
+    addNewApprovalProcessAndSelectExisting(result.data.approvalProcess)
+
     return result.data.approvalProcess;
   }
 
@@ -230,7 +252,7 @@
       return;
     }
 
-    if ((isDeterministic || enforceDeterministic) && !salt) {
+    if ((deterministic.isSelected || deterministic.isEnforced) && !deterministic.salt) {
       if (globalState.contract?.enforceDeterministicReason) {
         displayMessage(`Salt is required: ${globalState.contract.enforceDeterministicReason}`, "error");
       } else {
@@ -242,7 +264,7 @@
     errorMessage = "";
     successMessage = "";
 
-    const [constructorBytecode, constructorError] = await encodeConstructorArgs(inputs, inputsWithValue);
+    const [constructorBytecode, constructorError] = await encodeConstructorArgs(inputs, globalState.form.constructorArguments.values);
     if (constructorError) {
       displayMessage(`Error encoding constructor arguments: ${constructorError.msg}`, "error");
       return;
@@ -288,7 +310,7 @@
       licenseType: 'MIT',
       artifactPayload: JSON.stringify(deploymentArtifact),
       constructorBytecode,
-      salt: isDeterministic || enforceDeterministic ? salt : undefined,
+      salt: deterministic.isSelected || deterministic.isEnforced ? deterministic.salt : undefined,
       origin: 'Wizard',
     }
 
@@ -320,10 +342,18 @@
 
   async function triggerDeploy() {
     isDeploying = true;
+    setDeploymentCompleted(false);
     await deploy();
+    setDeploymentCompleted(successMessage.length > 0 && errorMessage.length === 0);
     isDeploying = false;
   }
 
+  const downloadSolcInputHandler = async () => {
+    if (deploymentArtifact !== undefined && globalState?.contract?.target !== undefined) {
+      const blob = new Blob([JSON.stringify(deploymentArtifact?.input, null, 2)], { type: 'text/plain' });
+      fileSaver.saveAs(blob, `${globalState.contract.target}-solc-input.json`);
+    }
+  };
 </script>
 
 <div class="flex flex-col gap-2">
@@ -336,7 +366,7 @@
   {:else if inputs.length > 0}
     <h6 class="text-sm">Constructor Arguments</h6>
     {#each inputs as input}
-      <Input name={input.name} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={''} type="text"/>
+      <Input name={input.name} title={`${input.name} (${input.type})`} placeholder={`${input.name} (${input.type})`} onchange={handleInputChange} value={String(globalState.form.constructorArguments.values[input.name] || "")} type="text"/>
     {/each}
   {:else}
     <Message type="info" message="No constructor arguments found" />
@@ -346,21 +376,22 @@
     <input 
     type="checkbox"
     id="isDeterministic" 
-    checked={isDeterministic || enforceDeterministic} 
-    onchange={() => (isDeterministic = !isDeterministic)}
-    disabled={enforceDeterministic}
+    checked={deterministic.isSelected || deterministic.isEnforced}
+    onchange={() => (globalState.form.deterministic.isSelected = !deterministic.isSelected)}
+    disabled={deterministic.isEnforced}
   >
     <label class="text-sm left-4 pl-2" for="isDeterministic">
       Deterministic
     </label>
   </div>
 
-  {#if isDeterministic || enforceDeterministic}
+  {#if deterministic.isSelected || deterministic.isEnforced}
     <Input
       name="salt"
       type="text"
-      placeholder={"Salt"}
-      value={salt}
+      title="Salt"
+      placeholder="Salt"
+      value={deterministic.salt || ""}
       onchange={handleSaltChanged}
     />
   {/if}
@@ -377,5 +408,17 @@
     {#if deploymentUrl}
       <Button label={"View Deployment"} onClick={() => window.open(deploymentUrl, "_blank")} type="secondary" />
     {/if}
+  {/if}
+
+  {#if !isCompiling}
+  <div class="alert alert-success d-flex align-items-center mt-2">
+    <div class="flex flex-row items-center gap-2">
+      <i class={`fa fa-lightbulb-o text-lime-600`}></i>
+      <div class="text-xs text-gray-600">
+        <p>Ensure you have an Explorer API Key set in your <u><a href='{deploymentEnvironmentUrlWithFallback}' target='_blank'>Deploy Environment</a></u> for the current network to allow the contract to be verified automatically.</p>
+        <p class="mt-2">Or download the <button type="button" onclick={downloadSolcInputHandler}><u>Solidity standard input JSON</u></button> for this contract to verify it manually on block explorers, using Solidity compiler version <code>{solcVersion}</code>.</p>
+      </div>
+    </div>
+  </div>
   {/if}
 </div>

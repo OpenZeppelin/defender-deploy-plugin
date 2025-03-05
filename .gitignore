@@ -6,6 +6,7 @@ node_modules
 .netlify
 /.svelte-kit
 /build
+src/lib/generated
 
 # OS
 .DS_Store
@@ -20,3 +21,5 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+/.vscode/

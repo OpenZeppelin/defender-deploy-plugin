@@ -419,8 +419,10 @@
       <div class="text-xs text-gray-600">
         {#if !hasSetUpBlockExplorerKeyForCurrentNetwork}
           <p>Ensure you have an Explorer API Key set in your <u><a href='{deploymentEnvironmentUrlWithFallback}' target='_blank'>Deploy Environment</a></u> for the current network to allow the contract to be verified automatically.</p>
+        {:else}
+          <p>The contract will be verified automatically on the block explorer for this network.</p>
         {/if}
-        <p class="mt-2">Or download the <button type="button" onclick={downloadSolcInputHandler}><u>Solidity standard input JSON</u></button> for this contract to verify it manually on block explorers, using Solidity compiler version <code>{solcVersion}</code>.</p>
+        <p class="mt-2">Or you can download the <button type="button" onclick={downloadSolcInputHandler}><u>Solidity standard input JSON</u></button> for this contract to verify it manually on block explorers, using Solidity compiler version <code>{solcVersion}</code>.</p>
       </div>
     </div>
   </div>

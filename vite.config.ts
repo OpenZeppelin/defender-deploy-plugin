@@ -2,16 +2,22 @@ import 'dotenv/config';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
-const developmentAllowedEnvironmentVariables = [
+const developmentEnvironmentVariables = [
   'DEFENDER_POOL_ID',
   'DEFENDER_POOL_CLIENT_ID',
   'DEFENDER_API_URL',
 ];
 
-export default defineConfig(({ mode }) => ({
-	plugins: [sveltekit()],
-	define: mode === "development" ? developmentAllowedEnvironmentVariables.reduce((definedEnvironmentVariables, allowedEnvironmentVariable) => ({
-		...definedEnvironmentVariables, 
-		[`process.env.${allowedEnvironmentVariable}`]:JSON.stringify( process.env[allowedEnvironmentVariable]) 
-	}), {}) : undefined,
-}));
+export default defineConfig(({ mode }) => {
+	const defineVars: Record<string, string> = {};
+
+  if (mode === "development") {
+    developmentEnvironmentVariables.forEach(env => {
+      defineVars[`process.env.${env}`] = JSON.stringify(process.env[env]);
+    });
+  }
+  return {
+    plugins: [sveltekit()],
+    define: mode === "development" ? defineVars : undefined,
+  };
+});

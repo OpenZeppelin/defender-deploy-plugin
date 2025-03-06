@@ -69,6 +69,7 @@ export function createArtifactPayload(
       sources: {
         [path]: { content: contractSources[path].content },
       },
+      language: "Solidity",
       settings: {
         optimizer: {
           enabled: true,

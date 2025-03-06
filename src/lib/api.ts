@@ -1,12 +1,13 @@
 import type { CreateApprovalProcessRequest } from "./models/approval-process";
-import type { Credentials } from "./models/auth";
+import type { AuthenticationResponse, Credentials } from "./models/auth";
 import type { DeployContractRequest, UpdateDeploymentRequest } from "./models/deploy";
 import type { CompilerInput } from "./models/solc";
+import type { APIResponse } from "./models/ui";
 
 class ApiClient {
   credentials: Credentials | null = null;
 
-  async authenticate(credentials: Credentials) {
+  async authenticate(credentials: Credentials): Promise<APIResponse<AuthenticationResponse>> {
     const response = await fetch("/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

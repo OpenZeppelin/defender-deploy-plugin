@@ -1,7 +1,10 @@
-import { listApiKeyPermissions, listApprovalProcesses, listNetworks, listRelayers } from "$lib/defender";
+import { listApiKeyPermissions, listApprovalProcesses, listBlockExplorerKeys, listNetworks, listRelayers } from "$lib/defender";
 import type { Relayer } from "$lib/models/relayer";
-import { attempt } from "$lib/utils/attempt";
 import { json } from '@sveltejs/kit';
+import type { AuthenticationResponse } from "$lib/models/auth";
+
+type ApiKeysPermissions = Awaited<ReturnType<typeof listApiKeyPermissions>>
+type ApiCredentials = { apiKey: string, apiSecret: string }
 
 const parseError = (error: string, component: string) => {
   // User-friednlier error when the api key is invalid
@@ -11,62 +14,53 @@ const parseError = (error: string, component: string) => {
   return `Loading ${component}: ${error}`;
 }
 
-export async function POST({ request }: { request: Request }) {
-  const { apiKey, apiSecret } = await request.json();
-
-  if (!apiKey || !apiSecret) {
-    return json({ success: false, error: 'Missing API key or API secret' });
+const awaitRequestOrFailWith = async <T>(requestPromise: Promise<T>, component: string) => {
+  try {
+    return await requestPromise
+  } catch(error) {
+    throw new Error(parseError((error as Error).message, component))
   }
+};
 
-  // List API key permissions
-  const [permissions, permError] = await attempt(
-    () => listApiKeyPermissions({ apiKey, apiSecret })
-  );
-  if (permError) {
-    return json({ success: false, error: parseError(permError.msg, 'Permissions') });
-  }
+export async function POST({ request }: { request: Request }): Promise<Response> {
+  try {
+    const { apiKey, apiSecret }: ApiCredentials = await request.json();
 
-  if (!permissions?.includes('manage-deployments')) {
-    return json({ success: false, error: 'API Key is not allowed to deploy contracts' });
-  }
-
-  // List netorks to preload network selection
-  const [networks, netError] = await attempt(
-    () => listNetworks({ apiKey, apiSecret })
-  );
-  if (netError) {
-    return json({ success: false, error: parseError(netError.msg, 'Networks') });
-  }
-
-  // List approval processes to preload approval process selection
-  const [approvalProcesses, apError] = await attempt(
-    () => listApprovalProcesses({ apiKey, apiSecret })
-  );
-  if (apError) {
-    return json({ success: false, error: parseError(apError.msg, 'Approval Processes') });
-  }
-
-  let relayers: Relayer[] = [];
-  if (permissions?.includes('manage-relayers')) {
-    // List relayers to preload approval process creation selection.
-    const [relayersResult, relayError] = await attempt(
-      () => listRelayers({ apiKey, apiSecret })
-    );
-    if (relayError) {
-      return json({ success: false, error: parseError(relayError.msg, 'Relayers') });
+    if (!apiKey || !apiSecret) {
+      throw new Error('Missing API key or API secret')
     }
-    relayers = relayersResult ?? [];
-  }
 
+    const [apiKeyPermissions, networks, approvalProcesses, blockExplorerKeys] = await Promise.all([
+      awaitRequestOrFailWith( listApiKeyPermissions({ apiKey, apiSecret }), 'Permissions'),
+      awaitRequestOrFailWith( listNetworks({ apiKey, apiSecret }), 'Networks'),
+      awaitRequestOrFailWith( listApprovalProcesses({ apiKey, apiSecret }), 'Approval Processes'),
+      awaitRequestOrFailWith( listBlockExplorerKeys({ apiKey, apiSecret }), 'Block Explorer API Keys'),
+    ]);
 
-  return json({
-    success: true,
-    data: {
-      permissions,
+    if (!apiKeyPermissions?.includes('manage-deployments')) {
+      throw new Error('API Key is not allowed to deploy contracts');
+    }
+
+    const relayers: Relayer[] =
+      apiKeyPermissions?.includes('manage-relayers') ?
+      await awaitRequestOrFailWith(listRelayers({ apiKey, apiSecret }), 'Relayers')
+      : []
+
+    const authenticationResponse: AuthenticationResponse = {
+      permissions: apiKeyPermissions,
+      blockExplorerKeys,
       networks,
       approvalProcesses,
       relayers,
       credentials: { apiKey, apiSecret },
     }
-  });
+  
+    return json({
+      success: true,
+      data: authenticationResponse
+    });
+
+  } catch(error){
+    return json({ success: false, error: (error as Error).message });
+  }
 }

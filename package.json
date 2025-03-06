@@ -35,5 +35,6 @@
 		"solc": "^0.8.28",
 		"file-saver": "^2.0.5",
 		"superchain-registry": "github:ethereum-optimism/superchain-registry"
-	}
+	},
+	"version": "0.0.1"
 }

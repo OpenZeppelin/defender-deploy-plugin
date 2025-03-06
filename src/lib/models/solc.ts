@@ -21,8 +21,6 @@ export type CompilerInput = {
   };
 };
 
-export type ImportContents = Record<string, { contents: string }>
-
 export type ContractSources = {
   [source: string]: { content: string };
 };

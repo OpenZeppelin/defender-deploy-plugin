@@ -17,8 +17,7 @@ const getClient = (credentials: Credentials) => {
 
 export const listApiKeyPermissions = async (credentials: Credentials) => {
   const client = getClient(credentials);
-  const capabilities = await client.account.listApiKeyCapabilities();
-  return capabilities;
+  return await client.account.listApiKeyCapabilities();
 }
 
 export const listNetworks = async (credentials: Credentials) => {
@@ -33,8 +32,7 @@ export const listNetworks = async (credentials: Credentials) => {
 
 export const listApprovalProcesses = async (credentials: Credentials) => {
   const client = getClient(credentials);
-  const approvalProcesses = await client.approvalProcess.list();
-  return approvalProcesses;
+  return await client.approvalProcess.list();
 }
 
 export const listRelayers = async (credentials: Credentials) => {
@@ -45,33 +43,30 @@ export const listRelayers = async (credentials: Credentials) => {
 
 export const createApprovalProcess = async (credentials: Credentials, approvalProcess: CreateApprovalProcessRequest) => {
   const client = getClient(credentials);
-  const response = await client.approvalProcess.create(approvalProcess as any);
-  return response;
+  return await client.approvalProcess.create(approvalProcess as any);
 }
 
 export const createRelayer = async (credentials: Credentials, relayer: CreateRelayerRequest) => {
   const client = getClient(credentials);
-  const response = await client.relay.create(relayer);
-  return response;
+  return await client.relay.create(relayer);
 }
 
 export const deployContract = async (credentials: Credentials, deployment: DeployContractRequest) => {
   const client = getClient(credentials);
-  const response = await client.deploy.deployContract(deployment);
-  return response;
+  return await client.deploy.deployContract(deployment);
 }
 
 export const updateDeployment = async (credentials: Credentials, updateReq: UpdateDeploymentRequest) => {
   const client = getClient(credentials);
-  const response = await client.deploy.updateDeployment(updateReq.deploymentId, {
+  return await client.deploy.updateDeployment(updateReq.deploymentId, {
     txHash: updateReq.hash,
     address: updateReq.address,
   });
-  return response;
 }
 
 export const getDeployment = async (credentials: Credentials, deploymentId: string) => {
   const client = getClient(credentials);
-  const response = await client.deploy.getDeployedContract(deploymentId);
-  return response;
+  return await client.deploy.getDeployedContract(deploymentId);
 }
+
+export const listBlockExplorerKeys = async (credentials: Credentials) => await getClient(credentials).deploy.listBlockExplorerApiKeys()

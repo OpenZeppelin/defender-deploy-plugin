@@ -3,6 +3,7 @@ import type { Relayer } from "./relayer";
 import type { ApiKeyCapability, Credentials } from "./auth";
 import type { ApprovalProcess, ApprovalProcessToCreate } from "./approval-process";
 import type { TenantNetworkResponse } from "./network";
+import type { BlockExplorerKey } from "./block-explorer-key";
 
 export type DropdownItem<TValue = any> = {
   label: string;
@@ -19,9 +20,10 @@ export type GlobalState = {
   successMessage?: string;
   credentials: Credentials;
   permissions: ApiKeyCapability[];
-  networks: string[] | TenantNetworkResponse[];
+  networks: (string | TenantNetworkResponse)[];
   approvalProcesses: ApprovalProcess[];
   relayers: Relayer[];
+  blockExplorerKeys: BlockExplorerKey[]
   contract?: {
     target?: string,
     source?: CompilationFileSources | null | SourceWithTarget,

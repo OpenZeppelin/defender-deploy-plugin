@@ -69,6 +69,9 @@
 </script>
 
 <div class="flex flex-col gap-2">
+  <div class="flex flex-row">
+    <button onclick={handleGetApiKey} class="text-xs text-blue-600 font-bold">Get API Key from OpenZeppelin Defender</button>
+  </div>
   <div class="flex flex-row justify-between">
     <div>
       <label class="text-sm" for="apiKey">API Key</label>
@@ -77,9 +80,6 @@
         title="Get your API key from the Defender Dashboard"
       ></i>
     </div>
-    <button onclick={handleGetApiKey} class="text-xs text-blue-600 font-bold"
-      >Get API Key</button
-    >
   </div>
   <Input
     bind:value={apiKey}

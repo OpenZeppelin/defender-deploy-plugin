@@ -24,7 +24,7 @@ export const listNetworks = async (credentials: Credentials) => {
   const client = getClient(credentials);
   
   return (await Promise.all([
-    client.network.listSupportedNetworks({ networkType: "deploy" }),
+    client.network.listSupportedNetworks({ networkType: ["deploy"] }),
     client.network.listForkedNetworks(),
     client.network.listPrivateNetworks(),
   ])).flat();

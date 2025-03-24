@@ -13,7 +13,7 @@
   import { getContractFeatures, getConstructorInputs, encodeConstructorArgs, getContractBytecode, createArtifactPayload } from "$lib/utils/contracts";
 
   // Models
-  import { getNetworkLiteral, isProductionNetwork, type TenantNetworkResponse } from "$lib/models/network";
+  import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import type { ApprovalProcess, CreateApprovalProcessRequest} from "$lib/models/approval-process";
   import type { DeployContractRequest, UpdateDeploymentRequest } from "$lib/models/deploy";
   import type { APIResponse, HTMLInputElementEvent } from "$lib/models/ui";

@@ -22,12 +22,19 @@ export const listApiKeyPermissions = async (credentials: Credentials) => {
 
 export const listNetworks = async (credentials: Credentials) => {
   const client = getClient(credentials);
-  
-  return (await Promise.all([
-    client.network.listSupportedNetworks({ networkType: ["deploy"] }),
+
+  const [nativeNetworks, forkedNetworks, privateNetworks] = (await Promise.all([
+    client.network.listSupportedNetworks({ networkType: ["deploy"], includeDefinition: true }),
     client.network.listForkedNetworks(),
     client.network.listPrivateNetworks(),
-  ])).flat();
+  ]))
+
+  return [
+    nativeNetworks
+      .map((network) => ({...network, networkType: "native"} as const)),
+    forkedNetworks,
+    privateNetworks
+  ].flat()
 }
 
 export const listApprovalProcesses = async (credentials: Credentials) => {

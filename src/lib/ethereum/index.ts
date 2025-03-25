@@ -1,5 +1,5 @@
 import { type Eip1193Provider, BrowserProvider, ContractFactory } from 'ethers';
-import { chainIds, type TenantNetworkResponse } from "$lib/models/network";
+import { type NetworkResponse, type TenantNetworkResponse } from "$lib/models/network";
 import type { DeployContractResult } from '$lib/models/ethereum';
 import { log } from '$lib/remix/logger';
 
@@ -13,21 +13,20 @@ function getEthereum(): Eip1193Provider {
  * 
  * @param network target network to switch to.
  */
-export async function switchToNetwork(network: string | TenantNetworkResponse) {
-  const chainId = typeof network === 'string' ? chainIds[network] : network.chainId;
-  if (!chainId) throw new Error(`Invalid network: ${network}`);
+export async function switchToNetwork(network: NetworkResponse | TenantNetworkResponse) {
+  if (!network.chainId) throw new Error(`Invalid network: ${network}`);
 
   const ethereum = getEthereum();
 
   // ignore if user is already connected to target network.
   const current = await ethereum.request({ method: 'eth_chainId' });
-  if (parseInt(current, 16) === chainId) return;
+  if (parseInt(current, 16) === network.chainId) return;
 
   log("[Defender Deploy] Switching network...");
 
   await ethereum.request({
     method: 'wallet_switchEthereumChain',
-    params: [{ chainId: `0x${chainId.toString(16)}` }],
+    params: [{ chainId: `0x${network.chainId.toString(16)}` }],
   });
 };
 

@@ -6,7 +6,7 @@
   import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   import type { APIResponse, HTMLInputElementEvent } from "$lib/models/ui";
-  import { addNewApprovalProcessAndSelectExisting, findDeploymentEnvironment, globalState, setConstructorArgumentValues, setDeploymentCompleted, setDeterministicSalt, setRequiredConstructorArguments, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
+  import { addNewApprovalProcessAndSelectExisting, findDeploymentEnvironment, globalState, setConstructorArgumentValues, setDeploymentCompleted, setDeterministicSalt, setRequiredConstructorArguments } from "$lib/state/state.svelte";
   import { attempt } from "$lib/utils/attempt";
   import { encodeConstructorArgs, getConstructorInputsWizard, getContractBytecode } from "$lib/utils/contracts";
   import { debouncer, isMultisig, isUpgradeable } from "$lib/utils/helpers";
@@ -28,7 +28,7 @@
   let deploymentResult = $state<DeploymentResult | undefined>(undefined);
   let isCompiling = $state(false);
 
-  const hasSetUpBlockExplorerKeyForCurrentNetwork = $derived.by(() => globalState.blockExplorerKeys.some((key) => key.network === globalState.form.network));
+  const hasSetUpBlockExplorerKeyForCurrentNetwork = $derived.by(() => globalState.blockExplorerKeys.some((key) => key.network === globalState.form.network?.name));
 
   let deterministic = $derived.by(() => globalState.form.deterministic);
 

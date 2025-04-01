@@ -2,7 +2,7 @@ import type { CompilationFileSources, CompilationResult, SourceWithTarget } from
 import type { Relayer } from "./relayer";
 import type { ApiKeyCapability, Credentials } from "./auth";
 import type { ApprovalProcess, ApprovalProcessToCreate } from "./approval-process";
-import type { TenantNetworkResponse } from "./network";
+import type { NetworkResponse, TenantNetworkResponse } from "./network";
 import type { BlockExplorerKey } from "./block-explorer-key";
 
 export type DropdownItem<TValue = any> = {
@@ -20,7 +20,7 @@ export type GlobalState = {
   successMessage?: string;
   credentials: Credentials;
   permissions: ApiKeyCapability[];
-  networks: (string | TenantNetworkResponse)[];
+  networks: (NetworkResponse | TenantNetworkResponse)[];
   approvalProcesses: ApprovalProcess[];
   relayers: Relayer[];
   blockExplorerKeys: BlockExplorerKey[]
@@ -33,7 +33,7 @@ export type GlobalState = {
     groupNetworksBy?: 'superchain',
   }
   form: {
-    network?: string | TenantNetworkResponse;
+    network?: NetworkResponse | TenantNetworkResponse;
     approvalProcessSelected?: ApprovalProcess;
     approvalProcessToCreate?: ApprovalProcessToCreate;
     approvalType?: SelectedApprovalProcessType;

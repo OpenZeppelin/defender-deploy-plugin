@@ -1,29 +1,25 @@
 <script lang="ts">
   import {
-    chainDisplayNames,
-    chainIds,
+    getNetworkDisplayName,
     isProductionNetwork,
+    type NetworkResponse,
     type TenantNetworkResponse,
   } from "$lib/models/network";
   import type { DropdownItem } from "$lib/models/ui";
-  import { globalState, setApprovalProcessToCreate, setNetwork, setSelectedApprovalProcess, setSelectedApprovalProcessType, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
+  import { globalState, setApprovalProcessToCreate, setNetwork, setSelectedApprovalProcess, setSelectedApprovalProcessType } from "$lib/state/state.svelte";
   import { approvalProcessByNetworkAndComponent } from "../../models/approval-process";
   import Dropdown from "./shared/Dropdown.svelte";
   import SuperchainRegistry from "$lib/generated/superchainRegistryChainList.json";
 
   type Props = {
-    onSelected: (network: string | TenantNetworkResponse) => void;
+    onSelected: (network: NetworkResponse | TenantNetworkResponse) => void;
   };
   const { onSelected }: Props = $props();
 
   const superchainChainIds: number[] = SuperchainRegistry.map((chain) => chain.chainId);
 
-  function isSuperchainNetwork(network: string | TenantNetworkResponse) {
-    if (typeof network === "string") {
-      return superchainChainIds.includes(chainIds[network]);
-    } else {
-      return superchainChainIds.includes(network.chainId);
-    }
+  function isSuperchainNetwork(network: NetworkResponse | TenantNetworkResponse) {
+    return superchainChainIds.includes(network.chainId);
   }
 
   function formatGroupLabel(isProduction: boolean, isSuperchain: boolean, groupNetworksBy?: string) {
@@ -34,7 +30,7 @@
     return group;
   }
 
-  const getNetworkGroup = (network: string | TenantNetworkResponse) => {
+  const getNetworkGroup = (network: NetworkResponse | TenantNetworkResponse) => {
     const type = typeof network !== "string" ? network.networkType : undefined;
     if (type === 'fork') return 'Forked Networks';
     if (type === 'private') return 'Private Networks';
@@ -46,17 +42,16 @@
     );
   };
 
-  const networkToDropdownItem = (network: string | TenantNetworkResponse) => {
-    const n = typeof network === "string" ? network : network.name;
+  const networkToDropdownItem = (network: NetworkResponse | TenantNetworkResponse) => {
     return { 
-      label: chainDisplayNames[n] ?? n, 
+      label: getNetworkDisplayName(network), 
       value: network, 
       group: getNetworkGroup(network),
     };
   };
 
   // network selection logic
-  const onNetworkSelect = ({value: networkName}: DropdownItem<string | TenantNetworkResponse>) => {
+  const onNetworkSelect = ({value: networkName}: DropdownItem<NetworkResponse | TenantNetworkResponse>) => {
     setNetwork(networkName);
 
     setSelectedApprovalProcess(undefined);

@@ -2,18 +2,17 @@
   import { onDestroy } from "svelte";
 
   // Lib
-  import { updateSelectedApprovalProcessWithExisting, clearErrorBanner, globalState, setDeploymentCompleted, setErrorBanner } from "$lib/state/state.svelte";
+  import { updateSelectedApprovalProcessWithExisting, clearErrorBanner, globalState, setDeploymentCompleted, setErrorBanner, findDeploymentEnvironment } from "$lib/state/state.svelte";
   import { log, logError, logSuccess, logWarning } from "$lib/remix/logger";
   import { deployContract, switchToNetwork } from "$lib/ethereum";
   import { API } from "$lib/api";
 
   // Utils
   import { attempt } from "$lib/utils/attempt";
-  import { isDeploymentEnvironment, isSameNetwork } from "$lib/utils/helpers";
   import { getContractFeatures, getConstructorInputs, encodeConstructorArgs, getContractBytecode, createArtifactPayload } from "$lib/utils/contracts";
 
   // Models
-  import { getNetworkLiteral, isProductionNetwork, type TenantNetworkResponse } from "$lib/models/network";
+  import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import type { ApprovalProcess, CreateApprovalProcessRequest} from "$lib/models/approval-process";
   import type { DeployContractRequest, UpdateDeploymentRequest } from "$lib/models/deploy";
   import type { APIResponse, HTMLInputElementEvent } from "$lib/models/ui";
@@ -95,16 +94,7 @@
       );
     }
   });
-  
-  function findDeploymentEnvironment(via?: string, network?: string) {
-    if (!via || !network) return undefined;
-    return globalState.approvalProcesses.find((ap) => 
-      ap.network &&
-      isDeploymentEnvironment(ap) &&
-      isSameNetwork(ap.network, network) &&
-      ap.via?.toLocaleLowerCase() === via.toLocaleLowerCase()
-    );
-  }
+
 
   async function getOrCreateApprovalProcess(): Promise<ApprovalProcess | undefined> {
     const ap = globalState.form.approvalProcessToCreate;

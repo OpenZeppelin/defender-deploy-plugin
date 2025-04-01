@@ -1,4 +1,3 @@
-import type { TenantNetworkResponse } from "./network";
 import type { GlobalState } from "./ui";
 
 /**
@@ -9,7 +8,7 @@ export type ApprovalProcess = {
   createdAt: string;
   name: string;
   component?: ComponentType;
-  network?: string | TenantNetworkResponse;
+  network?: string;
   via?: string;
   viaType?: 'EOA' | 'Contract' | 'Multisig' | 'Gnosis Safe' | 'Safe' | 'Gnosis Multisig' | 'Relayer' | 'Relayer Group' | 'Unknown' | 'Relayer Group' | 'Timelock Controller' | 'ERC20' | 'Governor' | 'Fireblocks';
   multisigSender?: string;

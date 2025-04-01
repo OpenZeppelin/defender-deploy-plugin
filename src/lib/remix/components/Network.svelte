@@ -15,7 +15,7 @@
   const { onSelected }: Props = $props();
 
   const getNetworkGroup = (network: NetworkResponse | TenantNetworkResponse) => {
-    const type = network.networkType
+    const type = network.networkType;
 
     if (type === 'fork') return 'Forked Networks';
     if (type === 'private') return 'Private Networks';
@@ -33,18 +33,7 @@
     };
   };
 
-  // network selection logic
-  let network = $state<NetworkResponse | TenantNetworkResponse>({
-    name: "mainnet",
-    displayName: "Mainnet",
-    symbol: "ETH",
-    chainId: 1,
-    networkType: 'native',
-    isProduction: true
-  });
-
-  const onNetworkSelect = (item: DropdownItem) => {
-    network = item.value;
+  const onNetworkSelect = ({value: network}: DropdownItem) => {
     globalState.form.network = network;
 
     // Resets Approval process state.

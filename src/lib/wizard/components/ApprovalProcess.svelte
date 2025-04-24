@@ -54,7 +54,7 @@
 
   // Relayer selection logic
   const relayerByNetwork = (relayer: Relayer) =>
-    relayer.network === globalState.form.network;
+    relayer.network === globalState.form.network?.name;
   const relayerToDropdownItem = (relayer: Relayer) => ({
     label: `${relayer.name} (${abbreviateAddress(relayer.address)})`,
     value: relayer,

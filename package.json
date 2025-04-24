@@ -1,6 +1,6 @@
 {
 	"name": "defender-remix-plugin-sveltekit",
-	"version": "0.0.1",
+	"private": true,
 	"type": "module",
 	"scripts": {
 		"prepare": "node scripts/prepare.js",
@@ -23,16 +23,18 @@
 		"vite": "^5.0.3"
 	},
 	"dependencies": {
-		"@openzeppelin/defender-sdk": "^2.1.0",
+		"@openzeppelin/defender-sdk": "^2.5.0",
 		"@remixproject/plugin": "^0.3.38",
 		"@remixproject/plugin-api": "^0.3.38",
 		"@remixproject/plugin-iframe": "^0.3.38",
 		"@remixproject/plugin-utils": "^0.3.38",
 		"@sveltejs/adapter-netlify": "^4.3.6",
 		"bootstrap": "^5.3.3",
+		"dotenv": "^16.4.7",
 		"ethers": "^6.13.4",
 		"solc": "^0.8.28",
 		"file-saver": "^2.0.5",
 		"superchain-registry": "github:ethereum-optimism/superchain-registry"
-	}
+	},
+	"version": "0.0.1"
 }

@@ -1,9 +1,9 @@
 import type { ApprovalProcess, ApprovalProcessToCreate } from "$lib/models/approval-process";
 import type { GlobalState, SelectedApprovalProcessType } from "$lib/models/ui";
-import { isDeploymentEnvironment, isSameNetwork } from "$lib/utils/helpers";
+import { isDeploymentEnvironment } from "$lib/utils/helpers";
 import { getAddress } from "ethers";
 import { attempt } from "$lib/utils/attempt";
-import type { TenantNetworkResponse } from "../models/network";
+import type { NetworkResponse, TenantNetworkResponse } from "../models/network";
 
 
 /**
@@ -39,6 +39,9 @@ export const globalState = $state<GlobalState>({
 
   // Relayers list for approval process creation
   relayers: [],
+
+  // Block Explorer keys to display warning to user
+  blockExplorerKeys: [],
 
   contract: {
     // path of the contract
@@ -169,7 +172,7 @@ export const setApprovalProcessToCreate = (approvalProcessToCreate: ApprovalProc
 
 export const setSelectedApprovalProcessType = (approvalProcessType: SelectedApprovalProcessType) => globalState.form.approvalType = approvalProcessType;
 
-export const setNetwork = (networkName: string | TenantNetworkResponse) => globalState.form.network = networkName;
+export const setNetwork = (network: NetworkResponse | TenantNetworkResponse) => globalState.form.network = network;
 
 export function setDeploymentCompleted(completed: boolean) {
   globalState.form.completed = completed;
@@ -180,7 +183,7 @@ export function findDeploymentEnvironment(via?: string, network?: string) {
   return globalState.approvalProcesses.find((ap) => 
     ap.network &&
     isDeploymentEnvironment(ap) &&
-    isSameNetwork(ap.network, network) &&
+    (ap.network === network) &&
     ap.via?.toLocaleLowerCase() === via.toLocaleLowerCase()
   );
 }

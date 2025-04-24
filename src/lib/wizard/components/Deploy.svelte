@@ -6,7 +6,7 @@
   import { getNetworkLiteral, isProductionNetwork } from "$lib/models/network";
   import { buildCompilerInput, type ContractSources } from "$lib/models/solc";
   import type { APIResponse, HTMLInputElementEvent } from "$lib/models/ui";
-  import { addNewApprovalProcessAndSelectExisting, findDeploymentEnvironment, globalState, setConstructorArgumentValues, setDeploymentCompleted, setDeterministicSalt, setRequiredConstructorArguments, updateSelectedApprovalProcessWithExisting } from "$lib/state/state.svelte";
+  import { addNewApprovalProcessAndSelectExisting, findDeploymentEnvironment, globalState, setConstructorArgumentValues, setDeploymentCompleted, setDeterministicSalt, setRequiredConstructorArguments } from "$lib/state/state.svelte";
   import { attempt } from "$lib/utils/attempt";
   import { encodeConstructorArgs, getConstructorInputsWizard, getContractBytecode } from "$lib/utils/contracts";
   import { debouncer, isMultisig, isUpgradeable } from "$lib/utils/helpers";
@@ -27,6 +27,8 @@
   let deploymentId = $state<string | undefined>(undefined);
   let deploymentResult = $state<DeploymentResult | undefined>(undefined);
   let isCompiling = $state(false);
+
+  const hasSetUpBlockExplorerKeyForCurrentNetwork = $derived.by(() => globalState.blockExplorerKeys.some((key) => key.network === globalState.form.network?.name));
 
   let deterministic = $derived.by(() => globalState.form.deterministic);
 
@@ -415,8 +417,12 @@
     <div class="flex flex-row items-center gap-2">
       <i class={`fa fa-lightbulb-o text-lime-600`}></i>
       <div class="text-xs text-gray-600">
-        <p>Ensure you have an Explorer API Key set in your <u><a href='{deploymentEnvironmentUrlWithFallback}' target='_blank'>Deploy Environment</a></u> for the current network to allow the contract to be verified automatically.</p>
-        <p class="mt-2">Or download the <button type="button" onclick={downloadSolcInputHandler}><u>Solidity standard input JSON</u></button> for this contract to verify it manually on block explorers, using Solidity compiler version <code>{solcVersion}</code>.</p>
+        {#if !hasSetUpBlockExplorerKeyForCurrentNetwork}
+          <p>Ensure you have an Explorer API Key set in your <u><a href='{deploymentEnvironmentUrlWithFallback}' target='_blank'>Deploy Environment</a></u> for the current network to allow the contract to be verified automatically.</p>
+        {:else}
+          <p>The contract will be verified automatically on the block explorer for this network.</p>
+        {/if}
+        <p class="mt-2">Or you can download the <button type="button" onclick={downloadSolcInputHandler}><u>Solidity standard input JSON</u></button> for this contract to verify it manually on block explorers, using Solidity compiler version <code>{solcVersion}</code>.</p>
       </div>
     </div>
   </div>

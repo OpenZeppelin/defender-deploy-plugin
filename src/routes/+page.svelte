@@ -15,18 +15,22 @@
 			return;
 		}
 
-		const ancestorOrigin = document.location.ancestorOrigins[0];
+		const referrer = document.referrer; // Available through Wizard. Empty string through Remix.
+		const ancestorOrigins = document.location.ancestorOrigins; // undefined on Firefox
+
+		const parentUrl = ancestorOrigins?.[0] || referrer;
 
 		if (dev) {
 			// add desired behaviour for dev mode.
 		}
 
 		// in case we are developing locally, we want to use the wizard as the parent..
-		if (ancestorOrigin.includes("wizard") || ancestorOrigin.includes("localhost")) {
+		if (parentUrl.includes("wizard") || parentUrl.includes("localhost")) {
 			return parent = 'wizard';
 		}
 
-		if (ancestorOrigin.includes("remix.ethereum")) {
+		// Remix on Firefox leads to empty parentUrl due to ancestorOrigins and referrer being unavailable.
+		if (parentUrl.includes("remix.ethereum") || !parentUrl) {
 			return parent = 'remix';
 		}
 

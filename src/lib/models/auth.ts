@@ -1,6 +1,6 @@
 import type { ApprovalProcess } from "./approval-process";
 import type { BlockExplorerKey } from "./block-explorer-key";
-import type { TenantNetworkResponse } from "./network";
+import type { NetworkResponse, TenantNetworkResponse } from "./network";
 import type { Relayer } from "./relayer";
 
 /**
@@ -13,7 +13,7 @@ export type ApiKeyCapability = 'create-admin-proposals' | 'manage-relayers' | 'm
 export type AuthenticationResponse = { 
   credentials: Credentials, 
   permissions: ApiKeyCapability[],
-  networks: (string | TenantNetworkResponse)[], 
+  networks: (NetworkResponse | TenantNetworkResponse)[], 
   approvalProcesses: ApprovalProcess[], 
   relayers: Relayer[],
   blockExplorerKeys: BlockExplorerKey[]

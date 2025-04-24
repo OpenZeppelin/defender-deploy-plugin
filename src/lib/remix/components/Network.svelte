@@ -1,7 +1,8 @@
 <script lang="ts">
   import {
-    chainDisplayNames,
+    getNetworkDisplayName,
     isProductionNetwork,
+    type NetworkResponse,
     type TenantNetworkResponse,
   } from "$lib/models/network";
   import type { DropdownItem } from "$lib/models/ui";
@@ -9,12 +10,13 @@
   import Dropdown from "./shared/Dropdown.svelte";
 
   type Props = {
-    onSelected: (network: string) => void;
+    onSelected: (network: NetworkResponse | TenantNetworkResponse) => void;
   };
   const { onSelected }: Props = $props();
 
-  const getNetworkGroup = (network: string | TenantNetworkResponse) => {
-    const type = typeof network !== "string" ? network.networkType : undefined;
+  const getNetworkGroup = (network: NetworkResponse | TenantNetworkResponse) => {
+    const type = network.networkType;
+
     if (type === 'fork') return 'Forked Networks';
     if (type === 'private') return 'Private Networks';
 
@@ -22,19 +24,16 @@
     return isProduction ? 'Production Networks' : 'Test Networks';
   };
 
-  const networkToDropdownItem = (network: string | TenantNetworkResponse) => {
-    const n = typeof network === "string" ? network : network.name;
+  const networkToDropdownItem = (network: NetworkResponse | TenantNetworkResponse) => {
+ 
     return { 
-      label: chainDisplayNames[n] ?? n, 
+      label: getNetworkDisplayName(network), 
       value: network, 
       group: getNetworkGroup(network),
     };
   };
 
-  // network selection logic
-  let network = $state("");
-  const onNetworkSelect = (item: DropdownItem) => {
-    network = item.value;
+  const onNetworkSelect = ({value: network}: DropdownItem) => {
     globalState.form.network = network;
 
     // Resets Approval process state.

@@ -1,11 +1,25 @@
 import { type Eip1193Provider, BrowserProvider, ContractFactory } from 'ethers';
 import { type NetworkResponse, type TenantNetworkResponse } from "$lib/models/network";
 import type { DeployContractResult } from '$lib/models/ethereum';
-import { log } from '$lib/remix/logger';
 
 function getEthereum(): Eip1193Provider {
   if (!window.ethereum) throw new Error('Injected provider not found');
   return window.ethereum;
+}
+
+async function getCurrentWalletNetwork() {
+  const ethereum = getEthereum();
+
+  try {
+    return await ethereum.request({ method: 'eth_chainId' });
+  } catch (err) {
+    try {
+      const netVersion = await ethereum.request({ method: 'net_version' });
+      return `0x${parseInt(netVersion as string, 10).toString(16)}`;
+    } catch {
+      throw new Error(`Error switching network: ${(err as Error).message}`);
+    }
+  }
 }
 
 /**
@@ -18,16 +32,17 @@ export async function switchToNetwork(network: NetworkResponse | TenantNetworkRe
 
   const ethereum = getEthereum();
 
-  // ignore if user is already connected to target network.
-  const current = await ethereum.request({ method: 'eth_chainId' });
-  if (parseInt(current, 16) === network.chainId) return;
+  const currentChainIdHex = await getCurrentWalletNetwork()
+  if (parseInt(currentChainIdHex, 16) === network.chainId) return;
 
-  log("[Defender Deploy] Switching network...");
-
-  await ethereum.request({
+  try {
+    await ethereum.request({
     method: 'wallet_switchEthereumChain',
     params: [{ chainId: `0x${network.chainId.toString(16)}` }],
   });
+  } catch {
+    throw new Error(`Could not automatically switch to ${network.name}, please ensure tha appropriate network is selected on your wallet (multiple wallet extensions can also prevent proper deployment with injected provider)`)
+  }
 };
 
 /**
